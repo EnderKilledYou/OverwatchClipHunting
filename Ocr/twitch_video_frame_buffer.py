@@ -34,7 +34,10 @@ class TwitchVideoFrameBuffer(VideoFrameBuffer):
     def buffer_twitch_broadcast(self, broadcaster: str):
 
         streams = streamlink.streams('https://www.twitch.tv/{0}'.format(broadcaster))
+
         url = streams['best'].url
+        if '720p60'  in streams:
+            url = streams['720p60'].url
         # print(streams)
         cap = cv2.VideoCapture(url)
 

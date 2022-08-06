@@ -6,7 +6,7 @@ broadcaster = ""
 access_token=''
 refresh_token=''
 flask_secret_key = ''
-max_frames_to_scan_per_second = 8
+max_frames_to_scan_per_second = 16
 make_clips = False  # Set to false for just watch mode
 
 
