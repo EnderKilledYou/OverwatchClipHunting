@@ -69,3 +69,6 @@ and a [Ocr/screen_reader.py](ScreenReader) like  [Ocr/overwatch_screen_reader.py
 
 and a [Ocr/frame_tester.py](FrameTester)  
 
+## Cli
+
+While it's running, type `quit` to shut down gracefully

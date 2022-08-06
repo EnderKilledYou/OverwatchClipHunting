@@ -1,6 +1,6 @@
+import ctypes
 import sys
 
-import select
 import threading
 from time import sleep
 
@@ -10,6 +10,7 @@ from Ocr.overwatch_screen_reader import OverwatchScreenReader
 from Ocr.twitch_video_frame_buffer import TwitchVideoFrameBuffer
 from config.config import broadcaster, max_frames_to_scan_per_second
 from overwatch_events import overwatch_event
+from thread_with_id import ThreadWithId
 
 
 def start_monitor():
@@ -43,20 +44,28 @@ stdInQueue = Queue()
 
 def input_reader(matcher: OverwatchScreenReader, ocr: TwitchVideoFrameBuffer):
     while matcher.Active and ocr.Active:
-        stdInQueue.put(sys.stdin.readline().strip())
+        item = sys.stdin.readline().strip()
+        if item == "quit":
+            matcher.Active = False
+            ocr.Active = False
+            break
+        stdInQueue.put(item)
 
 
 def input_control(matcher: OverwatchScreenReader, ocr: TwitchVideoFrameBuffer):
-    input_thread = threading.Thread(target=input_reader, args=[matcher, ocr])
+    input_thread = ThreadWithId(target=input_reader, args=[matcher, ocr])
     input_thread.start()
     while matcher.Active and ocr.Active:
         try:
-            input = stdInQueue.get(True, 5)
-            if input == "quit":
-                matcher.Active = False
-                ocr.Active = False
-                break
+            item = stdInQueue.get(True, 5)
+            # process command here later
+            # if item == watch some other stream
         except Empty as e:
             pass
+        except BaseException as b:
+            print(b)
+            import traceback
+            traceback.print_exc()
         print("Total buffered: " + str(ocr.buffer.qsize()))
+
     input_thread.join()
