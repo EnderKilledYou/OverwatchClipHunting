@@ -1,3 +1,4 @@
 twitch.sqlite3
 config/config.py
 venv/
+.idea/

@@ -55,3 +55,5 @@ You can just start the beasty by running `python monitor_streamer.py`
 
 You can just start the beasty and overwrite the config's broadcaster by running `python monitor_streamer.py someone`
 
+
+Check out [overwatch_events.py]([overwatch_events.py]) to customize events
