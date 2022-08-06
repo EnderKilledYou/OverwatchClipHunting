@@ -1,9 +1,11 @@
 # Clip Hunter
 ## Download specific events from streams. 
 
-How to run
+
+**First, install** 
 
 `pip install -r Requirements.txt`
+
 
 
 ## Edit configs
@@ -46,7 +48,7 @@ Get the access_token and refresh_token.
 ![image_flask.png](image_flask.png)
 
 
-Now you're ready to clip hunt!
+**Now you're ready to clip hunt!**
 
 
 You can just start the beasty by running `python monitor_streamer.py`
@@ -66,3 +68,4 @@ Implement a [Ocr/screen_region.py](ScreenRegion) like  [Ocr/overwatch_action_scr
 and a [Ocr/screen_reader.py](ScreenReader) like  [Ocr/overwatch_screen_reader.py](OverewatchScreenReader)
 
 and a [Ocr/frame_tester.py](FrameTester)  
+
