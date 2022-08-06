@@ -63,11 +63,11 @@ Check out [overwatch_events.py](overwatch_events.py) to customize events
 
 ## Add Other games
 
-Implement a [Ocr/screen_region.py](ScreenRegion) like  [Ocr/overwatch_action_screen_region.py](OverwatchActionScreenRegion)
+Implement a [ScreenRegion](Ocr/screen_region.py) like  [OverwatchActionScreenRegion](Ocr/overwatch_action_screen_region.py)
 
-and a [Ocr/screen_reader.py](ScreenReader) like  [Ocr/overwatch_screen_reader.py](OverewatchScreenReader)
+and a [ScreenReader](Ocr/screen_reader.py) like  [OverewatchScreenReader](Ocr/overwatch_screen_reader.py)
 
-and a [Ocr/frame_tester.py](FrameTester)  
+and a [FrameTester](Ocr/frame_tester.py)  
 
 ## Cli
 
