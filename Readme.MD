@@ -69,6 +69,14 @@ and a [ScreenReader](Ocr/screen_reader.py) like  [OverewatchScreenReader](Ocr/ov
 
 and a [FrameTester](Ocr/frame_tester.py)  
 
+another example of [ScreenRegion](Ocr/screen_region.py) is [OverwatchActionScreenRegion](Ocr/overwatch_searching_for_game_screen_region.py)
+
+Screen regions are the part of the iamge you want to look at.
+
+Screen readers act on them
+
+
+
 ## Cli
 
 While it's running, type `quit` to shut down gracefully
