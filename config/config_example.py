@@ -2,7 +2,7 @@ import sys
 
 consumer_key = ""
 consumer_secret = ""
-broadcaster = ""
+broadcasters = []
 access_token=''
 refresh_token=''
 flask_secret_key = ''
@@ -13,6 +13,3 @@ min_elims = 99
 min_blocking_duration = 99
 min_defense_duration = 99
 min_assist_duration = 99
-
-if len(sys.argv) > 1:
-    broadcaster = sys.argv[1]

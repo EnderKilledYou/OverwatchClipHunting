@@ -17,11 +17,17 @@ change config/config_example.p to config/config.py
 
 consumer_key = "" # From Twitch
 consumer_secret = "" # F rom Twitch
-broadcaster = "" 
+broadcasters = ['a','b','c'] 
 access_token = '' # From Flask
 refresh_token = '' # From Flask
 flask_secret_key = '' # Type random shit here
-
+max_frames_to_scan_per_second = 16 # more for more acc (16 is REALLY good almost too good) less for more speed. 4 is min.
+make_clips = False  # Set to false for just watch mode, won't talk to twitch api or bug you about it
+min_healing_duration = 99  # set stupid high to ignore, or like 4-9 to catch good clips
+min_elims = 99 # set stupid high to ignore, or like 2 to catch good clips
+min_blocking_duration = 99 # set stupid high to ignore, or like 4-9 to catch good clips
+min_defense_duration = 99 # set stupid high to ignore, or like 4-9 to catch good clips
+min_assist_duration = 99 # set stupid high to ignore, or like 4-9 to catch good clips
 ```
 
 ## Create a twitch app
