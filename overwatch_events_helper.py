@@ -23,6 +23,6 @@ def can_clip(frame):
 
 def get_last_clip_time_distance(frame):
     if not frame.source_name in last_clip_time:
-        last_clip_time[frame.source_name] = 0
+        last_clip_time[frame.source_name] = -30
     last_clip_distance = frame.ts_second - last_clip_time[frame.source_name]
     return last_clip_distance
