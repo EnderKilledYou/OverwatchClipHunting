@@ -11,18 +11,19 @@ def create_clip(frame: Frame):
     return created
 
 
-def can_clip(frame):
+def can_clip(frame, type: str):
     if not make_clips:
         return False
-    last_clip_distance = get_last_clip_time_distance(frame)
+    last_clip_distance = get_last_clip_time_distance(frame, type)
     if last_clip_distance < 30:
-        print("Creating clips too soon " + str(last_clip_distance))
+        print("Creating clips too soon " + type + " "+ str(last_clip_distance))
         return False
     return True
 
 
-def get_last_clip_time_distance(frame):
-    if not frame.source_name in last_clip_time:
-        last_clip_time[frame.source_name] = -30
-    last_clip_distance = frame.ts_second - last_clip_time[frame.source_name]
+def get_last_clip_time_distance(frame: Frame, type: str):
+    index = type + "_" + frame.source_name
+    if not index in last_clip_time:
+        last_clip_time[index] = -30
+    last_clip_distance = frame.ts_second - last_clip_time[index]
     return last_clip_distance

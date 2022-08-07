@@ -4,5 +4,3 @@ def if_healing(text: str):
 
     return HEALED.search(text)
 
-
-

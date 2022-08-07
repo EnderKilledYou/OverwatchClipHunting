@@ -14,17 +14,20 @@ class OverwatchSearchingForGameScreenRegion(ScreenRegion):
         text = image_to_string(top)
         text_stripped = text.strip()
         if len(text_stripped) == 0:
-            return RegionResult(False, text,'nothing')
+            return
         if frame_tester.is_in_queue(text):
             frame_watcher.set_in_queue(frame)
-            return RegionResult(True, text,'in_queue')
+            return
+            #return RegionResult(True, text,'in_queue')
         if frame_tester.is_in_prepare_attack(text):
             frame_watcher.set_in_prepare(frame, 'attack')
-            return RegionResult(True, text,'prepare_attack')
+            return
+            #return RegionResult(True, text,'prepare_attack')
         if frame_tester.is_in_prepare_defense(text):
             frame_watcher.set_in_prepare(frame, 'defense')
-            return RegionResult(True, text,'prepare_defense')
-        return RegionResult(False, text,'nothing')
+            return
+            #return RegionResult(True, text,'prepare_defense')
+        return #RegionResult(False, text,'nothing')
 
     def crop(self, img):
         right = img.width - (img.width * .35)

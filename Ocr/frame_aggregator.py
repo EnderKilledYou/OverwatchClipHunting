@@ -13,7 +13,9 @@ class FrameAggregator:
     last_healing_frame: int = -1
     last_prepare_frame: int = -1
     last_prepare_frame: int = -1
+    last_slept_frame: int = 1
     healing_streak: int = 0
+
     defense_streak: int = 0
     last_defense_frame: int = -1
     assist_streak: int = 0
@@ -113,6 +115,16 @@ class FrameAggregator:
         if self.in_queue:
             self.emitter.emit('game_start', frame)
             self.in_queue = False
+    def add_slepting_frame(self, frame):
+        if self.too_soon_after_death('slept', frame):
+            return
+        slept_frame_distance = frame.ts_second - self.last_slept_frame
+        if self.last_slept_frame != -1 and slept_frame_distance < 1:
+            return
+
+        print("Hero {1} slepted at {0}   ".format(str(frame.ts_second), frame.source_name))
+        self.emitter.emit('slept', frame)
+        self.last_slept_frame = frame.ts_second
 
     def add_healing_frame(self, frame):
         if self.too_soon_after_death('heal', frame):

@@ -4,6 +4,7 @@ from overwatch_matchers.elimination_matcher import if_got_elim
 from overwatch_matchers.elimination_counter import count_elim_on_frame
 from overwatch_matchers.healing_matcher import if_healing
 from overwatch_matchers.prepare_matcher import if_prepare_attack, if_prepare_defense
+from overwatch_matchers.slept_matches import if_slept
 from overwatch_matchers.spawn_room_matcher import if_in_hero_room, if_in_queue
 
 
@@ -91,6 +92,13 @@ class FrameTester:
         :return: if the condition matches
         """
         return if_healing(text)
+    def is_slept_frame(self, text) -> bool:
+        """
+
+        :param text: The frame text to check for the heal condition
+        :return: if the condition matches
+        """
+        return if_slept(text)
     def is_assist_frame(self, text) -> bool:
         """
 

@@ -19,9 +19,10 @@ class OverwatchActionScreenRegion(ScreenRegion):
         text = image_to_string(img_crop).strip()  # , lang='eng')
 
         if len(text) < 4:
+            frame.empty = True
             return
         if frame_tester.is_first_menu_frame(text):
-            pass #later
+            return  # later
 
         if frame_tester.is_elimed_frame(text):
             frame_watcher.add_elimed_frame(frame)
@@ -32,6 +33,8 @@ class OverwatchActionScreenRegion(ScreenRegion):
 
         if frame_tester.is_heal_frame(text):
             frame_watcher.add_healing_frame(frame)
+        if frame_tester.is_slept_frame(text):
+            frame_watcher.add_slepting_frame(frame)
 
         if frame_tester.is_assist_frame(text):
             frame_watcher.add_assist_frame(frame)

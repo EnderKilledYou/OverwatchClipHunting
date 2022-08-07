@@ -85,6 +85,15 @@ class OrderedFrameAggregator(FrameAggregator):
             raise
         finally:
             self.lock.release()
+    def add_slepting_frame(self, frame):
+        self.lock.acquire()
+        try:
+            super().add_slepting_frame(frame)
+        except BaseException as be:
+            raise
+        finally:
+            self.lock.release()
+
 
     def set_in_queue(self, frame):
         self.lock.acquire()

@@ -22,15 +22,20 @@ class OverwatchScreenReader(ScreenReader):
         self.frame_watcher = frame_watcher
 
     def ocr(self, frame: Frame) -> None:
-
+        if self.skip_frames > 0:
+            self.skip_frames = self.skip_frames - 1
+            return
         try:
             img_grey = cv.cvtColor(frame.image, cv.COLOR_RGB2GRAY)
             pil_grey = Image.fromarray(img_grey)
             # fromarray = Image.fromarray(frame.image)
             self.ActionTextCropper.process(pil_grey, frame, self.frame_watcher,
                                            self.frame_tester, self.Show)
-
-
+            if frame.empty and frame.ts_second % 10 ==0:
+                self.GameSearchCropper.process(pil_grey, frame, self.frame_watcher,
+                                           self.frame_tester, self.Show)
+                if self.frame_watcher.in_queue:
+                    self.skip_frames +=100
 
         except Exception as e:
             print(e)

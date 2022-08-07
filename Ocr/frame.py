@@ -18,3 +18,4 @@ class Frame:
         self.ts_second = ts_second
         self.source_name = source_name
         self.text = ''
+        self.empty = False
