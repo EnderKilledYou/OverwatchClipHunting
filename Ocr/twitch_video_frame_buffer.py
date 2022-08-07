@@ -1,3 +1,4 @@
+import time
 import traceback
 import cv2
 import cv2 as cv
@@ -5,6 +6,7 @@ import streamlink
 
 from Ocr.frame import Frame
 from Ocr.video_frame_buffer import VideoFrameBuffer
+from config.config import wait_for_mode
 
 
 class TwitchVideoFrameBuffer(VideoFrameBuffer):
@@ -30,7 +32,12 @@ class TwitchVideoFrameBuffer(VideoFrameBuffer):
                 continue
             self.buffer.put(Frame(frame_number, frame, frame_number // fps,self.frame_streamer_name))
         self.Capturing= False
-
+    def watch_streamer(self,broadcaster:str):
+        if not wait_for_mode:
+            return self.buffer_twitch_broadcast(broadcaster)
+        while self.Active:
+            self.buffer_twitch_broadcast(broadcaster)
+            time.sleep(60 * 5)
     def buffer_twitch_broadcast(self, broadcaster: str):
 
         streams = streamlink.streams('https://www.twitch.tv/{0}'.format(broadcaster))
@@ -41,7 +48,7 @@ class TwitchVideoFrameBuffer(VideoFrameBuffer):
         url = streams['best'].url
         if '720p60'  in streams:
             url = streams['720p60'].url
-        # print(streams)
+
         cap = cv2.VideoCapture(url)
 
         if not cap:

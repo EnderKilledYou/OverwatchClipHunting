@@ -18,7 +18,7 @@ def start_monitor(broadcaster, start_control=True):
     ocr.frame_streamer_name = broadcaster
     agg = OrderedFrameAggregator(overwatch_event)
     matcher = OverwatchScreenReader(ocr, agg)
-    producer_thread = threading.Thread(target=ocr.buffer_twitch_broadcast, args=[broadcaster])
+    producer_thread = threading.Thread(target=ocr.watch_streamer, args=[broadcaster])
     matcher.show = True
     consumer_threads = []
     for i in range(0, 4):
