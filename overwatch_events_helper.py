@@ -2,7 +2,7 @@ from Ocr.frame import Frame
 from config.config import make_clips
 from twitch_helpers import get_broadcaster_id, get_twitch_api
 
-last_clip_time = -90
+last_clip_time = 0
 
 
 def create_clip(frame: Frame):
