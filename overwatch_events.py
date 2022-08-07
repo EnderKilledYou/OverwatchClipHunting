@@ -1,9 +1,9 @@
 from pyee.base import EventEmitter
 
-import overwatch_events_helper
 from Ocr.frame import Frame
+from config.config import min_healing_duration, min_elims, min_assist_duration, min_defense_duration, \
+    min_blocking_duration
 from overwatch_events_helper import create_clip, can_clip
-from twitch_helpers import get_twitch_api, get_broadcaster_id
 
 overwatch_event = EventEmitter()
 
@@ -11,12 +11,12 @@ overwatch_event = EventEmitter()
 @overwatch_event.on('elim')
 def on_elim_event(frame: Frame, count: int, duration: int, last_death):
     print("{4} Kill count: {0} seconds in: {1} last death: {2} , Duration: {3}  ".format(count, str(frame.ts_second),
-                                                                                     last_death,
-                                                                                     duration,frame.source_name))
+                                                                                         last_death,
+                                                                                         duration, frame.source_name))
     if not can_clip(frame):
         return
 
-    if count == 2:
+    if count == min_elims:
         created = create_clip(frame)
         last_clip_time = frame.ts_second
         print(created)
@@ -39,6 +39,8 @@ def on_healing_event(frame: Frame, duration: int):
     print("Streamer " + frame.source_name + " healing " + str(duration))
     if not can_clip(frame):
         return
+    if duration < min_healing_duration:
+        return
     created = create_clip(frame)
     print(created)
 
@@ -47,6 +49,8 @@ def on_healing_event(frame: Frame, duration: int):
 def on_assist_event(frame: Frame, duration: int):
     print("Streamer " + frame.source_name + " assist " + str(duration))
     if not can_clip(frame):
+        return
+    if duration < min_assist_duration:
         return
     created = create_clip(frame)
     # print(created)
@@ -57,6 +61,8 @@ def on_defense_event(frame: Frame, duration: int):
     print("Streamer " + frame.source_name + " defense " + str(duration))
     if not can_clip(frame):
         return
+    if duration < min_defense_duration:
+        return
     created = create_clip(frame)
     # print(created)
 
@@ -66,6 +72,7 @@ def on_orbed_event(frame: Frame):
     print("Streamer " + frame.source_name + " orbed")
     if not can_clip(frame):
         return
+
     created = create_clip(frame)
     # print(created)
 
@@ -74,6 +81,8 @@ def on_orbed_event(frame: Frame):
 def on_blocking_event(frame: Frame, duration: int):
     print("Streamer " + frame.source_name + " blocking " + str(duration))
     if not can_clip(frame):
+        return
+    if duration < min_blocking_duration:
         return
     # created = create_clip(frame)
     # print(created)

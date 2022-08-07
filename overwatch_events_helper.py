@@ -7,7 +7,7 @@ last_clip_time = -90
 
 def create_clip(frame: Frame):
     global last_clip_time
-    created = get_twitch_api().create_clip(get_broadcaster_id())
+    created = get_twitch_api().create_clip(get_broadcaster_id(frame.source_name))
     last_clip_time = frame.ts_second
     return created
 

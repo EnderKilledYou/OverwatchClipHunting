@@ -2,7 +2,7 @@ import sys
 
 from twitchAPI import Twitch, AuthScope
 
-from config.config import consumer_key, consumer_secret, access_token, refresh_token, broadcaster, make_clips
+from config.config import consumer_key, consumer_secret, access_token, refresh_token
 
 user_id = None
 twitch_api = None
@@ -24,16 +24,12 @@ def get_twitch_api():
     return twitch
 
 
-def get_broadcaster_id():
-    global user_id
-    if not make_clips:
-        return False
-    if user_id is not None:
-        return user_id
+def get_broadcaster_id(broadcaster:str):
+
     twitch = get_twitch_api()
     try:
         user = twitch.get_users(logins=[broadcaster])["data"][0]
-        user_id = user['id']
+
         return user['id']
     except BaseException as e:
         print(

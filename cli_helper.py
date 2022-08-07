@@ -1,11 +1,11 @@
-import ctypes
-import sys
 
+import sys
+from config.config import broadcasters
 import threading
-from time import sleep
+
 
 from queue import Queue, Empty
-from typing import Optional, Any
+
 
 from Ocr.ordered_frame_aggregator import OrderedFrameAggregator
 from Ocr.overwatch_screen_reader import OverwatchScreenReader
@@ -92,6 +92,9 @@ def input_control(matcher: OverwatchScreenReader, ocr: TwitchVideoFrameBuffer):
     input_thread = ThreadWithId(target=input_reader, args=[matcher, ocr])
     input_thread.start()
     showBuffered = False
+    for stream in broadcasters[1:]:
+        (m2, o2, consumers, producer) = start_monitor(stream, start_control=False)
+        matchers.put((m2, o2, consumers, producer))
     while matcher.Active and ocr.Active:
         item: str = get_next()
         if item is None:
