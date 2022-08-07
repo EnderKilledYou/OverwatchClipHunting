@@ -16,6 +16,22 @@ class OrderedFrameAggregator(FrameAggregator):
         finally:
             self.lock.release()
 
+    def add_assist_frame(self, frame):
+        self.lock.acquire()
+        try:
+            super().add_assist_frame(frame)
+        except BaseException as be:
+            raise
+        finally:
+            self.lock.release()
+    def add_defense_frame(self, frame):
+        self.lock.acquire()
+        try:
+            super().add_defense_frame(frame)
+        except BaseException as be:
+            raise
+        finally:
+            self.lock.release()
     def add_elim_frame(self, frame: Frame, elimination_appears_times: int):
         self.lock.acquire()
         try:
@@ -64,7 +80,7 @@ class OrderedFrameAggregator(FrameAggregator):
     def add_healing_frame(self, frame):
         self.lock.acquire()
         try:
-            super().set_in_prepare(frame)
+            super().add_healing_frame(frame)
         except BaseException as be:
             raise
         finally:

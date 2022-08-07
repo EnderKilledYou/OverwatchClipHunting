@@ -1,7 +1,8 @@
+from overwatch_matchers.assist_matcher import if_assist
 from overwatch_matchers.eliminated_matcher import if_got_elimed, if_menu, if_objective_defense, if_orb_gain, if_blocking
 from overwatch_matchers.elimination_matcher import if_got_elim
 from overwatch_matchers.elimination_counter import count_elim_on_frame
-from overwatch_matchers.healing_matcher import if_healed
+from overwatch_matchers.healing_matcher import if_healing
 from overwatch_matchers.prepare_matcher import if_prepare_attack, if_prepare_defense
 from overwatch_matchers.spawn_room_matcher import if_in_hero_room, if_in_queue
 
@@ -89,8 +90,14 @@ class FrameTester:
         :param text: The frame text to check for the heal condition
         :return: if the condition matches
         """
-        return if_healed(text)
+        return if_healing(text)
+    def is_assist_frame(self, text) -> bool:
+        """
 
+        :param text: The frame text to check for the heal condition
+        :return: if the condition matches
+        """
+        return if_assist(text)
     def count_elim_frame(self, text) -> int:
         """
 

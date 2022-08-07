@@ -1,6 +1,7 @@
 import re
-HEALED = re.compile('HEALED',re.IGNORECASE)
-def if_healed(text: str):
+HEALED = re.compile('HEALING',re.IGNORECASE)
+def if_healing(text: str):
+
     return HEALED.search(text)
 
 

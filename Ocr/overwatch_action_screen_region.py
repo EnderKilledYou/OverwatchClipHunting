@@ -18,42 +18,35 @@ class OverwatchActionScreenRegion(ScreenRegion):
         img_crop = self.crop(pil)
         text = image_to_string(img_crop).strip()  # , lang='eng')
 
-
         if len(text) < 4:
-            return# RegionResult(False, text, 'nothing')
+            return
         if frame_tester.is_first_menu_frame(text):
-            return# RegionResult(True, text, 'menu_1')
+            pass #later
+
         if frame_tester.is_elimed_frame(text):
             frame_watcher.add_elimed_frame(frame)
-            return# RegionResult(True, text, 'elimed')
 
         if frame_tester.is_elim_frame(text):
             count = frame_tester.count_elim_frame(text)
             frame_watcher.add_elim_frame(frame, count)
-            return# RegionResult(True, text, 'elim')
-
-        if frame_tester.is_blocking(text):
-            return# RegionResult(True, text, 'blocking')
 
         if frame_tester.is_heal_frame(text):
             frame_watcher.add_healing_frame(frame)
-            return# RegionResult(True, text, 'heal')
+
+        if frame_tester.is_assist_frame(text):
+            frame_watcher.add_assist_frame(frame)
+
+        if frame_tester.is_blocking(text):
+            frame_watcher.add_blocking_frame(frame)
 
         if frame_tester.is_orb_gained(text):
-            # frame_watcher.add_healing_frame(frame)
-            return# RegionResult(True, text, 'orb')
+            frame_watcher.add_orb_gained_frame(frame)
 
         if frame_tester.is_defense(text):
-            # frame_watcher.add_healing_frame(frame)
-            return# RegionResult(True, text, 'defense')
+            frame_watcher.add_defense_frame(frame)
 
         if frame_tester.is_spawn_room_frame(text):
             frame_watcher.add_spawn_room_frame(frame)
-            return# RegionResult(True, text, 'spawn_room')
-
-
-
-        return# RegionResult(False, text, 'nothing')
 
     def crop(self, img):
         right = img.width - (img.width * .25)

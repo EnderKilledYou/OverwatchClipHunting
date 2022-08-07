@@ -55,17 +55,24 @@ def input_reader(matcher: OverwatchScreenReader, ocr: TwitchVideoFrameBuffer):
 def input_control(matcher: OverwatchScreenReader, ocr: TwitchVideoFrameBuffer):
     input_thread = ThreadWithId(target=input_reader, args=[matcher, ocr])
     input_thread.start()
+    showBuffered = False
     while matcher.Active and ocr.Active:
         try:
             item = stdInQueue.get(True, 5)
             # process command here later
             # if item == watch some other stream
+            if item == 'show stats':
+                showBuffered = True
+            if item == 'hide stats':
+                showBuffered = False
         except Empty as e:
             pass
         except BaseException as b:
             print(b)
             import traceback
             traceback.print_exc()
-        print("Total buffered: " + str(ocr.buffer.qsize()))
+        qsize = ocr.buffer.qsize()
+        if showBuffered:
+            print("Total buffered: " + str(qsize))
 
     input_thread.join()
