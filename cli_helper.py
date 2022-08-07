@@ -77,6 +77,7 @@ def input_control(matcher: OverwatchScreenReader, ocr: TwitchVideoFrameBuffer):
         if showBuffered or qsize > 300:
             if qsize > 300:
                 print("warning buffer is getting back logged! live streaming clips may be misaligned! ")
-            print("Total buffered: " + str(qsize))
+            seconds = qsize / max_frames_to_scan_per_second
+            print("Total buffered: " + str(qsize) + " in seconds: " + str(seconds))
 
     input_thread.join()
