@@ -79,6 +79,8 @@ class FrameAggregator:
 
     def too_soon_after_death(self, event_name, frame):
         time_since_last_death = frame.ts_second - self.last_death_frame
+        if time_since_last_death < 0:
+            time_since_last_death = 0
         if self.last_death_frame != -1 and time_since_last_death < 9:
             print(
                 "Skipping {3} {2} at {0}, seconds since last death: {1}  ".format(str(frame.ts_second),
