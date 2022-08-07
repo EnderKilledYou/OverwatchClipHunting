@@ -22,6 +22,7 @@ class OverwatchActionScreenRegion(ScreenRegion):
             frame.empty = True
             return
         if frame_tester.is_first_menu_frame(text):
+            frame.empty = True
             return  # later
 
         if frame_tester.is_elimed_frame(text):
@@ -50,6 +51,7 @@ class OverwatchActionScreenRegion(ScreenRegion):
 
         if frame_tester.is_spawn_room_frame(text):
             frame_watcher.add_spawn_room_frame(frame)
+        frame.empty = True
 
     def crop(self, img):
         right = img.width - (img.width * .25)

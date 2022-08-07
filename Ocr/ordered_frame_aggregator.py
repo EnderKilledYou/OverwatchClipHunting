@@ -98,7 +98,7 @@ class OrderedFrameAggregator(FrameAggregator):
     def set_in_queue(self, frame):
         self.lock.acquire()
         try:
-            super().set_in_prepare(frame)
+            super().set_in_queue(frame)
         except BaseException as be:
             raise
         finally:

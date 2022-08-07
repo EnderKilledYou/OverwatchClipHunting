@@ -119,7 +119,7 @@ class FrameAggregator:
         if self.too_soon_after_death('slept', frame):
             return
         slept_frame_distance = frame.ts_second - self.last_slept_frame
-        if self.last_slept_frame != -1 and slept_frame_distance < 1:
+        if self.last_slept_frame != -1 and slept_frame_distance < 4:
             return
 
         print("Hero {1} slepted at {0}   ".format(str(frame.ts_second), frame.source_name))
@@ -167,6 +167,7 @@ class FrameAggregator:
     def set_in_queue(self, frame):
         if self.in_queue:
             return
+        print("{1} in queue at {0}   ".format(str(frame.ts_second), frame.source_name))
         self.emitter.emit('queue_start', frame)
         self.in_queue = True
 

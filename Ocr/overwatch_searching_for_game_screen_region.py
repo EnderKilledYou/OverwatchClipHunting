@@ -19,13 +19,13 @@ class OverwatchSearchingForGameScreenRegion(ScreenRegion):
             frame_watcher.set_in_queue(frame)
             return
             #return RegionResult(True, text,'in_queue')
-        if frame_tester.is_in_prepare_attack(text):
-            frame_watcher.set_in_prepare(frame, 'attack')
-            return
-            #return RegionResult(True, text,'prepare_attack')
-        if frame_tester.is_in_prepare_defense(text):
-            frame_watcher.set_in_prepare(frame, 'defense')
-            return
+        # if frame_tester.is_in_prepare_attack(text):
+        #     frame_watcher.set_in_prepare(frame, 'attack')
+        #     return
+        #     #return RegionResult(True, text,'prepare_attack')
+        # if frame_tester.is_in_prepare_defense(text):
+        #     frame_watcher.set_in_prepare(frame, 'defense')
+        #     return
             #return RegionResult(True, text,'prepare_defense')
         return #RegionResult(False, text,'nothing')
 

@@ -14,7 +14,7 @@ class OverwatchScreenReader(ScreenReader):
     def __init__(self, framebuffer: VideoFrameBuffer, frame_watcher: FrameAggregator):
         super(OverwatchScreenReader, self).__init__(framebuffer)
         self.skip_frames = 0
-        self.last_action = 0
+        self.last_queue_check = 0
         self.frame_tester = FrameTester()
         self.Show = False
         self.ActionTextCropper = OverwatchActionScreenRegion()
@@ -31,11 +31,13 @@ class OverwatchScreenReader(ScreenReader):
             # fromarray = Image.fromarray(frame.image)
             self.ActionTextCropper.process(pil_grey, frame, self.frame_watcher,
                                            self.frame_tester, self.Show)
-            if frame.empty and frame.ts_second % 10 ==0:
+            if frame.empty and (self.last_queue_check != frame.ts_second and frame.ts_second % 30 == 0):
+                self.last_queue_check = frame.ts_second
                 self.GameSearchCropper.process(pil_grey, frame, self.frame_watcher,
-                                           self.frame_tester, self.Show)
+                                               self.frame_tester, self.Show)
                 if self.frame_watcher.in_queue:
-                    self.skip_frames +=100
+                    print("In queue " + frame.source_name)
+                    self.skip_frames += 100
 
         except Exception as e:
             print(e)

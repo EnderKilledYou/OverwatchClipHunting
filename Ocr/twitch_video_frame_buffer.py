@@ -36,6 +36,7 @@ class TwitchVideoFrameBuffer(VideoFrameBuffer):
         if not wait_for_mode:
             return self.buffer_twitch_broadcast(broadcaster)
         while self.Active:
+            print("checking for " + broadcaster)
             self.buffer_twitch_broadcast(broadcaster)
             time.sleep(60 * 5)
     def buffer_twitch_broadcast(self, broadcaster: str):

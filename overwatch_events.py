@@ -43,6 +43,10 @@ def on_healing_event(frame: Frame, duration: int):
         return
     created = create_clip(frame, 'healing')
     print(created)
+@overwatch_event.on('queue_start')
+def on_queue_start_event(frame: Frame):
+    print("Streamer " + frame.source_name + " queue_start ")
+
 
 
 @overwatch_event.on('assist')
