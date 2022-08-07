@@ -52,27 +52,31 @@ def input_reader(matcher: OverwatchScreenReader, ocr: TwitchVideoFrameBuffer):
         stdInQueue.put(item)
 
 
+def get_next():
+    try:
+        return stdInQueue.get(True, 5)
+    except Empty as e:
+        pass
+        return None
+
+
 def input_control(matcher: OverwatchScreenReader, ocr: TwitchVideoFrameBuffer):
     input_thread = ThreadWithId(target=input_reader, args=[matcher, ocr])
     input_thread.start()
     showBuffered = False
     while matcher.Active and ocr.Active:
-        try:
-            item = stdInQueue.get(True, 5)
-            # process command here later
-            # if item == watch some other stream
-            if item == 'show stats':
-                showBuffered = True
-            if item == 'hide stats':
-                showBuffered = False
-        except Empty as e:
+        item = get_next()
+        if item is None:
             pass
-        except BaseException as b:
-            print(b)
-            import traceback
-            traceback.print_exc()
+        if item == 'show stats':
+            showBuffered = True
+        if item == 'hide stats':
+            showBuffered = False
+
         qsize = ocr.buffer.qsize()
-        if showBuffered:
+        if showBuffered or qsize > 300:
+            if qsize > 300:
+                print("warning buffer is getting back logged! live streaming clips may be misaligned! ")
             print("Total buffered: " + str(qsize))
 
     input_thread.join()
