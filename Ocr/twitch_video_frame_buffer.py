@@ -8,7 +8,7 @@ from Ocr.video_frame_buffer import VideoFrameBuffer
 
 
 class TwitchVideoFrameBuffer(VideoFrameBuffer):
-
+    frame_streamer_name:str=''
     def __init__(self, sample_rate: int):
         super(TwitchVideoFrameBuffer, self).__init__()
         self.Active = True
@@ -28,13 +28,16 @@ class TwitchVideoFrameBuffer(VideoFrameBuffer):
             frame_number += 1
             if frame_number % (fps // sample_rate) != 0:
                 continue
-            self.buffer.put(Frame(frame_number, frame, frame_number // fps))
+            self.buffer.put(Frame(frame_number, frame, frame_number // fps,self.frame_streamer_name))
         self.Capturing= False
 
     def buffer_twitch_broadcast(self, broadcaster: str):
 
         streams = streamlink.streams('https://www.twitch.tv/{0}'.format(broadcaster))
-
+        if 'best' not in streams:
+            print("stream offline")
+            self.Active = False
+            return
         url = streams['best'].url
         if '720p60'  in streams:
             url = streams['720p60'].url

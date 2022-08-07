@@ -5,17 +5,20 @@ import threading
 from time import sleep
 
 from queue import Queue, Empty
+from typing import Optional, Any
+
 from Ocr.ordered_frame_aggregator import OrderedFrameAggregator
 from Ocr.overwatch_screen_reader import OverwatchScreenReader
 from Ocr.twitch_video_frame_buffer import TwitchVideoFrameBuffer
-from config.config import broadcaster, max_frames_to_scan_per_second
+from config.config import  max_frames_to_scan_per_second
 from overwatch_events import overwatch_event
 from thread_with_id import ThreadWithId
 
 
-def start_monitor():
+def start_monitor(broadcaster):
     print("read starting " + broadcaster)
     ocr = TwitchVideoFrameBuffer(max_frames_to_scan_per_second)
+    ocr.frame_streamer_name = broadcaster
     agg = OrderedFrameAggregator(overwatch_event)
     matcher = OverwatchScreenReader(ocr, agg)
     producer_thread = threading.Thread(target=ocr.buffer_twitch_broadcast, args=[broadcaster])
@@ -52,12 +55,11 @@ def input_reader(matcher: OverwatchScreenReader, ocr: TwitchVideoFrameBuffer):
         stdInQueue.put(item)
 
 
-def get_next():
+def get_next() -> str:
     try:
         return stdInQueue.get(True, 5)
     except Empty as e:
-        pass
-        return None
+        return ''
 
 
 def input_control(matcher: OverwatchScreenReader, ocr: TwitchVideoFrameBuffer):
@@ -65,14 +67,17 @@ def input_control(matcher: OverwatchScreenReader, ocr: TwitchVideoFrameBuffer):
     input_thread.start()
     showBuffered = False
     while matcher.Active and ocr.Active:
-        item = get_next()
+        item :str= get_next()
         if item is None:
             pass
         if item == 'show stats':
             showBuffered = True
         if item == 'hide stats':
             showBuffered = False
-
+        if item.startswith('watch '):
+            params = item.split(' ')
+            stream = params[1]
+            start_monitor(stream)
         qsize = ocr.buffer.qsize()
         if showBuffered or qsize > 300:
             if qsize > 300:

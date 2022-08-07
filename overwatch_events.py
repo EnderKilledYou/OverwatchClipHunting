@@ -8,12 +8,11 @@ from twitch_helpers import get_twitch_api, get_broadcaster_id
 overwatch_event = EventEmitter()
 
 
-
 @overwatch_event.on('elim')
 def on_elim_event(frame: Frame, count: int, duration: int, last_death):
-    print("Kill count: {0} seconds in: {1} last death: {2} , Duration: {3}  ".format(count, str(frame.ts_second),
+    print("{4} Kill count: {0} seconds in: {1} last death: {2} , Duration: {3}  ".format(count, str(frame.ts_second),
                                                                                      last_death,
-                                                                                     duration))
+                                                                                     duration,frame.source_name))
     if not can_clip(frame):
         return
 
@@ -35,84 +34,73 @@ def on_elimed_event(frame: Frame):  # you can save the frame data for a screen c
     pass
 
 
-
-
-
 @overwatch_event.on('healing')
-def on_healing_event(frame: Frame, amount: int):
-    print("Streamer healing " + str(amount))
+def on_healing_event(frame: Frame, duration: int):
+    print("Streamer " + frame.source_name + " healing " + str(duration))
     if not can_clip(frame):
         return
     created = create_clip(frame)
     print(created)
 
 
-
 @overwatch_event.on('assist')
-def on_assist_event(frame: Frame,amount:int):
-    print("Streamer assist " + str(amount))
+def on_assist_event(frame: Frame, duration: int):
+    print("Streamer " + frame.source_name + " assist " + str(duration))
     if not can_clip(frame):
         return
     created = create_clip(frame)
     # print(created)
+
 
 @overwatch_event.on('defense')
-def on_defense_event(frame: Frame,amount:int):
-    print("Streamer defense " + str(amount))
+def on_defense_event(frame: Frame, duration: int):
+    print("Streamer " + frame.source_name + " defense " + str(duration))
     if not can_clip(frame):
         return
     created = create_clip(frame)
     # print(created)
+
 
 @overwatch_event.on('orbed')
 def on_orbed_event(frame: Frame):
-    print("Streamer orbed")
+    print("Streamer " + frame.source_name + " orbed")
     if not can_clip(frame):
         return
     created = create_clip(frame)
     # print(created)
 
 
-
 @overwatch_event.on('blocking')
-def on_blocking_event(frame: Frame,amount:int):
-    print("Streamer blocking " + str(amount))
+def on_blocking_event(frame: Frame, duration: int):
+    print("Streamer " + frame.source_name + " blocking " + str(duration))
     if not can_clip(frame):
         return
     # created = create_clip(frame)
     # print(created)
-
-
 
 
 @overwatch_event.on('spawn_room')
 def on_spawn_room_event(frame: Frame):
-    print("Streamer Spawning")
+    print("Streamer " + frame.source_name + " Spawning")
     if not can_clip(frame):
         return
     # created = create_clip(frame)
     # print(created)
-
-
 
 
 @overwatch_event.on('game_start')
 def on_game_start_event(frame: Frame):
-    print("Streamer Game started")
+    print("Streamer " + frame.source_name + " Game started")
     if not can_clip(frame):
         return
     # created = create_clip(frame)
     # print(created)
-
-
 
 
 @overwatch_event.on('game_end')
 def on_game_end_event(frame: Frame):
-    print("Streamer Game started")
+    print("Streamer " + frame.source_name + " Game started")
     if not can_clip(frame):
         return
     # created = create_clip(frame)
     # print(created)
-
-

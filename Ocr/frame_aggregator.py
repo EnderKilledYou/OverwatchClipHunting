@@ -46,9 +46,9 @@ class FrameAggregator:
         self.check_if_was_queue(frame)
         if self.last_elim_frame_id > frame.frame_number:
             print(
-                "Skipping Kill at {0}, out of order second: {1} Frame num {1} Last Frame {2}  ".format(
+                "Skipping {3} Kill at {0}, out of order second: {1} Frame num {1} Last Frame {2}  ".format(
                     str(frame.ts_second),
-                    frame.frame_number, self.last_elim_frame_id))
+                    frame.frame_number, self.last_elim_frame_id, frame.source_name))
             return
         self.last_elim_frame_id = frame.frame_number
 
@@ -64,9 +64,9 @@ class FrameAggregator:
             self.last_elim_frame = frame.ts_second
             if time_since_last_kill < 1:
                 print(
-                    "Skipping Kill at {0}, time since last kill is too soon:  {1}  elim_frame : {2} ".format(
+                    "Skipping {3} Kill at {0}, time since last kill is too soon:  {1}  elim_frame : {2} ".format(
                         str(frame.ts_second),
-                        time_since_last_kill, elim_frame))
+                        time_since_last_kill, elim_frame, frame.source_name))
                 return
 
         if time_since_last_kill >= 2:
@@ -81,8 +81,9 @@ class FrameAggregator:
         time_since_last_death = frame.ts_second - self.last_death_frame
         if self.last_death_frame != -1 and time_since_last_death < 9:
             print(
-                "Skipping {2} at {0}, seconds since last death: {1}  ".format(str(frame.ts_second),
-                                                                              time_since_last_death, event_name))
+                "Skipping {3} {2} at {0}, seconds since last death: {1}  ".format(str(frame.ts_second),
+                                                                                  time_since_last_death, event_name,
+                                                                                  frame.source_name))
             return True
         return False
 
@@ -93,7 +94,7 @@ class FrameAggregator:
             return
         self.last_death_frame = frame.ts_second
         self.emitter.emit('elimed', frame)
-        print("Death at {0} ".format(str(frame.ts_second)))
+        print("Death {1} at {0} ".format(str(frame.ts_second), frame.source_name))
 
     def add_spawn_room_frame(self, frame):
         self.check_if_was_queue(frame)
@@ -102,7 +103,7 @@ class FrameAggregator:
         elim_frame_distance = frame.ts_second - self.last_hero_room_frame
         if self.last_hero_room_frame != -1 and elim_frame_distance <= 9:
             return
-        print("Hero Select at {0}   ".format(str(frame.ts_second)))
+        print("Hero {1} Select at {0}   ".format(str(frame.ts_second), frame.source_name))
         self.emitter.emit('spawn_room', frame)
         self.last_hero_room_frame = frame.ts_second
 
@@ -121,7 +122,7 @@ class FrameAggregator:
             self.healing_streak += 1
         else:
             self.healing_streak = 1
-        print("Hero Healed at {0}   ".format(str(frame.ts_second)))
+        print("Hero {1} Healed at {0}   ".format(str(frame.ts_second), frame.source_name))
         self.emitter.emit('healing', frame, self.healing_streak)
         self.last_healing_frame = frame.ts_second
 
@@ -131,7 +132,7 @@ class FrameAggregator:
         orb_frame_distance = frame.ts_second - self.last_orbing_frame
         if self.last_orbing_frame != -1 and orb_frame_distance < 1:
             return
-        print("Hero orbed at {0}   ".format(str(frame.ts_second)))
+        print("Hero {1} orbed at {0}   ".format(str(frame.ts_second), frame.source_name))
         self.emitter.emit('orbed', frame)
         self.last_orbing_frame = frame.ts_second
 
@@ -145,7 +146,7 @@ class FrameAggregator:
             self.blocking_streak += 1
         else:
             self.blocking_streak = 1
-        print("Hero blocking at {0}   ".format(str(frame.ts_second)))
+        print("Hero {1} blocking at {0}   ".format(str(frame.ts_second), frame.source_name))
         self.emitter.emit('blocking', frame, self.blocking_streak)
         self.last_blocking_frame = frame.ts_second
 
@@ -161,7 +162,7 @@ class FrameAggregator:
             prepare_frame_distance = frame.ts_second - self.last_prepare_frame
             if prepare_frame_distance < 10:
                 return
-        print("Hero Prepared at {0}   ".format(str(frame.ts_second)))
+        print("Hero {1} Prepared at {0}   ".format(str(frame.ts_second), frame.source_name))
         self.emitter.emit('prepare', frame, mode)
         self.last_prepare_frame = frame.ts_second
 
@@ -175,7 +176,7 @@ class FrameAggregator:
             self.assist_streak += 1
         else:
             self.assist_streak = 1
-        print("Hero assist at {0}   ".format(str(frame.ts_second)))
+        print("Hero {1} assist at {0}   ".format(str(frame.ts_second), frame.source_name))
         self.emitter.emit('assist', frame, self.assist_streak)
         self.last_assist_frame = frame.ts_second
 
@@ -189,6 +190,6 @@ class FrameAggregator:
             self.defense_streak += 1
         else:
             self.defense_streak = 1
-        print("Hero defense at {0}   ".format(str(frame.ts_second)))
+        print("Hero {1} defense at {0}   ".format(str(frame.ts_second), frame.source_name))
         self.emitter.emit('defense', frame, self.defense_streak)
         self.last_defense_frame = frame.ts_second
