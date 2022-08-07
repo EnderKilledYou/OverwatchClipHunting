@@ -1,11 +1,8 @@
-
 import sys
 from config.config import broadcasters
 import threading
 
-
 from queue import Queue, Empty
-
 
 from Ocr.ordered_frame_aggregator import OrderedFrameAggregator
 from Ocr.overwatch_screen_reader import OverwatchScreenReader
@@ -28,7 +25,6 @@ def start_monitor(broadcaster, start_control=True):
         consumer_thread = threading.Thread(target=matcher.consume_twitch_broadcast)
         consumer_threads.append(consumer_thread)
     producer_thread.start()
-
 
     for consumer_thread in consumer_threads:
         consumer_thread.start()
@@ -93,8 +89,9 @@ def input_control(matcher: OverwatchScreenReader, ocr: TwitchVideoFrameBuffer):
     input_thread.start()
     showBuffered = False
     for stream in broadcasters[1:]:
-        (m2, o2, consumers, producer) = start_monitor(stream, start_control=False)
-        matchers.put((m2, o2, consumers, producer))
+        add_stream_to_monitor(stream)
+    if len(sys.argv) > 1:
+        add_stream_to_monitor(sys.argv[1])
     while matcher.Active and ocr.Active:
         item: str = get_next()
         if item is None:
@@ -105,9 +102,7 @@ def input_control(matcher: OverwatchScreenReader, ocr: TwitchVideoFrameBuffer):
             showBuffered = False
         if item.startswith('watch '):
             params = item.split(' ')
-            stream = params[1]
-            (m2, o2, consumers, producer) = start_monitor(stream, start_control=False)
-            matchers.put((m2, o2, consumers, producer))
+            add_stream_to_monitor(params[1])
 
         qsize = ocr.buffer.qsize()
         if showBuffered or qsize > 300:
@@ -117,3 +112,8 @@ def input_control(matcher: OverwatchScreenReader, ocr: TwitchVideoFrameBuffer):
             print("Total buffered: " + str(qsize) + " in seconds: " + str(seconds))
 
     input_thread.join()
+
+
+def add_stream_to_monitor(stream):
+    (m2, o2, consumers, producer) = start_monitor(stream, start_control=False)
+    matchers.put((m2, o2, consumers, producer))
