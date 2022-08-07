@@ -13,3 +13,4 @@ min_elims = 99
 min_blocking_duration = 99
 min_defense_duration = 99
 min_assist_duration = 99
+wait_for_mode=True

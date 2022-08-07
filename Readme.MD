@@ -28,6 +28,7 @@ min_elims = 99 # set stupid high to ignore, or like 2 to catch good clips
 min_blocking_duration = 99 # set stupid high to ignore, or like 4-9 to catch good clips
 min_defense_duration = 99 # set stupid high to ignore, or like 4-9 to catch good clips
 min_assist_duration = 99 # set stupid high to ignore, or like 4-9 to catch good clips
+wait_for_mode=True # set this to false to only check at run if they are live. Set to True to wait for them to go live. 
 ```
 
 ## Create a twitch app
