@@ -17,6 +17,7 @@ class FrameAggregator:
     defense_streak: int = 0
     last_defense_frame: int = -1
     assist_streak: int = 0
+    blocking_streak: int = 0
     last_blocking_frame: int = -1
     last_elim_frame_id: int = 0
     last_orbing_frame: int = -1
@@ -140,8 +141,12 @@ class FrameAggregator:
         blocking_frame_distance = frame.ts_second - self.last_blocking_frame
         if self.last_blocking_frame != -1 and blocking_frame_distance < 1:
             return
+        if blocking_frame_distance < 4:
+            self.blocking_streak += 1
+        else:
+            self.blocking_streak = 1
         print("Hero blocking at {0}   ".format(str(frame.ts_second)))
-        self.emitter.emit('blocking', frame)
+        self.emitter.emit('blocking', frame, self.blocking_streak)
         self.last_blocking_frame = frame.ts_second
 
     def set_in_queue(self, frame):
@@ -171,7 +176,7 @@ class FrameAggregator:
         else:
             self.assist_streak = 1
         print("Hero assist at {0}   ".format(str(frame.ts_second)))
-        self.emitter.emit('assist', frame)
+        self.emitter.emit('assist', frame, self.assist_streak)
         self.last_assist_frame = frame.ts_second
 
     def add_defense_frame(self, frame):
@@ -185,5 +190,5 @@ class FrameAggregator:
         else:
             self.defense_streak = 1
         print("Hero defense at {0}   ".format(str(frame.ts_second)))
-        self.emitter.emit('defense', frame)
+        self.emitter.emit('defense', frame, self.defense_streak)
         self.last_defense_frame = frame.ts_second

@@ -35,15 +35,7 @@ def on_elimed_event(frame: Frame):  # you can save the frame data for a screen c
     pass
 
 
-@overwatch_event.on('healed')
-def on_healed_event(frame: Frame, amount: int):
-    print("Streamer Healed")
-    if not can_clip(frame):
-        return
-    created = create_clip(frame)
-    print(created)
 
-    pass
 
 
 @overwatch_event.on('healing')
@@ -54,24 +46,24 @@ def on_healing_event(frame: Frame, amount: int):
     created = create_clip(frame)
     print(created)
 
-    pass
+
 
 @overwatch_event.on('assist')
-def on_assist_event(frame: Frame):
-    print("Streamer assist")
+def on_assist_event(frame: Frame,amount:int):
+    print("Streamer assist " + str(amount))
     if not can_clip(frame):
         return
     created = create_clip(frame)
     # print(created)
-    pass
+
 @overwatch_event.on('defense')
-def on_defense_event(frame: Frame):
-    print("Streamer defense")
+def on_defense_event(frame: Frame,amount:int):
+    print("Streamer defense " + str(amount))
     if not can_clip(frame):
         return
     created = create_clip(frame)
     # print(created)
-    pass
+
 @overwatch_event.on('orbed')
 def on_orbed_event(frame: Frame):
     print("Streamer orbed")
@@ -79,18 +71,18 @@ def on_orbed_event(frame: Frame):
         return
     created = create_clip(frame)
     # print(created)
-    pass
+
 
 
 @overwatch_event.on('blocking')
-def on_blocking_event(frame: Frame):
-    print("Streamer blocking")
+def on_blocking_event(frame: Frame,amount:int):
+    print("Streamer blocking " + str(amount))
     if not can_clip(frame):
         return
     # created = create_clip(frame)
     # print(created)
 
-    pass
+
 
 
 @overwatch_event.on('spawn_room')
@@ -101,7 +93,7 @@ def on_spawn_room_event(frame: Frame):
     # created = create_clip(frame)
     # print(created)
 
-    pass
+
 
 
 @overwatch_event.on('game_start')
@@ -112,7 +104,7 @@ def on_game_start_event(frame: Frame):
     # created = create_clip(frame)
     # print(created)
 
-    pass
+
 
 
 @overwatch_event.on('game_end')
@@ -123,4 +115,4 @@ def on_game_end_event(frame: Frame):
     # created = create_clip(frame)
     # print(created)
 
-    pass
+
