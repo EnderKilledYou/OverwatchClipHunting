@@ -25,12 +25,13 @@ class TwitchVideoFrameBuffer(VideoFrameBuffer):
         self.sample_rate = sample_rate
 
     def watch_streamer(self):
-        if not get_streamer_config(self.broadcaster).wait_for_mode:
-            return self.buffer_twitch_broadcast()
-        while self.Active:
-            print("checking for " + self.broadcaster)
-            self.buffer_twitch_broadcast()
-            time.sleep(60 * 5)
+        self.buffer_twitch_broadcast()
+        # if not get_streamer_config(self.broadcaster).wait_for_mode:
+        #     return self.buffer_twitch_broadcast()
+        # while self.Active:
+        #     print("checking for " + self.broadcaster)
+        #     self.buffer_twitch_broadcast()
+
 
     def buffer_twitch_broadcast(self):
 
@@ -76,7 +77,7 @@ class TwitchVideoFrameBuffer(VideoFrameBuffer):
                     Frame(frame_number, frame, frame_number // fps, self.frame_streamer_name, self.file_name))
             self.Capturing = False
         except Exception as e:
-            print("Capture thread stopping")
+
             print(e)
 
             traceback.print_exc()
@@ -86,3 +87,5 @@ class TwitchVideoFrameBuffer(VideoFrameBuffer):
             print("cap release failed")
             print(e)
             print(traceback.format_exc())
+
+        print("Capture thread stopping")

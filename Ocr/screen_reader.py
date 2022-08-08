@@ -30,10 +30,6 @@ class ScreenReader:
 
     def wait_next_frame(self):
         try:
-
-            return self.framebuffer.buffer.get(True, 1)
-        except  Exception as e:
-
-            # print("empty")
-            sleep(2)
+            return self.framebuffer.buffer.get(False)
+        except BaseException as e:
             return None

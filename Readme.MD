@@ -8,10 +8,11 @@
 
 
 
-## Edit configs
 
-change config/config_example.py to config/config.py
-change config/streamer_configs_example.py to config/streamer_configs.py
+### Change config/config_example.py to config/config.py
+
+
+
 
 ```python
 #config/config.py
@@ -31,6 +32,8 @@ min_defense_duration = 99 # set stupid high to ignore, or like 4-9 to catch good
 min_assist_duration = 99 # set stupid high to ignore, or like 4-9 to catch good clips
 wait_for_mode=True # set this to false to only check at run if they are live. Set to True to wait for them to go live. 
 ```
+
+### Change config/streamer_configs_example.py to config/streamer_configs.py
 ```python
 # add a default config for quick adding streamers
 watch_cli_config = {  # used with added with watch and no config

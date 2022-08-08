@@ -18,6 +18,7 @@ from thread_with_id import ThreadWithId
 def start_cli():
     input_thread = threading.Thread(target=input_control, args=[])
     input_thread.start()
+    input_thread.join()
 
 
 def start_monitor(broadcaster):
@@ -43,10 +44,11 @@ def start_monitor(broadcaster):
     return matcher, ocr, consumer_threads, producer_thread
 
 
-def join_consumers(consumer_threads):
-    print("joining consumer threads")
+def join_consumers(consumer_threads, who):
+    print("joining consumer threads " + who)
     for consumer_thread in consumer_threads:
         consumer_thread.join()
+    print("joined consumer threads  " + who)
 
 
 stdInQueue = Queue()
@@ -60,10 +62,15 @@ def input_reader():
             print("quitting")
             try:
                 for (m2, o2, consumers, producer) in matchers:
-                    print("clearing sub watchers")
+                    print("clearing sub watchers " + o2.frame_streamer_name)
                     m2.Active = False
                     o2.Active = False
+                    join_consumers(consumers, o2.frame_streamer_name)
+                    print("joining producer thread " + o2.frame_streamer_name)
+                    producer.join()
+                    print("cleared sub watchers " + o2.frame_streamer_name)
                 matchers.clear()
+
             except Empty as e:
                 pass
             print("cleared sub watchers")
@@ -96,6 +103,7 @@ def input_control():
         if item is None:
             pass
         if item == 'quit':
+            sys.exit(0)
             return
         if item == 'show stats':
             showBuffered = True
@@ -116,6 +124,7 @@ def input_control():
                 seconds = qsize / get_streamer_config(ocr.frame_streamer_name).max_frames_to_scan_per_second
                 print("({2}) Total buffered: {0} in seconds: {1}".format(str(qsize), str(seconds),
                                                                          ocr.frame_streamer_name))
+    input_thread.join()
 
 
 def dump_queue_items(ocr):
