@@ -10,7 +10,8 @@
 
 ## Edit configs
 
-change config/config_example.p to config/config.py
+change config/config_example.py to config/config.py
+change config/streamer_configs_example.py to config/streamer_configs.py
 
 ```python
 #config/config.py
@@ -30,7 +31,41 @@ min_defense_duration = 99 # set stupid high to ignore, or like 4-9 to catch good
 min_assist_duration = 99 # set stupid high to ignore, or like 4-9 to catch good clips
 wait_for_mode=True # set this to false to only check at run if they are live. Set to True to wait for them to go live. 
 ```
+```python
+# add a default config for quick adding streamers
+watch_cli_config = {  # used with added with watch and no config
+    'make_clips': True,  # Set to false for just watch mode
+    'min_healing_duration': 3,  # set stupid high to ignore
+    'min_elims': 2,
+    'min_blocking_duration': 2,
+    'max_frames_to_scan_per_second': 8,
+    # some people need 8, some need 4, some need 16 depending on how jank their stream is
+    'min_defense_duration': 99,
+    'min_assist_duration': 99,
+    'stream_prefers_quality': '720p60',
+    'buffer_prefers_quality': 'best',
+    'wait_for_mode': False
+}
+# dedicated configs
+streamer_configs = {
+    "sapphyrelive": {
+        'make_clips': True,  # Set to false for just watch mode
+        'min_healing_duration': 3,  # set stupid high to ignore
+        'min_elims': 2,
+        'min_blocking_duration': 3,
+        'min_defense_duration': 3,
+        'min_assist_duration': 3,
+        'clip_deaths': False,
+        'stream_prefers_quality': '720p60',
+        'buffer_prefers_quality': 'best',
+        'max_frames_to_scan_per_second': 16,
+        'wait_for_mode': True,
 
+    }
+}
+
+
+```
 ## Create a twitch app
 
 [Create A Twitch App](https://dev.twitch.tv/console/apps/create)
@@ -86,4 +121,4 @@ Screen readers act on them
 
 ## Cli
 
-While it's running, type `quit` to shut down gracefully
+While it's running, type `quit` to shut down gracefully 

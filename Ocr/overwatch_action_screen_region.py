@@ -17,41 +17,47 @@ class OverwatchActionScreenRegion(ScreenRegion):
                 show: bool = False):
         img_crop = self.crop(pil)
         text = image_to_string(img_crop).strip()  # , lang='eng')
-
+        frame.empty = True
         if len(text) < 4:
-            frame.empty = True
             return
         if frame_tester.is_first_menu_frame(text):
-            frame.empty = True
             return  # later
 
         if frame_tester.is_elimed_frame(text):
             frame_watcher.add_elimed_frame(frame)
-
+            frame.empty = False
         if frame_tester.is_elim_frame(text):
             count = frame_tester.count_elim_frame(text)
             frame_watcher.add_elim_frame(frame, count)
+            frame.empty = False
 
         if frame_tester.is_heal_frame(text):
             frame_watcher.add_healing_frame(frame)
+            frame.empty = False
+
         if frame_tester.is_slept_frame(text):
             frame_watcher.add_slepting_frame(frame)
+            frame.empty = False
 
         if frame_tester.is_assist_frame(text):
             frame_watcher.add_assist_frame(frame)
+            frame.empty = False
 
         if frame_tester.is_blocking(text):
             frame_watcher.add_blocking_frame(frame)
+            frame.empty = False
 
         if frame_tester.is_orb_gained(text):
             frame_watcher.add_orb_gained_frame(frame)
+            frame.empty = False
 
         if frame_tester.is_defense(text):
             frame_watcher.add_defense_frame(frame)
+            frame.empty = False
 
         if frame_tester.is_spawn_room_frame(text):
             frame_watcher.add_spawn_room_frame(frame)
-        frame.empty = True
+            frame.empty = False
 
     def crop(self, img):
         right = img.width - (img.width * .25)

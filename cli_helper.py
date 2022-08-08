@@ -1,5 +1,6 @@
 import sys
 from config.config import broadcasters
+from config.streamer_configs import get_streamer_config
 import threading
 
 from queue import Queue, Empty
@@ -7,18 +8,28 @@ from queue import Queue, Empty
 from Ocr.ordered_frame_aggregator import OrderedFrameAggregator
 from Ocr.overwatch_screen_reader import OverwatchScreenReader
 from Ocr.twitch_video_frame_buffer import TwitchVideoFrameBuffer
-from config.config import max_frames_to_scan_per_second
+
+from frame_buffer import set_frame_buffer
+
 from overwatch_events import overwatch_event
 from thread_with_id import ThreadWithId
 
 
-def start_monitor(broadcaster, start_control=True):
+def start_cli():
+    input_thread = threading.Thread(target=input_control, args=[])
+    input_thread.start()
+
+
+def start_monitor(broadcaster):
     print("read starting " + broadcaster)
-    ocr = TwitchVideoFrameBuffer(max_frames_to_scan_per_second)
+
+    ocr = TwitchVideoFrameBuffer(broadcaster, get_streamer_config(broadcaster).max_frames_to_scan_per_second)
     ocr.frame_streamer_name = broadcaster
+    set_frame_buffer(broadcaster, ocr)
+
     agg = OrderedFrameAggregator(overwatch_event)
     matcher = OverwatchScreenReader(ocr, agg)
-    producer_thread = threading.Thread(target=ocr.watch_streamer, args=[broadcaster])
+    producer_thread = threading.Thread(target=ocr.watch_streamer, args=[])
     matcher.show = True
     consumer_threads = []
     for i in range(0, 4):
@@ -28,16 +39,8 @@ def start_monitor(broadcaster, start_control=True):
 
     for consumer_thread in consumer_threads:
         consumer_thread.start()
-    if start_control:
-        input_thread = threading.Thread(target=input_control, args=[matcher, ocr])
-        input_thread.start()
-    else:
-        return matcher, ocr, consumer_threads, producer_thread
-    join_consumers(consumer_threads)
-    print("Matcher threads exited")
-    producer_thread.join()
-    print("Video stream thread exited")
-    input_thread.join()
+
+    return matcher, ocr, consumer_threads, producer_thread
 
 
 def join_consumers(consumer_threads):
@@ -49,26 +52,22 @@ def join_consumers(consumer_threads):
 stdInQueue = Queue()
 
 
-def input_reader(matcher: OverwatchScreenReader, ocr: TwitchVideoFrameBuffer):
-    while matcher.Active and ocr.Active:
+def input_reader():
+    while True:
         item = sys.stdin.readline().strip()
         if item == "quit":
+            stdInQueue.put(item)
             print("quitting")
-            matcher.Active = False
-            ocr.Active = False
-            print("clearing sub watchers")
             try:
-                while True:
-                    (m2, o2, consumers, producer) = matchers.get(True, 1)
+                for (m2, o2, consumers, producer) in matchers:
                     print("clearing sub watchers")
                     m2.Active = False
                     o2.Active = False
-                    join_consumers(consumers)
-                    producer.join()
-
+                matchers.clear()
             except Empty as e:
                 pass
             print("cleared sub watchers")
+            return
 
         stdInQueue.put(item)
 
@@ -80,22 +79,24 @@ def get_next() -> str:
         return ''
 
 
-matchers = Queue()
+matchers = []
 
 
-def input_control(matcher: OverwatchScreenReader, ocr: TwitchVideoFrameBuffer):
+def input_control():
     print("control thread started")
-    input_thread = ThreadWithId(target=input_reader, args=[matcher, ocr])
+    input_thread = ThreadWithId(target=input_reader)
     input_thread.start()
     showBuffered = False
     for stream in broadcasters[1:]:
         add_stream_to_monitor(stream)
     if len(sys.argv) > 1:
         add_stream_to_monitor(sys.argv[1])
-    while matcher.Active and ocr.Active:
+    while True:
         item: str = get_next()
         if item is None:
             pass
+        if item == 'quit':
+            return
         if item == 'show stats':
             showBuffered = True
         if item == 'hide stats':
@@ -104,16 +105,27 @@ def input_control(matcher: OverwatchScreenReader, ocr: TwitchVideoFrameBuffer):
             params = item.split(' ')
             add_stream_to_monitor(params[1])
 
-        qsize = ocr.buffer.qsize()
-        if showBuffered or qsize > 300:
-            if qsize > 300:
-                print("warning buffer is getting back logged! live streaming clips may be misaligned! ")
-            seconds = qsize / max_frames_to_scan_per_second
-            print("Total buffered: " + str(qsize) + " in seconds: " + str(seconds))
+        for (matcher, ocr, consumers, producer) in matchers:
+            qsize = ocr.buffer.qsize()
+            if showBuffered or qsize > 300:
+                if qsize > 300:
+                    print(
+                        "warning buffer is getting back logged! dumping!" + ocr.frame_streamer_name + "live streaming clips "
+                                                                                                      "may be misaligned! ")
+                    dump_queue_items(ocr)
+                seconds = qsize / get_streamer_config(ocr.frame_streamer_name).max_frames_to_scan_per_second
+                print("({2}) Total buffered: {0} in seconds: {1}".format(str(qsize), str(seconds),
+                                                                         ocr.frame_streamer_name))
 
-    input_thread.join()
+
+def dump_queue_items(ocr):
+    for i in range(0, 250):
+        try:
+            ocr.buffer.get(False)
+        except Empty as e:
+            pass
 
 
 def add_stream_to_monitor(stream):
-    (m2, o2, consumers, producer) = start_monitor(stream, start_control=False)
-    matchers.put((m2, o2, consumers, producer))
+    (m2, o2, consumers, producer) = start_monitor(stream)
+    matchers.append((m2, o2, consumers, producer))

@@ -3,7 +3,7 @@ from overwatch_matchers.eliminated_matcher import if_got_elimed, if_menu, if_obj
 from overwatch_matchers.elimination_matcher import if_got_elim
 from overwatch_matchers.elimination_counter import count_elim_on_frame
 from overwatch_matchers.healing_matcher import if_healing
-from overwatch_matchers.prepare_matcher import if_prepare_attack, if_prepare_defense
+from overwatch_matchers.prepare_matcher import if_prepare_attack, if_prepare_defense, if_escort, if_contested
 from overwatch_matchers.slept_matches import if_slept
 from overwatch_matchers.spawn_room_matcher import if_in_hero_room, if_in_queue
 
@@ -92,6 +92,7 @@ class FrameTester:
         :return: if the condition matches
         """
         return if_healing(text)
+
     def is_slept_frame(self, text) -> bool:
         """
 
@@ -99,6 +100,7 @@ class FrameTester:
         :return: if the condition matches
         """
         return if_slept(text)
+
     def is_assist_frame(self, text) -> bool:
         """
 
@@ -106,6 +108,7 @@ class FrameTester:
         :return: if the condition matches
         """
         return if_assist(text)
+
     def count_elim_frame(self, text) -> int:
         """
 
@@ -121,6 +124,22 @@ class FrameTester:
         :return: if the condition matches
         """
         return if_prepare_attack(text)
+
+    def is_in_escort(self, text) -> bool:
+        """
+
+           :param text: The frame text to check for the escort condition
+           :return: if the condition matches
+           """
+        return if_escort(text)
+    def is_in_contested(self, text) -> bool:
+        """
+
+           :param text: The frame text to check for the escort condition
+           :return: if the condition matches
+           """
+        return if_contested(text)
+
 
     def is_in_prepare_defense(self, text) -> bool:
         """

@@ -11,8 +11,10 @@ class FrameAggregator:
     last_hero_room_frame: int = -1
     last_elimed_frame: int = -1
     last_healing_frame: int = -1
+    last_healing_frame_s: int = -1
     last_prepare_frame: int = -1
     last_prepare_frame: int = -1
+    last_escort_frame: int = -1
     last_slept_frame: int = 1
     healing_streak: int = 0
 
@@ -82,7 +84,7 @@ class FrameAggregator:
     def too_soon_after_death(self, event_name, frame):
         time_since_last_death = frame.ts_second - self.last_death_frame
         if time_since_last_death < 0:
-            time_since_last_death = 0
+            time_since_last_death = 1
         if self.last_death_frame != -1 and 9 > time_since_last_death > 0:
             print(
                 "Skipping {3} {2} at {0}, seconds since last death: {1}  ".format(str(frame.ts_second),
@@ -115,6 +117,7 @@ class FrameAggregator:
         if self.in_queue:
             self.emitter.emit('game_start', frame)
             self.in_queue = False
+
     def add_slepting_frame(self, frame):
         if self.too_soon_after_death('slept', frame):
             return
@@ -129,16 +132,25 @@ class FrameAggregator:
     def add_healing_frame(self, frame):
         if self.too_soon_after_death('heal', frame):
             return
-        heal_frame_distance = frame.ts_second - self.last_healing_frame
-        if self.last_healing_frame != -1 and heal_frame_distance < 1:
+        if frame.frame_number < self.last_healing_frame:
+            print(
+                "Skipping {3} Heal at {0}, out of order second: {1} Frame num {1} Last Frame {2}  ".format(
+                    str(frame.ts_second),
+                    frame.frame_number, self.last_healing_frame, frame.source_name))
             return
-        if heal_frame_distance < 6:
+        heal_frame_distance = frame.frame_number - self.last_healing_frame
+        heal_frame_distance_s = frame.ts_second - self.last_healing_frame_s
+        if self.last_healing_frame != -1 and heal_frame_distance < 3:
+            print("Hero {1} skipped Healed at {0}  because distance was {2}  ".format(str(frame.ts_second), frame.source_name,heal_frame_distance))
+            return
+        if heal_frame_distance_s < 6:
             self.healing_streak += 1
         else:
             self.healing_streak = 1
         print("Hero {1} Healed at {0}   ".format(str(frame.ts_second), frame.source_name))
         self.emitter.emit('healing', frame, self.healing_streak)
-        self.last_healing_frame = frame.ts_second
+        self.last_healing_frame_s = frame.ts_second
+        self.last_healing_frame = frame.frame_number
 
     def add_orb_gained_frame(self, frame):
         if self.too_soon_after_death('orb', frame):
@@ -182,6 +194,7 @@ class FrameAggregator:
         self.last_prepare_frame = frame.ts_second
 
     def add_assist_frame(self, frame):
+        self.check_if_was_queue(frame)
         if self.too_soon_after_death('assist', frame):
             return
         assist_frame_distance = frame.ts_second - self.last_assist_frame
@@ -195,7 +208,18 @@ class FrameAggregator:
         self.emitter.emit('assist', frame, self.assist_streak)
         self.last_assist_frame = frame.ts_second
 
+    def add_escort_frame(self, frame):
+        self.check_if_was_queue(frame)
+        print("Hero {1} escort at {0}   ".format(str(frame.ts_second), frame.source_name))
+        self.last_escort_frame = frame.ts_second
+
+    def add_contested_frame(self, frame):
+        self.check_if_was_queue(frame)
+        print("Hero {1} contested at {0}   ".format(str(frame.ts_second), frame.source_name))
+        self.last_contested_frame = frame.ts_second
+
     def add_defense_frame(self, frame):
+        self.check_if_was_queue(frame)
         if self.too_soon_after_death('defense', frame):
             return
         defense_frame_distance = frame.ts_second - self.last_defense_frame

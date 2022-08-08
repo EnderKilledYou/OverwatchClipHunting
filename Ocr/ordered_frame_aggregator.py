@@ -24,6 +24,25 @@ class OrderedFrameAggregator(FrameAggregator):
             raise
         finally:
             self.lock.release()
+
+    def add_escort_frame(self, frame):
+        self.lock.acquire()
+        try:
+            super().add_escort_frame(frame)
+        except BaseException as be:
+            raise
+        finally:
+            self.lock.release()
+
+    def add_contested_frame(self, frame):
+        self.lock.acquire()
+        try:
+            super().add_contested_frame(frame)
+        except BaseException as be:
+            raise
+        finally:
+            self.lock.release()
+
     def add_defense_frame(self, frame):
         self.lock.acquire()
         try:
@@ -32,6 +51,7 @@ class OrderedFrameAggregator(FrameAggregator):
             raise
         finally:
             self.lock.release()
+
     def add_elim_frame(self, frame: Frame, elimination_appears_times: int):
         self.lock.acquire()
         try:
@@ -85,6 +105,7 @@ class OrderedFrameAggregator(FrameAggregator):
             raise
         finally:
             self.lock.release()
+
     def add_slepting_frame(self, frame):
         self.lock.acquire()
         try:
@@ -93,7 +114,6 @@ class OrderedFrameAggregator(FrameAggregator):
             raise
         finally:
             self.lock.release()
-
 
     def set_in_queue(self, frame):
         self.lock.acquire()

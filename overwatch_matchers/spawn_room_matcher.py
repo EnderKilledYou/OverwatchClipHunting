@@ -6,4 +6,4 @@ def if_in_hero_room(text: str):
 
 
 def if_in_queue(text: str):
-    return text.count("TIME ELAPSED") > 0 or text.count("SEARCHING")
+    return text.count("TIME ELAPSED") > 0 or text.count("SEARCHING") > 0

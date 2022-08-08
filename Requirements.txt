@@ -17,3 +17,5 @@ streamlink
 scipy
 cryptocode
 pyee
+moviepy
+python-vlc

@@ -14,8 +14,10 @@ def get_twitch_api():
             return twitch_api
         twitch = Twitch(app_id=consumer_key, app_secret=consumer_secret)
         twitch.auto_refresh_auth = True
-        twitch.set_user_authentication(access_token, [AuthScope.CLIPS_EDIT], refresh_token)
+        twitch.set_user_authentication(access_token, [AuthScope.CLIPS_EDIT], refresh_token,validate=False)
         twitch.refresh_used_token()
+        me = twitch.get_users()
+        # print(me)
         twitch_api= twitch
     except BaseException as e:
         print(

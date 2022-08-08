@@ -1,4 +1,5 @@
 twitch.sqlite3
 config/config.py
+config/streamer_configs.py
 venv/
 .idea/
