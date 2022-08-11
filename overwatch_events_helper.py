@@ -1,15 +1,57 @@
+import json
+import os.path
+import threading
+
+from flask_events import flask_event
 from Ocr.frame import Frame
-from clip_timestamp import ClipTimeStamp
+from Clipper.clip_timestamp import ClipTimeStamp
+from in_flask import in_flask
 from config.streamer_configs import get_streamer_config
 from twitch_helpers import get_broadcaster_id, get_twitch_api
 
 last_clip_time = {}
 
 
-def create_clip(frame: Frame):
-    created = get_twitch_api().create_clip(get_broadcaster_id(frame.source_name))
+
+def create_clip(frame: Frame, clip_type: str):
+    api = get_twitch_api()
+
+    created = api.create_clip(get_broadcaster_id(frame.source_name), True)
+    if not created:
+        return
+    if 'status' in created and created['created'] == 403:
+        print("can't clip this channel no perms")
+    if in_flask():
+        flask_event.emit('clip', created['data'],clip_type)
     last_clip_time[frame.source_name] = frame.ts_second
+
+
+
     return created
+
+
+def append_to_clip_log(clip_type, created, frame):
+    if not os.path.exists('clip_log'):
+        write_to_clip_log([])
+    clip_data = read_clip_clog()
+
+    clip_data.append({'streamer': frame.source_name,
+                      'clip_data': created['data'],
+                      'type': clip_type
+                      })
+
+    write_to_clip_log(clip_data)
+
+
+def read_clip_clog():
+    with open('clip_log', 'r') as clip_log:
+        clip_data = json.loads(clip_log.read())
+    return clip_data
+
+
+def write_to_clip_log(clip_data):
+    with open('clip_log', 'w') as clip_log:
+        clip_log.write(json.dumps(clip_data))
 
 
 def can_clip(frame, type: str):

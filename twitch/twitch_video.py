@@ -1,3 +1,5 @@
+import datetime
+
 from dateutil.parser import isoparse
 from sqlalchemy_serializer import SerializerMixin
 
@@ -19,6 +21,24 @@ class TwitchVideoMarker(db.Model, SerializerMixin):
     event_name = db.Column(db.String)  # kill, map start, etc
 
 
+class TwitchClipLog(db.Model, SerializerMixin):
+    serialize_rules = ()
+    serialize_only = (
+        'id', 'video_id', 'video_url', 'created_at', 'buffer_before', 'buffer_after', 'file_path','thumbnail_url','title','creator_name','broadcaster_name','type')
+    id = db.Column(db.Integer, primary_key=True)
+    video_id = db.Column(db.String, unique=True)
+    video_url = db.Column(db.String, unique=True)
+    buffer_before = db.Column(db.Integer)
+    buffer_after = db.Column(db.Integer)
+    created_at = db.Column(db.DATETIME)
+    file_path = db.Column(db.String)
+    thumbnail_url = db.Column(db.String)
+    title = db.Column(db.String)
+    creator_name = db.Column(db.String)
+    broadcaster_name= db.Column(db.String)
+    type = db.Column(db.String)
+
+
 class TwitchVideo(db.Model, SerializerMixin):
     def AddMarker(self, marker_start, marker_end, kills, deaths, event_name):
         marker = TwitchVideoMarker(time_start=marker_start, time_end=marker_end, death_count=deaths, kill_count=kills,
@@ -34,7 +54,7 @@ class TwitchVideo(db.Model, SerializerMixin):
         'view_count',
         'duration')
     id = db.Column(db.Integer, primary_key=True)
-    video_id = db.Column(db.Integer,unique=True)
+    video_id = db.Column(db.Integer, unique=True)
     stream_id: None
     twitch_user_id = db.Column(db.String)
     user_login = db.Column(db.String)
@@ -64,8 +84,8 @@ class TwitchVideo(db.Model, SerializerMixin):
         self.user_name = video['user_name']
         self.title = video['title']
         self.description = video['description']
-        self.created_at =  isoparse (video['created_at'])
-        self.published_at = isoparse (video['published_at'])
+        self.created_at = isoparse(video['created_at'])
+        self.published_at = isoparse(video['published_at'])
         self.url = video['url']
         self.thumbnail_url = video['thumbnail_url']
         self.viewable = video['viewable']

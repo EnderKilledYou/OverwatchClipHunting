@@ -9,11 +9,20 @@ def config_db() -> SQLAlchemy:
     :return: Initializes the sqlite database for storing your credentials.
     """
     from app import app
+
     dbx = SQLAlchemy(app)
-    dbx.init_app(app)
-    dbx.create_all()
     return dbx
 
 
-
 db = config_db()
+
+
+def init_db():
+    from app import app
+    from twitch.twitch_video import TwitchClipLog
+    db.init_app(app)
+    db.create_all()
+
+
+def get_db() -> SQLAlchemy:
+    return db

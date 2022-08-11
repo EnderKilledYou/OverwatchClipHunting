@@ -11,5 +11,5 @@ twitch_oauth: OAuthRemoteApp = oauth.remote_app('twitch',
                                 authorize_url='https://id.twitch.tv/oauth2/authorize',
                                 consumer_key=consumer_key,
                                 consumer_secret=consumer_secret,
-                                request_token_params={'scope': ["user_read",'clips:edit']}
+                                request_token_params={'scope': ["user_read",'clips:edit','channel:read:editors']}
                                 )

@@ -1,0 +1,120 @@
+export const baseUrl = ''
+export const add_streamer_path = '/add_streamer/'
+export const remove_streamer_path = '/remove_streamer/'
+export const list_streamer_path = '/list_streamer'
+export const list_clips_path = '/clips/'
+export const all_list_clips_path = '/all_clips/'
+export const delete_clips_path = '/delete_clips/'
+
+export async function add_streamer(streamer: string): Promise<StreamerResponse> {
+    const result = await fetch(baseUrl + add_streamer_path + streamer, {})
+    let response = await result.json();
+    return new StreamerResponse(response)
+
+}
+
+export async function remove_streamer(streamer: string) {
+    const result = await fetch(baseUrl + remove_streamer_path + streamer, {})
+    let response = await result.json();
+    return new StreamerResponse(response)
+}
+
+export async function list_streamer(): Promise<StreamerResponse> {
+    const result = await fetch(baseUrl + list_streamer_path, {})
+    let response = await result.json();
+    return new StreamerResponse(response)
+
+}
+
+export async function delete_clip(clip_id: number): Promise<ClipsResponse> {
+    const result = await fetch(baseUrl + delete_clips_path + encodeURIComponent(clip_id), {})
+    let response = await result.json();
+    return new ClipsResponse(response)
+
+}
+
+export async function list_clips(streamer: string, type: string, page: number = 1): Promise<ClipsResponse> {
+    const result = await fetch(baseUrl + list_clips_path + encodeURIComponent(streamer) + "/" + encodeURIComponent(page), {})
+    let response = await result.json();
+    return new ClipsResponse(response)
+
+}
+
+export async function list_all_clips(type: string, page: number = 1): Promise<ClipsResponse> {
+    const result = await fetch(baseUrl + all_list_clips_path + encodeURIComponent(type) + '/' + encodeURIComponent(page), {})
+    let response = await result.json();
+    return new ClipsResponse(response)
+
+}
+
+export class StreamerResponse {
+    success = false
+    items: StreamerMonitorState[] = [];
+
+
+    constructor(part: Partial<StreamerResponse>) {
+        Object.assign(this, part)
+        this.items = this.items.map(a => new StreamerMonitorState(a))
+    }
+}
+
+export class ClipsResponse {
+    success: boolean = false
+    items: TwitchClipLog[] = [];
+
+
+    constructor(part: Partial<ClipsResponse>) {
+        Object.assign(this, part)
+        this.items = this.items.map(a => new TwitchClipLog(a))
+    }
+}
+
+export class StreamerMonitorState {
+    name = ""
+    size = 0
+    seconds = 0
+    queue_size = 0
+
+    constructor(part: Partial<StreamerMonitorState>) {
+        Object.assign(this, part)
+    }
+}
+
+export class TwitchClipLog {
+    id = 0
+    video_id = ""
+    video_url = ""
+    created_at: Date = new Date()
+    buffer_before = 0
+    buffer_after = 0
+    file_path = ""
+    thumbnail_url = ""
+    title = ""
+    creator_name = ""
+    broadcaster_name = ""
+    type = ""
+
+    constructor(part: Partial<TwitchClipLog>) {
+        Object.assign(this, part)
+    }
+}
+
+export class StreamerConfig {
+    constructor(part: Partial<StreamerConfig>) {
+        Object.assign(this, part)
+    }
+
+    make_clips = true
+    min_healing_duration = 99
+    min_elims = 99
+    min_blocking_duration = 99
+    min_defense_duration = 99
+    min_assist_duration = 99
+    stream_prefers_quality = '720p60'
+    wait_for_mode = true
+    buffer_prefers_quality = 'best'
+    buffer_elim_clip_after = 5
+    buffer_elim_clip_before = 5
+    buffer_data = false
+    clip_deaths = false
+}

@@ -13,12 +13,6 @@ from twitch.twitch_response import TwitchResponse
 from .vod import get_current_user
 
 
-@twitch.route('/')
-def index():
-    return render_template('index.html')
-    #return twitch_oauth.authorize(callback=url_for('twitch.authorized', _external=True))
-
-
 @twitch_oauth.tokengetter
 def get_twitch_token(token=None):
     return session.get('twitch_token')
@@ -27,9 +21,6 @@ def get_twitch_token(token=None):
 @twitch.route('/login')
 def login():
     return twitch_oauth.authorize(callback=url_for('twitch.authorized', _external=True))
-
-
-
 
 
 @twitch.route('/oauth')
@@ -42,10 +33,11 @@ def authorized():
                 request.args['error_description']
             )
         session['twitch_resp'] = resp
-        session['twitch_token'] = (resp['access_token'], '')
+
         print(resp)
         me: TwitchUser = get_current_user(TwitchResponse(resp))
-        twitch_response = TwitchResponse.query.filter_by(twitch_user_id=me.twitch_user_id).first()
+        session['me'] = me
+        twitch_response = get_twitch_user_by_twitch_id(me)
 
         if twitch_response is None:
             twitch_response = TwitchResponse(resp)
@@ -53,6 +45,7 @@ def authorized():
             db.session.add(twitch_response)
             db.session.commit()
             db.session.flush()
+            pass
         else:
             twitch_response.update_from(resp)
             db.session.commit()
@@ -67,6 +60,11 @@ def authorized():
         import traceback
         traceback.print_exc()
         return jsonify({})
+
+
+def get_twitch_user_by_twitch_id(me):
+    twitch_response = TwitchResponse.query.filter_by(twitch_user_id=me.twitch_user_id).first()
+    return twitch_response
 
 
 @twitch.route('/logout')

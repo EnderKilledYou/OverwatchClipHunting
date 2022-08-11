@@ -19,3 +19,4 @@ cryptocode
 pyee
 moviepy
 python-vlc
+Flask-Sharp

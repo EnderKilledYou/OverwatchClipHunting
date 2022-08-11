@@ -13,6 +13,3 @@ class StreamerConfig:
     buffer_data = False
     clip_deaths = False
 
-    def __init__(self, partial: dict):
-        for key in partial:
-            setattr(self, key, partial[key])

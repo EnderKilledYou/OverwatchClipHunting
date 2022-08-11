@@ -3,12 +3,8 @@ from pyee.base import EventEmitter
 overwatch_event = EventEmitter()
 
 from Ocr.frame import Frame
-from Ocr.twitch_video_frame_buffer import TwitchVideoFrameBuffer
-from frame_buffer import get_frame_buffer
-from clip_timestamp import ClipTimeStamp
 from config.streamer_configs import get_streamer_config
-
-from overwatch_events_helper import create_clip, can_clip, create_elim_timestamp
+from overwatch_events_helper import create_clip, can_clip
 
 
 @overwatch_event.on('elim')
@@ -16,23 +12,23 @@ def on_elim_event(frame: Frame, count: int, duration: int, last_death):
     print("{4} Kill count: {0} seconds in: {1} last death: {2} , Duration: {3}  ".format(count, str(frame.ts_second),
                                                                                          last_death,
                                                                                          duration, frame.source_name))
-    ocr: TwitchVideoFrameBuffer = get_frame_buffer(frame.source_name)
-    config = get_streamer_config(frame.source_name)
-    clip_time_stamp = ClipTimeStamp()
-    clip_time_stamp.start = frame.ts_second
-    clip_time_stamp.end = frame.ts_second + duration + 1
-    clip_time_stamp.duration = duration
-    clip_time_stamp.type = 'elim'
-    clip_time_stamp.start_buffer = config.buffer_elim_clip_before
-    clip_time_stamp.end_buffer = config.buffer_elim_clip_after
-    ocr.stream_clipper.clip_request(clip_time_stamp)
+    # ocr: TwitchVideoFrameBuffer = get_frame_buffer(frame.source_name)
+    # config = get_streamer_config(frame.source_name)
+    # clip_time_stamp = ClipTimeStamp()
+    # clip_time_stamp.start = frame.ts_second
+    # clip_time_stamp.end = frame.ts_second + duration + 1
+    # clip_time_stamp.duration = duration
+    # clip_time_stamp.type = 'elim'
+    # clip_time_stamp.start_buffer = config.buffer_elim_clip_before
+    # clip_time_stamp.end_buffer = config.buffer_elim_clip_after
+    # ocr.stream_clipper.clip_request(clip_time_stamp)
     if not can_clip(frame, 'elim'):
         return
     if count == get_streamer_config(frame.source_name).min_elims:
-        clip_timestamp = create_elim_timestamp(frame, duration)
-        created = create_clip(frame)
+       # clip_timestamp = create_elim_timestamp(frame, duration)
+        created = create_clip(frame,'elim')
         print(created)
-    pass
+
 
 
 @overwatch_event.on('elimed')
@@ -42,7 +38,7 @@ def on_elimed_event(frame: Frame):  # you can save the frame data for a screen c
         return
 
     if get_streamer_config(frame.source_name).clip_deaths:
-        created = create_clip(frame)
+        created = create_clip(frame,'elimed')
         print(created)
 
 
@@ -54,7 +50,7 @@ def on_healing_event(frame: Frame, duration: int):
 
     if duration < get_streamer_config(frame.source_name).min_healing_duration:
         return
-    created = create_clip(frame)
+    created = create_clip(frame,'healing')
     print(created)
 
 
@@ -70,7 +66,7 @@ def on_assist_event(frame: Frame, duration: int):
         return
     if duration < get_streamer_config(frame.source_name).min_assist_duration:
         return
-    created = create_clip(frame)
+    created = create_clip(frame,'assist')
     # print(created)
 
 
@@ -81,7 +77,7 @@ def on_defense_event(frame: Frame, duration: int):
         return
     if duration < get_streamer_config(frame.source_name).min_defense_duration:
         return
-    created = create_clip(frame)
+    created = create_clip(frame,'defense')
     # print(created)
 
 
@@ -91,7 +87,7 @@ def on_orbed_event(frame: Frame):
     if not can_clip(frame, 'orbed'):
         return
 
-    # created = create_clip(frame)
+    # created = create_clip(frame,'orbed')
     # print(created)
 
 
@@ -101,7 +97,7 @@ def on_orbed_event(frame: Frame):
     if not can_clip(frame, 'slept'):
         return
 
-    created = create_clip(frame)
+    created = create_clip(frame,'slept')
     print(created)
 
 
@@ -112,25 +108,25 @@ def on_blocking_event(frame: Frame, duration: int):
         return
     if duration < get_streamer_config(frame.source_name).min_blocking_duration:
         return
-    # created = create_clip(frame)
+    # created = create_clip(frame,'blocking')
     # print(created)
 
 
 @overwatch_event.on('spawn_room')
 def on_spawn_room_event(frame: Frame):
-    print("Streamer " + frame.source_name + " Spawning")
-    ocr: TwitchVideoFrameBuffer = get_frame_buffer(frame.source_name)
-    clip_time_stamp = ClipTimeStamp()
-    clip_time_stamp.start = frame.ts_second
-    clip_time_stamp.end = frame.ts_second   + 3
-    clip_time_stamp.duration = 3
-    clip_time_stamp.type = 'elim'
-    clip_time_stamp.start_buffer = 5
-    clip_time_stamp.end_buffer = 5
-    ocr.stream_clipper.clip_request(clip_time_stamp)
+    # print("Streamer " + frame.source_name + " Spawning")
+    # ocr: TwitchVideoFrameBuffer = get_frame_buffer(frame.source_name)
+    # clip_time_stamp = ClipTimeStamp()
+    # clip_time_stamp.start = frame.ts_second
+    # clip_time_stamp.end = frame.ts_second   + 3
+    # clip_time_stamp.duration = 3
+    # clip_time_stamp.type = 'elim'
+    # clip_time_stamp.start_buffer = 5
+    # clip_time_stamp.end_buffer = 5
+   # ocr.stream_clipper.clip_request(clip_time_stamp)
     if not can_clip(frame, 'spawn_room'):
         return
-    # created = create_clip(frame)
+    # created = create_clip(frame,'spawn_room')
     # print(created)
 
 
@@ -139,7 +135,7 @@ def on_game_start_event(frame: Frame):
     print("Streamer " + frame.source_name + " Game started")
     if not can_clip(frame, 'game_start'):
         return
-    # created = create_clip(frame)
+    # created = create_clip(frame,'game_start')
     # print(created)
 
 
@@ -148,5 +144,5 @@ def on_game_end_event(frame: Frame):
     print("Streamer " + frame.source_name + " Game started")
     if not can_clip(frame, 'game_end'):
         return
-    # created = create_clip(frame)
+    # created = create_clip(frame,'game_end')
     # print(created)

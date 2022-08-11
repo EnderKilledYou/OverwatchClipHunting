@@ -16,9 +16,7 @@ from thread_with_id import ThreadWithId
 
 
 def start_cli():
-    input_thread = threading.Thread(target=input_control, args=[])
-    input_thread.start()
-    input_thread.join()
+    input_control()
 
 
 def start_monitor(broadcaster):
@@ -56,7 +54,10 @@ stdInQueue = Queue()
 
 def input_reader():
     while True:
-        item = sys.stdin.readline().strip()
+        try:
+            item = sys.stdin.readline().strip()
+        except:
+            continue
         if item == "quit":
             stdInQueue.put(item)
             print("quitting")
@@ -112,7 +113,9 @@ def input_control():
         if item.startswith('watch '):
             params = item.split(' ')
             add_stream_to_monitor(params[1])
-
+        if item.startswith('remove '):
+            params = item.split(' ')
+            remove_stream_to_monitor(params[1])
         for (matcher, ocr, consumers, producer) in matchers:
             qsize = ocr.buffer.qsize()
             if showBuffered or qsize > 300:
@@ -135,6 +138,47 @@ def dump_queue_items(ocr):
             pass
 
 
-def add_stream_to_monitor(stream):
-    (m2, o2, consumers, producer) = start_monitor(stream)
+def get_stream_monitors_for_web():
+    ret = []
+    for i in matchers:
+        ret.append(map_for_web(i))
+    return ret
+
+
+def map_for_web(tuple):
+    (m2, ocr, consumers, producer) = tuple
+    qsize = ocr.buffer.qsize()
+    name = ocr.frame_streamer_name
+    seconds = qsize / get_streamer_config(name).max_frames_to_scan_per_second
+
+    return {
+        'name': name,
+
+        'seconds': seconds,
+        'queue_size': qsize
+    }
+
+
+def add_stream_to_monitor(stream_name):
+    (m2, o2, consumers, producer) = start_monitor(stream_name)
     matchers.append((m2, o2, consumers, producer))
+
+
+def is_stream_monitored(stream_name):
+    for (m2, o2, consumers, producer) in matchers:
+        if o2.frame_streamer_name == stream_name:
+            return True
+    return False
+
+
+def remove_stream_to_monitor(stream_name):
+    tmp = []
+    for (m2, o2, consumers, producer) in matchers:
+        if o2.frame_streamer_name == stream_name:
+            o2.Active = False
+            m2.Active = False
+        else:
+            tmp.append((m2, o2, consumers, producer))
+    matchers.clear()
+    for i in tmp:
+        matchers.append(i)

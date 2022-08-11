@@ -28,6 +28,9 @@ class OverwatchScreenReader(ScreenReader):
             return
         try:
             img_grey = cv.cvtColor(frame.image, cv.COLOR_RGB2GRAY)
+            # gray = cv2.cvtColor(image, cv2.COLOR_RGB2GRAY)
+            # ret2, th2 = cv2.threshold(gray, 0, 255, cv2.THRESH_BINARY + cv2.THRESH_OTSU)
+            # dst = cv2.fastNlMeansDenoising(th2, 10, 10, 7)
             pil_grey = Image.fromarray(img_grey)
             # fromarray = Image.fromarray(frame.image)
             self.ActionTextCropper.process(pil_grey, frame, self.frame_watcher,

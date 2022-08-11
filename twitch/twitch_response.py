@@ -1,7 +1,9 @@
 import cryptocode
 
 from sqlalchemy_serializer import SerializerMixin
+from twitchAPI import Twitch, AuthScope
 
+from config.config import consumer_key, consumer_secret
 from config.db_config import db
 
 
@@ -26,8 +28,6 @@ class TwitchResponse(db.Model, SerializerMixin, EncryptedFields):
     refresh_token = db.Column(db.String)
     token_type = db.Column(db.String)
 
-    def __init__(self, resp) -> None:
-        self.update_from(resp)
 
     def update_from(self, resp) -> None:
         self.access_token = self.encrypt(resp['access_token'])
@@ -40,3 +40,15 @@ class TwitchResponse(db.Model, SerializerMixin, EncryptedFields):
 
     def get_refreshtoken(self):
         return self.decrypt(self.refresh_token)
+
+def get_response_by_twitch_id(twitch_user_id):
+    return TwitchResponse.query.filter_by(twitch_user_id=twitch_user_id)
+
+def get_twitch_api_from_db(twitch_response: TwitchResponse) -> Twitch:
+    twitch_api = Twitch(app_id=consumer_key, app_secret=consumer_secret)
+    twitch_api.auto_refresh_auth = True
+    twitch_api.set_user_authentication(twitch_response.access_token, [AuthScope.CLIPS_EDIT],
+                                       twitch_response.refresh_token,
+                                       validate=False)
+    twitch_api.refresh_used_token()
+    return twitch_api

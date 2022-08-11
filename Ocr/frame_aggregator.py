@@ -1,3 +1,5 @@
+import threading
+
 from pyee import EventEmitter
 
 from Ocr.frame import Frame
@@ -7,6 +9,7 @@ class FrameAggregator:
     """
         The Frame Aggregator reads multiple frames and routes them. It also trims duplicates.
     """
+    last_elim_frame_second: int = -1
     last_elim_frame: int = -1
     last_hero_room_frame: int = -1
     last_elimed_frame: int = -1
@@ -59,18 +62,21 @@ class FrameAggregator:
         if self.too_soon_after_death('elim', frame):
             return
 
-        if self.last_elim_frame == -1:
+        if self.last_elim_frame_second == -1:
             time_since_last_kill = 3
-            self.last_elim_frame = frame.ts_second
+            self.last_elim_frame_second = frame.ts_second
+            self.last_elim_frame = frame.frame_number
         else:
-            elim_frame = self.last_elim_frame
-            time_since_last_kill = frame.ts_second - elim_frame
-            self.last_elim_frame = frame.ts_second
-            if time_since_last_kill < 1:
+            elim_frame_second = self.last_elim_frame_second
+            time_since_last_kill = frame.ts_second - elim_frame_second
+            self.last_elim_frame_second = frame.ts_second
+            elim_frame_distance = frame.frame_number - self.last_elim_frame
+
+            if elim_frame_distance < 4:
                 print(
-                    "Skipping {3} Kill at {0}, time since last kill is too soon:  {1}  elim_frame : {2} ".format(
+                    "Skipping {3} Kill at {0}, time since last kill is too soon:  {1}  elim_frame_second : {2} ".format(
                         str(frame.ts_second),
-                        time_since_last_kill, elim_frame, frame.source_name))
+                        time_since_last_kill, elim_frame_second, frame.source_name))
                 return
 
         if time_since_last_kill >= 2:
@@ -99,7 +105,7 @@ class FrameAggregator:
         if elim_frame_distance < 9:
             return
         self.last_death_frame = frame.ts_second
-        self.emitter.emit('elimed', frame)
+        thread_function(self.emitter.emit, 'elimed', frame)
         print("Death {1} at {0} ".format(str(frame.ts_second), frame.source_name))
 
     def add_spawn_room_frame(self, frame):
@@ -110,12 +116,12 @@ class FrameAggregator:
         if self.last_hero_room_frame != -1 and elim_frame_distance <= 9:
             return
         print("Hero {1} Select at {0}   ".format(str(frame.ts_second), frame.source_name))
-        self.emitter.emit('spawn_room', frame)
+        thread_function(self.emitter.emit, 'spawn_room', frame)
         self.last_hero_room_frame = frame.ts_second
 
     def check_if_was_queue(self, frame):
         if self.in_queue:
-            self.emitter.emit('game_start', frame)
+            thread_function(self.emitter.emit, 'game_start', frame)
             self.in_queue = False
 
     def add_slepting_frame(self, frame):
@@ -126,7 +132,7 @@ class FrameAggregator:
             return
 
         print("Hero {1} slepted at {0}   ".format(str(frame.ts_second), frame.source_name))
-        self.emitter.emit('slept', frame)
+        thread_function(self.emitter.emit, 'slept', frame)
         self.last_slept_frame = frame.ts_second
 
     def add_healing_frame(self, frame):
@@ -141,14 +147,16 @@ class FrameAggregator:
         heal_frame_distance = frame.frame_number - self.last_healing_frame
         heal_frame_distance_s = frame.ts_second - self.last_healing_frame_s
         if self.last_healing_frame != -1 and heal_frame_distance < 3:
-            print("Hero {1} skipped Healed at {0}  because distance was {2}  ".format(str(frame.ts_second), frame.source_name,heal_frame_distance))
+            print("Hero {1} skipped Healed at {0}  because distance was {2}  ".format(str(frame.ts_second),
+                                                                                      frame.source_name,
+                                                                                      heal_frame_distance))
             return
         if heal_frame_distance_s < 6:
             self.healing_streak += 1
         else:
             self.healing_streak = 1
         print("Hero {1} Healed at {0}   ".format(str(frame.ts_second), frame.source_name))
-        self.emitter.emit('healing', frame, self.healing_streak)
+        thread_function(self.emitter.emit, 'healing', frame, self.healing_streak)
         self.last_healing_frame_s = frame.ts_second
         self.last_healing_frame = frame.frame_number
 
@@ -159,7 +167,7 @@ class FrameAggregator:
         if self.last_orbing_frame != -1 and orb_frame_distance < 1:
             return
         print("Hero {1} orbed at {0}   ".format(str(frame.ts_second), frame.source_name))
-        self.emitter.emit('orbed', frame)
+        thread_function(self.emitter.emit, 'orbed', frame)
         self.last_orbing_frame = frame.ts_second
 
     def add_blocking_frame(self, frame):
@@ -173,14 +181,14 @@ class FrameAggregator:
         else:
             self.blocking_streak = 1
         print("Hero {1} blocking at {0}   ".format(str(frame.ts_second), frame.source_name))
-        self.emitter.emit('blocking', frame, self.blocking_streak)
+        thread_function(self.emitter.emit, 'blocking', frame, self.blocking_streak)
         self.last_blocking_frame = frame.ts_second
 
     def set_in_queue(self, frame):
         if self.in_queue:
             return
         print("{1} in queue at {0}   ".format(str(frame.ts_second), frame.source_name))
-        self.emitter.emit('queue_start', frame)
+        thread_function(self.emitter.emit, 'queue_start', frame)
         self.in_queue = True
 
     def set_in_prepare(self, frame, mode):
@@ -190,7 +198,7 @@ class FrameAggregator:
             if prepare_frame_distance < 10:
                 return
         print("Hero {1} Prepared at {0}   ".format(str(frame.ts_second), frame.source_name))
-        self.emitter.emit('prepare', frame, mode)
+        thread_function(self.emitter.emit, 'prepare', frame, mode)
         self.last_prepare_frame = frame.ts_second
 
     def add_assist_frame(self, frame):
@@ -205,7 +213,7 @@ class FrameAggregator:
         else:
             self.assist_streak = 1
         print("Hero {1} assist at {0}   ".format(str(frame.ts_second), frame.source_name))
-        self.emitter.emit('assist', frame, self.assist_streak)
+        thread_function(self.emitter.emit, 'assist', frame, self.assist_streak)
         self.last_assist_frame = frame.ts_second
 
     def add_escort_frame(self, frame):
@@ -230,5 +238,11 @@ class FrameAggregator:
         else:
             self.defense_streak = 1
         print("Hero {1} defense at {0}   ".format(str(frame.ts_second), frame.source_name))
-        self.emitter.emit('defense', frame, self.defense_streak)
+        thread_function(self.emitter.emit, 'defense', frame, self.defense_streak)
         self.last_defense_frame = frame.ts_second
+
+
+def thread_function(func, *args):  # the events can slow down processing
+    t = threading.Thread(target=func, args=args)
+    t.start()
+    return t
