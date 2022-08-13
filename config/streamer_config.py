@@ -13,3 +13,6 @@ class StreamerConfig:
     buffer_data = False
     clip_deaths = False
 
+    def __init__(self,defaults = {}):
+        for key in defaults:
+            setattr(self, key, defaults[key])

@@ -46,11 +46,11 @@ class OverwatchScreenReader(ScreenReader):
                     self.last_action_second = frame.ts_second
                 if self.frame_watcher.in_queue:
                     print("In queue " + frame.source_name)
-                    self.skip_frames += 100
+                    self.skip_frames += 2
                     return
                 if frame.ts_second - self.last_action_second > 45 and frame.empty:
                     print("In queue or full screen " + frame.source_name)
-                    self.skip_frames += 100
+                    self.skip_frames += 2
 
         except Exception as e:
             print(e)

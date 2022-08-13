@@ -62,7 +62,7 @@
 import {Options, Vue} from 'vue-class-component';
 import HelloWorld from '@/components/HelloWorld.vue';
 import {
-  add_streamer, delete_clip,
+  add_streamer, API, delete_clip,
   list_all_clips,
   list_clips,
   list_streamer,
@@ -81,7 +81,7 @@ export default class ClipView extends Vue {
   streamerName: string = ""
   clipType: string = "all"
   private interval: number = 0;
-  private streamer: string  = "";
+  private streamer: string = "";
   private page: number = 1
 
   created() {
@@ -102,12 +102,12 @@ export default class ClipView extends Vue {
   }
 
   async Delete(clip: TwitchClipLog) {
-    await delete_clip(clip.id)
+    await API.remove(clip.id)
     await this.list_items()
   }
 
   async update_list_items() {
-    await this.list_items()
+    await API.clips(this.streamer, this.clipType, this.page)
   }
 
   async PrevPage() {
@@ -123,10 +123,10 @@ export default class ClipView extends Vue {
 
   async list_items() {
     let streamerResponse;
-    if (this.streamer.length >0)
-      streamerResponse = await list_clips(this.streamer, this.clipType, this.page);
+    if (this.streamer.length > 0)
+      streamerResponse = await API.clips(this.streamer, this.clipType, this.page);
     else
-      streamerResponse = await list_all_clips(this.clipType, this.page);
+      streamerResponse =await API.all_clips( this.clipType, this.page);
     this.items = streamerResponse.items
   }
 

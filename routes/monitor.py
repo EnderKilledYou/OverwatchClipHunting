@@ -3,9 +3,9 @@ from dateutil.parser import isoparse
 from flask import jsonify, Blueprint
 from flask_events import flask_event
 
-from cli_helper import is_stream_monitored, add_stream_to_monitor, get_stream_monitors_for_web, remove_stream_to_monitor
+from monitor_manager import  MonitorManager
 from config.db_config import db
-from login_dec import requires_logged_in
+from login_dec import requires_logged_in, requires_admin_user
 from routes.query_helper import get_query_by_page
 from twitch.twitch_video import TwitchClipLog
 from twitch_helpers import get_twitch_api
@@ -15,33 +15,35 @@ from sharp_api import get_sharp
 
 sharp = get_sharp()
 
-@requires_logged_in()
+manager = MonitorManager()
+
+@requires_admin_user()
 @sharp.function()
-def add(stream_name):
-    if not is_stream_monitored(stream_name):
-        add_stream_to_monitor(stream_name)
-    for_web = get_stream_monitors_for_web()
-    return jsonify({"success": True, 'items': for_web})
+def add(stream_name :str):
+    if not manager.is_stream_monitored(stream_name):
+        manager.add_stream_to_monitor(stream_name)
+    for_web = manager.get_stream_monitors_for_web()
+    return {"success": True, 'items': for_web}
     # return twitch_oauth.authorize(callback=url_for('twitch.authorized', _external=True))
 
-@requires_logged_in()
+
 @sharp.function()
 def list():
-    for_web = get_stream_monitors_for_web()
-    return jsonify({"success": True, 'items': for_web})
+    for_web = manager.get_stream_monitors_for_web()
+    return {"success": True, 'items': for_web}
 
-@requires_logged_in()
+
 @sharp.function()
-def remove(stream_name):
-    if is_stream_monitored(stream_name):
-        remove_stream_to_monitor(stream_name)
+def remove(stream_name:str):
+    if manager.is_stream_monitored(stream_name):
+        manager.remove_stream_to_monitor(stream_name)
 
-    for_web = get_stream_monitors_for_web()
-    return jsonify({"success": True, 'items': for_web})
+    for_web = manager.get_stream_monitors_for_web()
+    return {"success": True, 'items': for_web}
 
-@requires_logged_in()
+
 @sharp.function()
-def deleteclips(clip_id):
+def deleteclips(clip_id:str):
     clip = TwitchClipLog.query.filter_by(id=int(clip_id)).first()
     if clip:
         db.session.delete(clip)
@@ -50,9 +52,9 @@ def deleteclips(clip_id):
 
     return jsonify({"success": True})
 
-@requires_logged_in()
+
 @sharp.function()
-def clips(creator_name, clip_type="", page=1):
+def clips(creator_name:str, clip_type="", page=1):
     int_page = int(page)
     if clip_type == "all":
         query_filter_by = TwitchClipLog.query.filter_by(creator_name=creator_name, type=clip_type).order_by(
@@ -65,7 +67,7 @@ def clips(creator_name, clip_type="", page=1):
     clip_list = query_to_list(clips_response)
     return jsonify({"success": True, 'items': clip_list})
 
-@requires_logged_in()
+
 @sharp.function()
 def all_clips(clip_type="", page: int = 1):
     int_page = int(page)

@@ -20,3 +20,4 @@ pyee
 moviepy
 python-vlc
 Flask-Sharp
+pytest

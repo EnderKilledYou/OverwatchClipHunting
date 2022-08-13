@@ -38,3 +38,4 @@ def get_broadcaster_id(broadcaster:str):
         print(
             "Looks like that broad caster doesn't exist or your refresh token is bad. Try it again with a different token")
         sys.exit(1)
+

@@ -5,6 +5,8 @@ export const list_streamer_path = '/list_streamer'
 export const list_clips_path = '/clips/'
 export const all_list_clips_path = '/all_clips/'
 export const delete_clips_path = '/delete_clips/'
+const api = require('./api.js')
+export const API = api.API
 
 export async function add_streamer(streamer: string): Promise<StreamerResponse> {
     const result = await fetch(baseUrl + add_streamer_path + streamer, {})
@@ -118,3 +120,5 @@ export class StreamerConfig {
     buffer_data = false
     clip_deaths = false
 }
+
+

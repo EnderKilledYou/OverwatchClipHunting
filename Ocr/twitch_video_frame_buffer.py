@@ -19,6 +19,7 @@ class TwitchVideoFrameBuffer(VideoFrameBuffer):
     def __init__(self, broadcaster: str, sample_rate: int):
         super(TwitchVideoFrameBuffer, self).__init__()
 
+        self.fps = 60
         self.broadcaster = broadcaster
         self.stream_clipper = Clipper(self.frame_streamer_name)
         self.Active = True
@@ -48,8 +49,15 @@ class TwitchVideoFrameBuffer(VideoFrameBuffer):
         if streamer_config.buffer_prefers_quality in streams:
             data_stream = streams[streamer_config.buffer_prefers_quality]
 
-        if streamer_config.stream_prefers_quality in streams:
-            ocr_stream = streams[streamer_config.stream_prefers_quality]
+        if '720p60' in streams:
+            ocr_stream = streams['720p60']
+            self.fps = 60
+        else:
+            for stream_res in streams:
+                if not stream_res.endswith('p60'):
+                    continue
+                ocr_stream = streams[stream_res]
+                self.fps = 60
 
         if streamer_config.buffer_data:
             self.stream_clipper.start(data_stream)
@@ -68,6 +76,8 @@ class TwitchVideoFrameBuffer(VideoFrameBuffer):
         try:
 
             fps = int(video_capture.get(cv.CAP_PROP_FPS))
+            if fps > 500:
+                fps = 60
             frame_number = 0
             self.Capturing = True
             while self.Active and video_capture.isOpened():

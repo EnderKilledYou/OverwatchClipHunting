@@ -12,6 +12,9 @@ from twitch_helpers import get_broadcaster_id, get_twitch_api
 last_clip_time = {}
 
 
+def format_event_for_marker(event_type: str, start_seconds: int, end_seconds: int, special: str = ''):
+    return f'{event_type} {special} {start_seconds} - {end_seconds}'
+
 
 def create_clip(frame: Frame, clip_type: str):
     api = get_twitch_api()
@@ -22,10 +25,8 @@ def create_clip(frame: Frame, clip_type: str):
     if 'status' in created and created['created'] == 403:
         print("can't clip this channel no perms")
     if in_flask():
-        flask_event.emit('clip', created['data'],clip_type)
+        flask_event.emit('clip', created['data'], clip_type)
     last_clip_time[frame.source_name] = frame.ts_second
-
-
 
     return created
 
@@ -59,7 +60,7 @@ def can_clip(frame, type: str):
         return False
     last_clip_distance = get_last_clip_time_distance(frame, type)
     if last_clip_distance < 30:
-        print("Creating clips too soon " + type + " " + str(last_clip_distance))
+        print(f"Creating clips too soon {type} {str(last_clip_distance)}")
         return False
     return True
 

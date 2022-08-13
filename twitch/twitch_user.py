@@ -33,7 +33,3 @@ class TwitchUser(db.Model, SerializerMixin):
         self.type = user['type']
         self.view_count = user['view_count']
 
-@logged_in()
-@sharp.function()
-def delete_user(name: str, description: str):
-    de

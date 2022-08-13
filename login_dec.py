@@ -6,16 +6,23 @@ from bots.bot_user import get_user_by_token
 from twitch.twitch_user import TwitchUser
 
 
-def requires_admin_user(f):
-    @wraps(f)
-    def check_session(*args, **kws):
-        if 'me' not in session:
-            abort(401)
+def requires_admin_user():
 
-        me: TwitchUser = session['me']
-        if me.display_name not in config.config.admin_user:
-            abort(401)
-        return f(*args, **kws)
+
+    def requires_admin_user_helper(f):
+        @wraps(f)
+        def check_session(*args, **kws):
+            if 'me' not in session:
+                abort(401)
+
+            me: TwitchUser = session['me']
+            if me.display_name not in config.config.admin_user:
+                abort(401)
+            return f(*args, **kws)
+
+        return check_session
+
+    return requires_admin_user_helper
 
 
 def requires_bot_user(f):
@@ -33,27 +40,29 @@ def requires_bot_user(f):
         return f(*args, **kws)
 
 
+def requires_logged_in():
+    def requires_logged_in_helper(f, token_allowed=False):
+        @wraps(f)
+        def check_session(*args, **kws):
+            """Decorator for defining a new Sharp function.
 
-def requires_logged_in(f, token_allowed=False):
-    @wraps(f)
-    def check_session(*args, **kws):
-        """Decorator for defining a new Sharp function.
+            Args:
+                route (optional): Expose this function at a specific API route, ignores the
+                    prefix supplied in the `Sharp(prefix="/api")` constructor.
+            """
+            current_ip = request.remote_addr
+            if 'ip' in session and session['ip'] != current_ip:
+                abort(401)
+            if token_allowed:
+                check_api_user(current_ip)
+            elif 'twitch_resp' not in session:
+                abort(401)
 
-        Args:
-            route (optional): Expose this function at a specific API route, ignores the
-                prefix supplied in the `Sharp(prefix="/api")` constructor.
-        """
-        current_ip = request.remote_addr
-        if 'ip' in session and session['ip'] != current_ip:
-            abort(401)
-        if token_allowed:
-            check_api_user(current_ip)
-        elif 'twitch_resp' not in session:
-            abort(401)
+            return f(*args, **kws)
 
-        return f(*args, **kws)
+        return check_session
 
-    return check_session
+    return requires_logged_in_helper
 
 
 def check_api_user(current_ip):

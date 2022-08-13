@@ -1,4 +1,5 @@
-from cli_helper import start_monitor, start_cli, add_stream_to_monitor
+from cli_helper import start_monitor, start_cli
+from monitor_manager import add_stream_to_monitor
 from config.config import broadcasters
 from twitch_helpers import get_twitch_api
 

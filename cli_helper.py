@@ -10,6 +10,7 @@ from Ocr.overwatch_screen_reader import OverwatchScreenReader
 from Ocr.twitch_video_frame_buffer import TwitchVideoFrameBuffer
 
 from frame_buffer import set_frame_buffer
+from monitor_manager import monitors, add_stream_to_monitor, remove_stream_to_monitor, get_monitors
 
 from overwatch_events import overwatch_event
 from thread_with_id import ThreadWithId
@@ -31,7 +32,7 @@ def start_monitor(broadcaster):
     producer_thread = threading.Thread(target=ocr.watch_streamer, args=[])
     matcher.show = True
     consumer_threads = []
-    for i in range(0, 4):
+    for i in range(0, 1):
         consumer_thread = threading.Thread(target=matcher.consume_twitch_broadcast)
         consumer_threads.append(consumer_thread)
     producer_thread.start()
@@ -62,7 +63,7 @@ def input_reader():
             stdInQueue.put(item)
             print("quitting")
             try:
-                for (m2, o2, consumers, producer) in matchers:
+                for (m2, o2, consumers, producer) in monitors:
                     print("clearing sub watchers " + o2.frame_streamer_name)
                     m2.Active = False
                     o2.Active = False
@@ -70,7 +71,7 @@ def input_reader():
                     print("joining producer thread " + o2.frame_streamer_name)
                     producer.join()
                     print("cleared sub watchers " + o2.frame_streamer_name)
-                matchers.clear()
+                monitors.clear()
 
             except Empty as e:
                 pass
@@ -85,9 +86,6 @@ def get_next() -> str:
         return stdInQueue.get(True, 5)
     except Empty as e:
         return ''
-
-
-matchers = []
 
 
 def input_control():
@@ -116,17 +114,18 @@ def input_control():
         if item.startswith('remove '):
             params = item.split(' ')
             remove_stream_to_monitor(params[1])
-        for (matcher, ocr, consumers, producer) in matchers:
-            qsize = ocr.buffer.qsize()
+        for monitor in get_monitors():
+            qsize = monitor.ocr.buffer.qsize()
             if showBuffered or qsize > 300:
                 if qsize > 300:
                     print(
-                        "warning buffer is getting back logged! dumping!" + ocr.frame_streamer_name + "live streaming clips "
-                                                                                                      "may be misaligned! ")
-                    dump_queue_items(ocr)
-                seconds = qsize / get_streamer_config(ocr.frame_streamer_name).max_frames_to_scan_per_second
+                        "warning buffer is getting back logged! dumping!" + monitor.broadcaster + "live streaming "
+                                                                                                  "clips  may be "
+                                                                                                  "misaligned! ")
+                    monitor.dump()
+                seconds = qsize / get_streamer_config(monitor.broadcaster).max_frames_to_scan_per_second
                 print("({2}) Total buffered: {0} in seconds: {1}".format(str(qsize), str(seconds),
-                                                                         ocr.frame_streamer_name))
+                                                                         monitor.broadcaster))
     input_thread.join()
 
 
@@ -136,49 +135,3 @@ def dump_queue_items(ocr):
             ocr.buffer.get(False)
         except Empty as e:
             pass
-
-
-def get_stream_monitors_for_web():
-    ret = []
-    for i in matchers:
-        ret.append(map_for_web(i))
-    return ret
-
-
-def map_for_web(tuple):
-    (m2, ocr, consumers, producer) = tuple
-    qsize = ocr.buffer.qsize()
-    name = ocr.frame_streamer_name
-    seconds = qsize / get_streamer_config(name).max_frames_to_scan_per_second
-
-    return {
-        'name': name,
-
-        'seconds': seconds,
-        'queue_size': qsize
-    }
-
-
-def add_stream_to_monitor(stream_name):
-    (m2, o2, consumers, producer) = start_monitor(stream_name)
-    matchers.append((m2, o2, consumers, producer))
-
-
-def is_stream_monitored(stream_name):
-    for (m2, o2, consumers, producer) in matchers:
-        if o2.frame_streamer_name == stream_name:
-            return True
-    return False
-
-
-def remove_stream_to_monitor(stream_name):
-    tmp = []
-    for (m2, o2, consumers, producer) in matchers:
-        if o2.frame_streamer_name == stream_name:
-            o2.Active = False
-            m2.Active = False
-        else:
-            tmp.append((m2, o2, consumers, producer))
-    matchers.clear()
-    for i in tmp:
-        matchers.append(i)
