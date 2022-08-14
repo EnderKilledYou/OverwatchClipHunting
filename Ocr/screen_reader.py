@@ -16,12 +16,12 @@ class ScreenReader:
         """Load in the frame for extracting text."""
         pass
 
-    def Stop(self):
+    def stop(self):
         self.Active = False
 
     def consume_twitch_broadcast(self):
 
-        while self.Active and self.framebuffer.Active:
+        while self.Active and self.framebuffer._active:
             frame = self.wait_next_frame()
             if frame is None:
                 continue

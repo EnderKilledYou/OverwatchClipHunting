@@ -1,42 +1,9 @@
-import datetime
-
 from dateutil.parser import isoparse
 from sqlalchemy_serializer import SerializerMixin
 
+import routes.streamer
 from config.db_config import db
-
-
-class TwitchVideoMarker(db.Model, SerializerMixin):
-    serialize_rules = ()
-    serialize_only = (
-        'id',)
-    id = db.Column(db.Integer, primary_key=True)
-    twitch_user_id = db.Column(db.Integer)
-    video_id = db.Column(db.Integer)
-    time_start = db.Column(db.Integer)
-    time_end = db.Column(db.Integer)
-    death_count = db.Column(db.Integer)
-    kill_count = db.Column(db.Integer)
-    heal_count = db.Column(db.Integer)
-    event_name = db.Column(db.String)  # kill, map start, etc
-
-
-class TwitchClipLog(db.Model, SerializerMixin):
-    serialize_rules = ()
-    serialize_only = (
-        'id', 'video_id', 'video_url', 'created_at', 'buffer_before', 'buffer_after', 'file_path','thumbnail_url','title','creator_name','broadcaster_name','type')
-    id = db.Column(db.Integer, primary_key=True)
-    video_id = db.Column(db.String, unique=True)
-    video_url = db.Column(db.String, unique=True)
-    buffer_before = db.Column(db.Integer)
-    buffer_after = db.Column(db.Integer)
-    created_at = db.Column(db.DATETIME)
-    file_path = db.Column(db.String)
-    thumbnail_url = db.Column(db.String)
-    title = db.Column(db.String)
-    creator_name = db.Column(db.String)
-    broadcaster_name= db.Column(db.String)
-    type = db.Column(db.String)
+from twitch.twitch_video_marker import TwitchVideoMarker
 
 
 class TwitchVideo(db.Model, SerializerMixin):
@@ -44,7 +11,7 @@ class TwitchVideo(db.Model, SerializerMixin):
         marker = TwitchVideoMarker(time_start=marker_start, time_end=marker_end, death_count=deaths, kill_count=kills,
                                    event_name=event_name, video_id=self.video_id, twitch_user_id=self.twitch_user_id)
 
-        db.session.add(marker)
+
         db.session.commit()
         db.session.flush()
 

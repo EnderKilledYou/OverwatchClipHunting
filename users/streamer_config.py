@@ -1,5 +1,6 @@
 from sqlalchemy_serializer import SerializerMixin
 
+import routes.streamer
 from config.db_config import db
 from routes.query_helper import get_query_by_page
 
@@ -53,6 +54,6 @@ def update_config(config: StreamerConfig, **kwargs):
 
 def add_config(**kwargs):
     config = StreamerConfig(kwargs)
-    db.session.add(config)
+
     db.session.flush()
     return config

@@ -1,0 +1,186 @@
+import traceback
+from datetime import datetime
+from typing import Optional, List
+
+from dateutil.parser import isoparse
+from flask import Blueprint
+
+clips = Blueprint('clips', __name__)
+from Ocr.re_scaner import ReScanner
+from Ocr.rescanner_monitor import ReScannerMonitor
+from twitch.twitch_clip_tag import get_tag_and_bag_by_clip_id, TwitchClipTag
+
+from config.db_config import db
+from flask_events import flask_event
+from routes.utils import query_to_list
+
+from routes.query_helper import get_query_by_page
+from sharp_api import get_sharp
+from twitch.twitch_clip_instance import TwitchClipInstance, add_twitch_clip_job, add_twitch_clip_scan, \
+    get_twitch_clip_instance_by_video_id, add_twitch_clip_instance_from_api, get_twitch_clip_scan_by_clip_id
+from twitch_helpers import get_twitch_api, twitch_api
+
+sharp = get_sharp()
+
+rescanner = ReScanner()
+rescanner_monitor = ReScannerMonitor(rescanner)
+
+
+@sharp.function()
+def add_clip(clip_id: str):
+    clip_resp = twitch_api.get_clips(clip_id=clip_id)
+    if len(clip_resp['data']) == 0:
+        return {"success": False, "error": "clip doesn't on twitch"}
+    clip = get_twitch_clip_instance_by_video_id(clip_id)
+    if not clip:
+        clip = add_twitch_clip_instance_from_api(clip_resp['data'][0], 'elim')
+    else:
+        return {"success": False, "error": "clip already entered"}
+    add_clip_scan(clip.id)
+    rescanner_monitor.add_job(clip.id)
+    return {"success": True, "clip": clip.to_dict()}
+
+
+@sharp.function()
+def add_clip_scan(clip_id: str):
+    exists = get_twitch_clip_scan_by_clip_id(clip_id)
+    if exists:
+        return {"success": False, "error": "Job already exists, try resetting it"}
+    clip_scan = add_twitch_clip_scan(clip_id)
+    return {"success": False, 'clip_scan': clip_scan}
+
+
+@sharp.function()
+def deleteclips(clip_id: str):
+    clip = TwitchClipInstance.query.filter_by(id=int(clip_id)).first()
+    if clip:
+        db.session.delete(clip)
+        db.session.commit()
+        db.session.flush()
+
+    return {"success": True}
+
+
+@sharp.function()
+def rescan_clip(clip_id: int):
+    rescanner_monitor.add_job(clip_id)
+    return {"success": True}
+
+
+# clip_queue = get_tag_and_bag_by_clip_id(clip.id)
+# for a in clip_queue:
+#     clip_scan = add_twitch_clip_job(a.clip_id, a.id)
+#
+# add_twitch_clip_scan(clip.id)
+# job = get_twitch_clip_job()
+
+@sharp.function()
+def clip_tags(clip_id: int, tag_id: int):
+    clip_scan = add_twitch_clip_job(clip_id, tag_id)
+    return {"success": True, 'clip_scan': clip_scan.to_dict()}
+
+
+@sharp.function()
+def search_twitch_clips(broadcaster: Optional[str] = None,
+                        game_id: Optional[str] = None,
+                        clip_id: Optional[List[str]] = None,
+
+                        ended_at: Optional[str] = None,
+                        started_at: Optional[str] = None,
+                        after_cursor: Optional[str] = None,
+                        before_cursor: Optional[str] = None):
+    twitch_api = get_twitch_api(
+    )
+    try:
+        if started_at is not None:
+            started_at = isoparse(started_at)
+        broadcaster_id = parse_broadcaster_id(broadcaster, twitch_api)
+        result = twitch_api.get_clips(broadcaster_id=broadcaster_id,
+                                      game_id=game_id,
+                                      clip_id=clip_id,
+                                      before=before_cursor,
+                                      after=after_cursor,
+                                      ended_at=ended_at,
+                                      started_at=started_at)
+    except BaseException as b:
+        return {"success": False, "error": str(b)}
+    if not result:
+        return {"success": False, "error": "something fucky no result maybe twitch ded?"}
+    return {"success": True, 'api_result': result}
+
+
+def parse_broadcaster_id(broadcaster, twitch_api):
+    try:
+        broadcaster_id = None
+        if broadcaster is None:
+            return None
+
+        result2 = twitch_api.get_users(logins=[broadcaster])
+        if len(result2['data']) > 0:
+            broadcaster_id = result2['data'][0]['id']
+        else:
+            raise ValueError("No Such Streamer")
+        return broadcaster_id
+    except:
+        pass
+    return None
+
+
+@sharp.function()
+def tags_job(clip_id: int):
+    clip_queue = get_tag_and_bag_by_clip_id(clip_id)
+    clip_scan = add_twitch_clip_scan(clip_id)
+    return {"success": True, 'clip_scan': clip_scan.to_dict()}
+
+
+@sharp.function()
+def clips_search(creator_name: str, clip_type: str = "", page: int = 1):
+    int_page = int(page)
+    if clip_type == "all":
+        query_filter_by = TwitchClipInstance.query.filter_by(creator_name=creator_name, type=clip_type).order_by(
+            TwitchClipInstance.id.desc())
+
+    else:
+        query_filter_by = TwitchClipInstance.query.filter_by(creator_name=creator_name).order_by(
+            TwitchClipInstance.id.desc())
+
+    clips_response = get_query_by_page(query_filter_by, int_page)
+    clip_list = query_to_list(clips_response)
+    return {"success": True, 'items': clip_list}
+
+
+@sharp.function()
+def all_clips(clip_type: str = "", page: int = 1):
+    int_page = int(page)
+    if clip_type == "all":
+        filter_by = TwitchClipInstance.query.filter_by()  # .order_by(TwitchClipLog.id.desc())
+    else:
+        filter_by = TwitchClipInstance.query.filter_by(type=clip_type).order_by(TwitchClipInstance.id.desc())
+
+    clips_response = get_query_by_page(filter_by, int_page)
+
+    clip_list = query_to_list(clips_response)
+    resp_list = []
+    for clip in clip_list:
+        tags = list(map(lambda x: x.to_dict(), get_tag_and_bag_by_clip_id(clip['id'])))
+        resp_list.append((clip, tags))
+    return {"success": True, 'items': resp_list}
+
+
+@flask_event.on('clip')
+def store_clip(clip_data, type):
+    try:
+
+        clip = get_twitch_api().get_clips(clip_id=clip_data[0]["id"])
+        if len(clip["data"]) == 0:
+            print("couldn't get clip")
+            return
+        data = clip["data"][0]
+        log = TwitchClipInstance(data)
+        log.type = type
+
+        db.session.commit()
+        db.session.flush()
+    except BaseException as e:
+        print(e)
+        traceback.print_exc()

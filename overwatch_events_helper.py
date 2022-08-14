@@ -24,8 +24,7 @@ def create_clip(frame: Frame, clip_type: str):
         return
     if 'status' in created and created['created'] == 403:
         print("can't clip this channel no perms")
-    if in_flask():
-        flask_event.emit('clip', created['data'], clip_type)
+    flask_event.emit('clip', created['data'], clip_type)
     last_clip_time[frame.source_name] = frame.ts_second
 
     return created

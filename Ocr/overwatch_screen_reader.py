@@ -1,26 +1,29 @@
 import cv2 as cv
 from PIL import Image
+from pyee import EventEmitter
 
 from Ocr.frame import Frame
 from Ocr.frame_aggregator import FrameAggregator
 from Ocr.frame_tester import FrameTester
+from Ocr.ordered_frame_aggregator import OrderedFrameAggregator
 from Ocr.overwatch_action_screen_region import OverwatchActionScreenRegion
 from Ocr.overwatch_searching_for_game_screen_region import OverwatchSearchingForGameScreenRegion
 from Ocr.screen_reader import ScreenReader
 from Ocr.video_frame_buffer import VideoFrameBuffer
 
-
+from overwatch_events import overwatch_event
 class OverwatchScreenReader(ScreenReader):
-    def __init__(self, framebuffer: VideoFrameBuffer, frame_watcher: FrameAggregator):
+    def __init__(self, framebuffer: VideoFrameBuffer ):
         super(OverwatchScreenReader, self).__init__(framebuffer)
         self.skip_frames = 0
+
         self.last_queue_check = 0
         self.frame_tester = FrameTester()
         self.Show = False
         self.last_action_second = 0
         self.ActionTextCropper = OverwatchActionScreenRegion()
         self.GameSearchCropper = OverwatchSearchingForGameScreenRegion()
-        self.frame_watcher = frame_watcher
+        self.frame_watcher  = OrderedFrameAggregator(overwatch_event)
 
     def ocr(self, frame: Frame) -> None:
         if self.skip_frames > 0:

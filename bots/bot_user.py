@@ -2,6 +2,7 @@ from oauthlib.common import generate_token
 from sqlalchemy import func
 from sqlalchemy_serializer import SerializerMixin
 
+import routes.streamer
 from config.db_config import db
 
 
@@ -33,7 +34,7 @@ def get_user_by_token(token: str):
 def add_user_with_token(**kwargs):
     user = BotUser(kwargs)
     user.token = generate_token()
-    db.session.add(user)
+
     db.session.flush()
     return user
 

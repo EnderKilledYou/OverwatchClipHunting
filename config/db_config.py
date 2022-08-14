@@ -19,7 +19,7 @@ db = config_db()
 
 def init_db():
     from app import app
-    from twitch.twitch_video import TwitchClipLog
+    from twitch.twitch_clip_instance import TwitchClipInstance
     db.init_app(app)
     db.create_all()
 

@@ -4,9 +4,14 @@ from queue import Queue
 class VideoFrameBuffer:
     Capturing: bool
     buffer: Queue
-    Active: bool
+    _active: bool
 
     def __init__(self):
         self.Capturing = False
         self.buffer = Queue()
-        self.Active = True
+        self._active = True
+
+    def buffer_broadcast(self):
+        pass
+    def stop(self):
+        pass

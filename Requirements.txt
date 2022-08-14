@@ -20,4 +20,5 @@ pyee
 moviepy
 python-vlc
 Flask-Sharp
+twitch-dl
 pytest

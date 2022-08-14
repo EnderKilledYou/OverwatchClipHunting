@@ -6,8 +6,7 @@ class Frame:
         Holds the output of VideoCapture and some info
     """
 
-    def __init__(self, frame_number: int, image: np.ndarray, ts_second: int, source_name: str = '',
-                 file_name: str = ''):
+    def __init__(self, frame_number: int, image: np.ndarray, ts_second: int, source_name: str = '',clip_id :int = -1):
         """
 
         :param frame_number: The Frame Number starting from 0
@@ -20,7 +19,5 @@ class Frame:
         self.source_name = source_name
         self.text = ''
         self.empty = False
-        self.file_name = file_name
-        self.is_buffered = False
-        if len(file_name) > 0:
-            self.is_buffered = True
+        self.clip_id = clip_id
+

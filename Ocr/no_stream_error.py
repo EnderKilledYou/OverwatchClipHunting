@@ -1,0 +1,2 @@
+class NoStreamError(BaseException):
+    pass

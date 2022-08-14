@@ -1,5 +1,6 @@
 from sqlalchemy_serializer import SerializerMixin
 
+import routes.streamer
 from config.db_config import db
 
 
@@ -38,7 +39,7 @@ def update_user_setting(user: AllowedUser, description: str):
 
 def add_user(**kwargs):
     user = AllowedUser(kwargs)
-    db.session.add(user)
+    db.session.commit()
     db.session.flush()
     return user
 

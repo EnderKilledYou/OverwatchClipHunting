@@ -82,6 +82,21 @@ export class StreamerMonitorState {
     }
 }
 
+export class TwitchClipTag {
+    id = 0
+    clip_id = 0
+    tag = ""
+    clip_start = 0
+    clip_end = 0
+    file_name = ""
+    tag_amount = 0
+    tag_duration = 0
+
+    constructor(part: Partial<TwitchClipLog>) {
+        Object.assign(this, part)
+    }
+}
+
 export class TwitchClipLog {
     id = 0
     video_id = ""
@@ -92,6 +107,12 @@ export class TwitchClipLog {
     file_path = ""
     thumbnail_url = ""
     title = ""
+    tags = []
+
+    get tag_string() {
+        return this.tags.join(",")
+    }
+
     creator_name = ""
     broadcaster_name = ""
     type = ""

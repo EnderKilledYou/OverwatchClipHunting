@@ -1,9 +1,5 @@
 <template>
   <div class="home">
-    <label for="streamer_name"> Add Clip
-      <input class="text-info" id="clip_id" type="text" v-model="clip_id">
-      <button @click="AddClip()" class="btn btn-block">Add</button>
-    </label>
     <div class="btn-group-justified">
       <button class="btn btn-info" @click="PrevPage">Previous</button>
       {{ page }}
@@ -18,6 +14,7 @@
 
     </label>
     <button @click="Search()" class="btn btn-block">Search</button>
+    <button class="btn btn-danger" @click="Tag_and_bag_selected()">Tag and Bag Selected</button>
     <table class="table table-striped table-responsive">
       <thead>
       <tr>
@@ -28,37 +25,37 @@
           Streamer
         </th>
         <th>
-          Clip Tags
+          ClipType
         </th>
         <th>
           Title
         </th>
         <th>
-
+          Tags
         </th>
+        <th></th>
       </tr>
       </thead>
       <tbody>
       <tr v-for="clip in items">
         <td>
-          <a target="_blank" :href="`https://clips.twitch.tv/` +clip[0].video_id"> <img :src="clip[0].thumbnail_url" class="img-responsive"/></a>
+          <a target="_blank" :href="clip.video_url"> <img :src="clip.thumbnail_url" class="img-responsive"/></a>
         </td>
         <td>
-          {{ clip[0].broadcaster_name }}
+          {{ clip.broadcaster_name }}
         </td>
         <td>
-          <div v-for="tag in clip[1]">
-            {{ tag.tag }} betweens {{ tag.clip_start }} {{ tag.clip_end }}
-
-          </div>
-
+          {{ clip.type }}
         </td>
         <td>
-          {{ clip[0].title }}
+          {{ clip.title }}
         </td>
-
         <td>
-          <button class="btn btn-danger" @click="Delete(clip[0])">Delete</button>
+          {{ clip.tag_string }}
+        </td>
+        <td>
+          <b-checkbox :checked="is_clip_selected(clip)" @input="toggle_clip_selected(clip)"></b-checkbox>
+          <button class="btn btn-danger" @click="tag_and_bag(clip)">Tag and Bag</button>
         </td>
       </tr>
       </tbody>
@@ -76,7 +73,7 @@ import {
   list_streamer,
   remove_streamer,
   StreamerMonitorState,
-  TwitchClipLog, TwitchClipTag
+  TwitchClipLog
 } from "@/api"; // @ is an alias to /src
 
 @Options({
@@ -85,29 +82,37 @@ import {
   },
 })
 export default class ClipView extends Vue {
-  private items: [TwitchClipLog, TwitchClipTag][] = [];
-
+  private items: TwitchClipLog[] = [];
   streamerName: string = ""
   clipType: string = "all"
   private interval: number = 0;
   private streamer: string = "";
   private page: number = 1
-  private clip_id: string = ""
+  private selected_clips: { [code: number]: boolean } = {}
 
+  is_clip_selected(clip: TwitchClipLog) {
+    return this.selected_clips[clip.id]
+  }
+
+  toggle_clip_selected(clip: TwitchClipLog) {
+    this.selected_clips[clip.id] = !this.selected_clips[clip.id]
+  }
+
+  tag_and_bag(clip: TwitchClipLog) {
+
+  }
 
   created() {
-
+    if (this.$route.params.streamerName)
+      this.streamer = this.$route.params.streamerName as string;
+    else
+      this.streamer = ""
     this.list_items()
 
   }
 
   onUnmounted() {
     clearInterval(this.interval)
-  }
-
-  async AddClip() {
-    await API.add_clip(this.clip_id)
-    await this.list_items()
   }
 
   async Search() {

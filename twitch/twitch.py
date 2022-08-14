@@ -1,14 +1,13 @@
-from flask import session, redirect, request, url_for, jsonify, Blueprint, render_template
+import routes.streamer
+from app import app
+from flask import session, redirect, request, url_for, jsonify, Blueprint
+
+twitch = Blueprint('twitch', __name__)
+
 
 from config.db_config import db
 from config.twitch_oauth_config import twitch_oauth
 from .twitch_user import TwitchUser
-
-twitch = Blueprint('twitch', __name__)
-
-import json
-
-import requests
 from twitch.twitch_response import TwitchResponse
 from .vod import get_current_user
 
@@ -41,8 +40,8 @@ def authorized():
 
         if twitch_response is None:
             twitch_response = TwitchResponse(resp)
-            db.session.add(me)
-            db.session.add(twitch_response)
+
+
             db.session.commit()
             db.session.flush()
             pass

@@ -1,105 +1,72 @@
+import threading
 import traceback
 
-import cv2
-import cv2 as cv
-import streamlink
-
-from Clipper.clipper import Clipper
-from Ocr.frame import Frame
-
-from Clipper.get_unix_time import get_unix_time
+from Ocr.VideoCapReader import StreamEndedError, VideoCapReader
+from Ocr.no_stream_error import NoStreamError
+from Ocr.screen_reader import ScreenReader
+from Ocr.stream_link_helper import StreamLinkHelper
 from Ocr.video_frame_buffer import VideoFrameBuffer
-from config.streamer_configs import get_streamer_config
 
 
-class TwitchVideoFrameBuffer(VideoFrameBuffer):
-    frame_streamer_name: str = ''
-    file_name = ''
+class TwitchEater(VideoFrameBuffer):
+    broadcaster: str = ''
 
-    def __init__(self, broadcaster: str, sample_rate: int):
-        super(TwitchVideoFrameBuffer, self).__init__()
+    def __init__(self, broadcaster: str):
+        """
+            Manages the threads for a VideoCapReader.
 
-        self.fps = 60
+        :param broadcaster:
+        :param matcher:
+        """
+        super(TwitchEater, self).__init__()
+
         self.broadcaster = broadcaster
-        self.stream_clipper = Clipper(self.frame_streamer_name)
-        self.Active = True
-        self.sample_rate = sample_rate
+        self.consumer_threads = []
+        self.fps = 60
 
-    def watch_streamer(self):
-        self.buffer_twitch_broadcast()
-        self.Active = False
-        print("Exiting watch of " + self.broadcaster)
-        # if not get_streamer_config(self.broadcaster).wait_for_mode:
-        #     return self.buffer_twitch_broadcast()
-        # while self.Active:
-        #     print("checking for " + self.broadcaster)
-        #     self.buffer_twitch_broadcast()
+        self._active = True
 
-    def buffer_twitch_broadcast(self):
+    def join(self):
+        for a in self.consumer_threads:
+            a.join()
 
-        streams = streamlink.streams('https://www.twitch.tv/{0}'.format(self.broadcaster))
-        if 'best' not in streams:
-            print("stream offline")
-            self.Active = False
+    def buffer_broadcast(self, matcher: ScreenReader):
+        self.matcher = matcher
+        ocr_stream = StreamLinkHelper.get_best_stream(self.broadcaster)
+        if ocr_stream is None:
             return
-        self.file_name = "{0}_{1}.ts".format(self.broadcaster, str(get_unix_time()))
-        ocr_stream = streams['best']
-        streamer_config = get_streamer_config(self.broadcaster)
-        data_stream = streams['best']
-        if streamer_config.buffer_prefers_quality in streams:
-            data_stream = streams[streamer_config.buffer_prefers_quality]
+        self._consumers(matcher)
+        self.capture_url_or_file(ocr_stream.url)
 
-        if '720p60' in streams:
-            ocr_stream = streams['720p60']
-            self.fps = 60
-        else:
-            for stream_res in streams:
-                if not stream_res.endswith('p60'):
-                    continue
-                ocr_stream = streams[stream_res]
-                self.fps = 60
+    def _consumers(self, matcher: ScreenReader):
+        for i in range(0, 4):
+            consumer_thread = threading.Thread(target=matcher.consume_twitch_broadcast)
+            self.consumer_threads.append(consumer_thread)
+            consumer_thread.start()
 
-        if streamer_config.buffer_data:
-            self.stream_clipper.start(data_stream)
-
-        self._capture_stream(ocr_stream)
-
-    def _capture_stream(self, stream):
-        url = stream.url
-        self.capture_url_or_file(url)
+    def stop(self):
+        if self.reader:
+            self.reader.stop()
+        if self.matcher:
+            self.matcher.stop()
 
     def capture_url_or_file(self, url):
-        video_capture = cv2.VideoCapture(url)
-        if not video_capture:
-            print("Capture could not open stream")
-        #     return
+        self.reader = VideoCapReader(self.broadcaster)
         try:
-
-            fps = int(video_capture.get(cv.CAP_PROP_FPS))
-            if fps > 500:
-                fps = 60
-            frame_number = 0
-            self.Capturing = True
-            while self.Active and video_capture.isOpened():
-                ret, frame = video_capture.read()
-                if not ret:
-                    break
-                frame_number += 1
-                if frame_number % (fps // self.sample_rate) != 0:
-                    continue
-                self.buffer.put(
-                    Frame(frame_number, frame, frame_number // fps, self.frame_streamer_name, self.file_name))
-            self.Capturing = False
-        except Exception as e:
-
+            print("Capture thread starting")
+            self.reader.read(url, self.buffer)
+            print("Capture thread releasing")
+        except StreamEndedError:
+            print("Stream ended or buffer problem")
+            return
+        except NoStreamError:
+            print("Stream was not live")
+            return
+        except BaseException as e:
             print(e)
-
-            traceback.print_exc()
-        try:
-            video_capture.release()
-        except Exception as e:
-            print("cap release failed")
-            print(e)
-            print(traceback.format_exc())
+            return
+        finally:
+            self.matcher.Active = False
+            self.reader.stop()
 
         print("Capture thread stopping")
