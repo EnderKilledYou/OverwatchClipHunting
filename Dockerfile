@@ -1,4 +1,4 @@
-FROM franky1/tesseract
+FROM clearlinux/tesseract-ocr
 
 # Allow statements and log messages to immediately appear in the Knative logs
 ENV PYTHONUNBUFFERED True
