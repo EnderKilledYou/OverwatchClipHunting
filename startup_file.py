@@ -20,4 +20,5 @@ def read():
 
 if __name__ == '__main__':
     print("start up file starting")
-    read()
+    if "zombie" not in os.environ:
+        read()
