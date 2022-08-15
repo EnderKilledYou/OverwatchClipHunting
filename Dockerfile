@@ -17,7 +17,7 @@ RUN pip install --no-cache-dir -r Requirements.txt
 COPY backup-cron /etc/cron.d/backup-cron
 RUN chmod 0644 /etc/cron.d/backup-cron
 RUN crontab /etc/cron.d/backup-cron
-RUN python startup_file.py
+RUN python3 startup_file.py
 
 # Run the web service on container startup. Here we use the gunicorn
 # webserver, with 4 worker processes and 32 threads.
