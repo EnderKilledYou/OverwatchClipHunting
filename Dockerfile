@@ -19,5 +19,5 @@ RUN chmod +x /app/startup.sh
 RUN /app/startup.sh
 
 
-ENV zombie main_host
+# ENV zombie main_host
 CMD exec gunicorn --bind :$PORT --workers 1 --threads 8 --timeout 0 app:app
