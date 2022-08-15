@@ -1,4 +1,11 @@
-FROM clearlinux/tesseract-ocr
+FROM ubuntu:18.04
+RUN DEBIAN_FRONTEND=noninteractive apt-get update && apt-get install -y --no-install-recommends tzdata
+RUN apt-get update && apt-get install -y software-properties-common wget
+RUN DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends  ca-certificates
+
+RUN add-apt-repository -y ppa:alex-p/tesseract-ocr
+RUN add-apt-repository -y ppa:deadsnakes/ppa
+RUN apt-get update && apt-get install -y tesseract-ocr-eng python3.7 python-pip
 
 # Allow statements and log messages to immediately appear in the Knative logs
 ENV PYTHONUNBUFFERED True
