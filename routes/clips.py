@@ -11,6 +11,7 @@ from sqlalchemy.orm.query import BulkUD
 from Database.Twitch.twitch_clip_instance_scan_job import get_twitch_clip_scan_by_clip_id, add_twitch_clip_scan, \
     get_twitch_clip_scan_by_page
 from Database.tag_and_bag import add_tag_and_bag_request
+from login_dec import requires_logged_in
 
 clips = Blueprint('clips', __name__)
 from Ocr.re_scaner import ReScanner

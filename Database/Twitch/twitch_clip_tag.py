@@ -3,8 +3,9 @@ from typing import List
 from sqlalchemy_serializer import SerializerMixin
 
 from Database.MissingRecordError import MissingRecordError
-from Database.Twitch.twitch_clip_instance import get_twitch_clip_instance_by_id
+from Database.Twitch.twitch_clip_instance import get_twitch_clip_instance_by_id, TwitchClipInstance
 from OrmHelpers.BasicWithId import BasicWithId
+from Zombies.zombie_event import report_zombie_tag
 from config.db_config import db
 
 
@@ -32,9 +33,12 @@ def if_tag_and_bag_exists(id: int) -> bool:
     return TwitchClipTag.query.filter_by(clip_id=id).first() is None
 
 
+
+
+
 def  add_twitch_clip_tag_request(clip_id: int, tag: str, tag_amount: int, tag_duration: int,
                                 tag_start: int) -> TwitchClipTag:
-    clip = get_twitch_clip_instance_by_id(clip_id)
+    clip: TwitchClipInstance = get_twitch_clip_instance_by_id(clip_id)
     if not clip:
         raise MissingRecordError("can add a clip tag for a clip that doesn't exist")
 
@@ -44,6 +48,7 @@ def  add_twitch_clip_tag_request(clip_id: int, tag: str, tag_amount: int, tag_du
     db.session.add(request)
     db.session.commit()
     db.session.flush()
+    report_zombie_tag(request, clip)
     return (request, clip)
 
 
