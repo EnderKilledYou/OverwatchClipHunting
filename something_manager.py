@@ -34,7 +34,7 @@ class ThreadedManager:
         pass
 
     def add_job(self, scan_job ):
-        update_scan_job_in_queue(scan_job)
+
         self.buffer.put(scan_job)
 
     def _do_work(self, item):

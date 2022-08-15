@@ -11,7 +11,7 @@ from twitchdl.commands.download import _download_clip
 
 from Database.Twitch.twitch_clip_instance import get_twitch_clip_instance_by_id
 from Database.Twitch.twitch_clip_instance_scan_job import TwitchClipInstanceScanJob, update_scan_job_error, \
-    get_twitch_clip_scan_by_id, update_scan_job_percent, update_scan_job_started
+    get_twitch_clip_scan_by_id, update_scan_job_percent, update_scan_job_started, update_scan_job_in_queue
 from Ocr.twitch_dl_args import Args
 
 mpy_conf.change_settings({'FFMPEG_BINARY': "C:\\ProgramData\\chocolatey\\bin\\ffmpeg.exe",
@@ -60,7 +60,7 @@ class ReScanner(ThreadedManager):
             job: TwitchClipInstanceScanJob = update_scan_job_started(job_id)
             if job is None:
                 return
-
+            update_scan_job_in_queue(job)
             url = self._get_url(job)
             if url is None:
                 return None
