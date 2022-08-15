@@ -5,7 +5,7 @@ RUN DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends  c
 
 RUN add-apt-repository -y ppa:alex-p/tesseract-ocr
 RUN add-apt-repository -y ppa:deadsnakes/ppa
-RUN apt-get update && apt-get install -y tesseract-ocr-eng python3.7 python-pip
+RUN apt-get update && apt-get install -y tesseract-ocr-eng python3.8
 
 # Allow statements and log messages to immediately appear in the Knative logs
 ENV PYTHONUNBUFFERED True
@@ -20,7 +20,7 @@ RUN chmod +x /app/install_debian.sh
 RUN /app/install_debian.sh
 
 # Install production dependencies.
-RUN pip install --no-cache-dir -r Requirements.txt
+RUN python3 -m pip install --no-cache-dir -r Requirements.txt
 
 RUN chmod +x /app/startup.sh
 RUN /app/startup.sh
