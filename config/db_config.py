@@ -1,4 +1,3 @@
-from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
 
 
@@ -19,7 +18,6 @@ db = config_db()
 
 def init_db():
     from app import app
-    from twitch.twitch_clip_instance import TwitchClipInstance
     db.init_app(app)
     db.create_all()
 

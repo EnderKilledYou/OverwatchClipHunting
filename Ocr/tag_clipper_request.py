@@ -1,7 +1,6 @@
-from queue import Queue
 from typing import List
 
-from twitch.twitch_clip_tag import TwitchClipTag
+from Database.Twitch.twitch_clip_tag import TwitchClipTag
 
 
 class TagClipperRequest:
@@ -16,6 +15,5 @@ class TagClipperRequest:
         self.return_queue = return_queue
         self.video_id = video_id
         self.broadcaster = broadcaster
-
         self.clip_parts = clip_parts
         self.clip_id = clip_id

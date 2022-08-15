@@ -18,6 +18,11 @@ class VideoCapReader:
         self.Active = False
         self.streamer_name = streamer_name
         self.sample_every_count = 30
+        self.items_read = 0
+        self.items_drained = 0
+
+    def incr_items_drained(self):
+        self.items_drained = self.items_drained + 1
 
     def _read_one(self, frame_number, fps):
         ret, frame = self.video_capture.read()
@@ -28,7 +33,10 @@ class VideoCapReader:
     def read(self, url, buffer):
         self.Active = True
         self._acquire(url)
-        self._read(buffer)
+        try:
+            self._read(buffer)
+        except StreamEndedError:
+            pass
         self._release()
 
     def stop(self):
@@ -43,19 +51,20 @@ class VideoCapReader:
         if fps == 0:
             fps = 60
 
-        self.sample_every_count = fps // 4
+        self.sample_every_count = fps // 8
         for frame in self._yield_frames(fps):
             buffer.put(frame)
 
     def _yield_frames(self, fps):
         frame_number = 0
-
         while self.Active:
             item = self._read_one(frame_number, fps)
             if item is None:
                 break
+
             if frame_number % self.sample_every_count == 0:
                 yield item
+                self.items_read = self.items_read + 1
             frame_number = frame_number + 1
 
     def _acquire(self, url: str):

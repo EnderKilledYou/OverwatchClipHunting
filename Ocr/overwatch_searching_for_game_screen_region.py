@@ -28,11 +28,11 @@ class OverwatchSearchingForGameScreenRegion(ScreenRegion):
             return
         if frame_tester.is_in_escort(text_stripped):
             frame.empty = False
-            frame_watcher.add_escort_frame(text_stripped)
+            frame_watcher.add_escort_frame(frame)
 
         if frame_tester.is_in_contested(text_stripped):
             frame.empty = False
-            frame_watcher.add_contested_frame(text_stripped)
+            frame_watcher.add_contested_frame(frame)
 
         if frame_tester.is_in_prepare_defense(text_stripped):
             frame.empty = False

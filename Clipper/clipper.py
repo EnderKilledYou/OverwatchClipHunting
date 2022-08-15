@@ -1,5 +1,6 @@
 import os
 import threading
+import traceback
 from queue import Queue, Empty
 
 from moviepy.video.io.VideoFileClip import VideoFileClip
@@ -106,6 +107,7 @@ class Clipper:
                     self._trim_buffer_and_clip_safe(file)
             except BaseException as e:
                 print(e)
+                traceback.print_exc()
 
     def start(self, stream: TwitchHLSStream):
         self._data_buffer_thread = threading.Thread(target=self.buffer.stream_reader, args=[stream])

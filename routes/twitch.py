@@ -1,5 +1,3 @@
-import routes.streamer
-from app import app
 from flask import session, redirect, request, url_for, jsonify, Blueprint
 
 twitch = Blueprint('twitch', __name__)
@@ -7,9 +5,9 @@ twitch = Blueprint('twitch', __name__)
 
 from config.db_config import db
 from config.twitch_oauth_config import twitch_oauth
-from .twitch_user import TwitchUser
-from twitch.twitch_response import TwitchResponse
-from .vod import get_current_user
+from Database.Twitch.twitch_user import TwitchUser
+from Database.Twitch.twitch_response import TwitchResponse
+from twitch.vod import get_current_user
 
 
 @twitch_oauth.tokengetter

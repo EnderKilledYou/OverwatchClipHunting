@@ -76,6 +76,8 @@ export class StreamerMonitorState {
     size = 0
     seconds = 0
     queue_size = 0
+    frames_read = 0
+    frames_done = 0
 
     constructor(part: Partial<StreamerMonitorState>) {
         Object.assign(this, part)
@@ -88,8 +90,7 @@ export class TwitchClipTag {
     tag = ""
     clip_start = 0
     clip_end = 0
-    file_name = ""
-    tag_amount = 0
+    has_file = false
     tag_duration = 0
 
     constructor(part: Partial<TwitchClipLog>) {

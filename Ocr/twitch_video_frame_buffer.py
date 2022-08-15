@@ -9,6 +9,7 @@ from Ocr.video_frame_buffer import VideoFrameBuffer
 
 
 class TwitchEater(VideoFrameBuffer):
+    reader: VideoCapReader
     broadcaster: str = ''
 
     def __init__(self, broadcaster: str):
@@ -20,11 +21,17 @@ class TwitchEater(VideoFrameBuffer):
         """
         super(TwitchEater, self).__init__()
 
+        self.reader = None
         self.broadcaster = broadcaster
         self.consumer_threads = []
         self.fps = 60
 
         self._active = True
+
+    def get_one(self):
+        item = self.buffer.get(False)
+        self.reader.incr_items_drained()
+        return item
 
     def join(self):
         for a in self.consumer_threads:
@@ -39,7 +46,7 @@ class TwitchEater(VideoFrameBuffer):
         self.capture_url_or_file(ocr_stream.url)
 
     def _consumers(self, matcher: ScreenReader):
-        for i in range(0, 4):
+        for i in range(0, 8):
             consumer_thread = threading.Thread(target=matcher.consume_twitch_broadcast)
             self.consumer_threads.append(consumer_thread)
             consumer_thread.start()
@@ -64,6 +71,7 @@ class TwitchEater(VideoFrameBuffer):
             return
         except BaseException as e:
             print(e)
+            traceback.print_exc()
             return
         finally:
             self.matcher.Active = False

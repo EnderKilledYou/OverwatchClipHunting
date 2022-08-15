@@ -37,7 +37,7 @@
     </div>
 
 
-    <button @click="Search()" class="btn btn-block">Search</button>
+    <button @click="Search()" class="btn btn-block btn-primary">Search</button>
     <div class="btn-group-justified">
 
 
@@ -86,16 +86,13 @@
 <script lang="ts">
 import {Options, Vue} from 'vue-class-component';
 
-import {
-  API,
-
-  TwitchClipLog
-} from "@/api"; // @ is an alias to /src
-
+import {API, TwitchClipLog} from "@/api"; // @ is an alias to /src
 
 @Options({
   components: {},
 })
+
+
 export default class SearchTwitch extends Vue {
   private items: TwitchClipLog[] = [];
   streamerName: string = ""
@@ -107,13 +104,19 @@ export default class SearchTwitch extends Vue {
   private page_list: any[] = []
   private clip_id: string = ""
   private broadcaster_id: string = "";
-  private game_id: string = "";
+  private game_id: string = "488552";
   private ended_at: string = "";
   private started_at: string = "";
+  private game_ids: any
 
   created() {
+ //   this.getGameIds()
 
+  }
 
+  async getGameIds() {
+    this.game_ids = await API.get_game_ids()
+    console.log(this.game_ids)
   }
 
   onUnmounted() {
@@ -157,19 +160,24 @@ export default class SearchTwitch extends Vue {
   }
 
   async list_items(page: string | null = null, before_page: string | null = null) {
-    let slips = this.clip_id.length == 0 ? null : this.clip_id.split('\n').map(a => a.trim());
-    let endedAt = this.ended_at.trim().length == 0 ? null : this.ended_at;
-    let started_at = this.started_at.trim().length == 0 ? null : this.started_at;
-    let broadcaster_id = this.broadcaster_id.trim().length == 0 ? null : this.broadcaster_id;
-    let game_id = this.game_id.trim().length == 0 ? null : this.game_id;
+    try {
+      let slips = this.clip_id.length == 0 ? null : this.clip_id.split('\n').map(a => a.trim());
+      let endedAt = this.ended_at.trim().length == 0 ? null : this.ended_at;
+      let started_at = this.started_at.trim().length == 0 ? null : this.started_at;
+      let broadcaster_id = this.broadcaster_id.trim().length == 0 ? null : this.broadcaster_id;
+      let game_id = this.game_id.trim().length == 0 ? null : this.game_id;
 
-    let streamerResponse = await API.search_twitch_clips(broadcaster_id, game_id, slips, endedAt, started_at, page, before_page)
-    if (this.items.length > 0) {
-      this.page_list.push(streamerResponse)
+      let streamerResponse = await API.search_twitch_clips(broadcaster_id, game_id, slips, endedAt, started_at, page, before_page)
+      if (this.items.length > 0) {
+        this.page_list.push(streamerResponse)
+      }
+      this.items = streamerResponse.api_result.data
+      this.lastpage = this.page
+      this.page = streamerResponse.api_result.pagination
+    } catch (e: any) {
+      alert(e)
+    } finally {
     }
-    this.items = streamerResponse.api_result.data
-    this.lastpage = this.page
-    this.page = streamerResponse.api_result.pagination
   }
 
 }

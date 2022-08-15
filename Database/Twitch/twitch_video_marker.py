@@ -1,5 +1,6 @@
 from sqlalchemy_serializer import SerializerMixin
 
+from OrmHelpers.BasicWithId import BasicWithId
 from config.db_config import db
 
 
@@ -16,3 +17,6 @@ class TwitchVideoMarker(db.Model, SerializerMixin):
     kill_count = db.Column(db.Integer)
     heal_count = db.Column(db.Integer)
     event_name = db.Column(db.String)  # kill, map start, etc
+
+
+twitch_video_marker_helper = BasicWithId(TwitchVideoMarker)

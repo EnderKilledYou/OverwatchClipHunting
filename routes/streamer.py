@@ -1,8 +1,8 @@
 from flask import Blueprint
 
-from monitor_manager import MonitorManager
+from routes.monitor_manager import manager
+
 streamer = Blueprint('streamer', __name__)
-manager = MonitorManager()
 from sharp_api import get_sharp
 
 sharp = get_sharp()

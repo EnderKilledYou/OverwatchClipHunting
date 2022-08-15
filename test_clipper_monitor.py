@@ -1,9 +1,10 @@
+from Database.Twitch.twitch_clip_instance_scan_job import add_twitch_clip_scan
 from Ocr.tag_clipper_monitor import TagMonitor
 from Ocr.tag_clipper import TagClipper
 
-from twitch.twitch_clip_instance import get_twitch_clip_instance_by_video_id, add_twitch_clip_job, get_twitch_clip_job, \
-    add_twitch_clip_scan, reset_twitch_clip_job_state
-from twitch.twitch_clip_tag import get_tag_and_bag_by_clip_id
+from Database.Twitch.twitch_clip_instance import get_twitch_clip_instance_by_video_id
+from Database.Twitch.tag_clipper_job import get_twitch_clip_job, reset_twitch_clip_job_state, add_twitch_clip_job
+from Database.Twitch.twitch_clip_tag import get_tag_and_bag_by_clip_id
 
 
 def test_tag_clipper_monitor():

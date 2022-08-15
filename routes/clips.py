@@ -1,14 +1,21 @@
+import atexit
 import traceback
-from datetime import datetime
+from time import sleep
 from typing import Optional, List
 
 from dateutil.parser import isoparse
 from flask import Blueprint
+from sqlalchemy.orm import aliased
+from sqlalchemy.orm.query import BulkUD
+
+from Database.Twitch.twitch_clip_instance_scan_job import get_twitch_clip_scan_by_clip_id, add_twitch_clip_scan, \
+    get_twitch_clip_scan_by_page
+from Database.tag_and_bag import add_tag_and_bag_request
 
 clips = Blueprint('clips', __name__)
 from Ocr.re_scaner import ReScanner
-from Ocr.rescanner_monitor import ReScannerMonitor
-from twitch.twitch_clip_tag import get_tag_and_bag_by_clip_id, TwitchClipTag
+from Ocr.rescanner_monitor import ReScannerMonitor, make_rescanner_job_from_clip_id
+from Database.Twitch.twitch_clip_tag import get_tag_and_bag_by_clip_id, TwitchClipTag
 
 from config.db_config import db
 from flask_events import flask_event
@@ -16,29 +23,56 @@ from routes.utils import query_to_list
 
 from routes.query_helper import get_query_by_page
 from sharp_api import get_sharp
-from twitch.twitch_clip_instance import TwitchClipInstance, add_twitch_clip_job, add_twitch_clip_scan, \
-    get_twitch_clip_instance_by_video_id, add_twitch_clip_instance_from_api, get_twitch_clip_scan_by_clip_id
+from Database.Twitch.twitch_clip_instance import TwitchClipInstance, \
+    get_twitch_clip_instance_by_video_id, add_twitch_clip_instance_from_api, get_twitch_clip_instance_by_id
+from Database.Twitch.tag_clipper_job import add_twitch_clip_job, reset_twitch_clip_job_state, requeue_twitch_clip_jobs
 from twitch_helpers import get_twitch_api, twitch_api
 
 sharp = get_sharp()
 
 rescanner = ReScanner()
-rescanner_monitor = ReScannerMonitor(rescanner)
+rescanner.start()
+
+reset_twitch_clip_job_state()
+requeue_twitch_clip_jobs(rescanner)
+
+atexit.register(rescanner.stop)
 
 
 @sharp.function()
 def add_clip(clip_id: str):
+    twitch_api = get_twitch_api()
     clip_resp = twitch_api.get_clips(clip_id=clip_id)
     if len(clip_resp['data']) == 0:
         return {"success": False, "error": "clip doesn't on twitch"}
     clip = get_twitch_clip_instance_by_video_id(clip_id)
     if not clip:
         clip = add_twitch_clip_instance_from_api(clip_resp['data'][0], 'elim')
-    else:
-        return {"success": False, "error": "clip already entered"}
-    add_clip_scan(clip.id)
-    rescanner_monitor.add_job(clip.id)
-    return {"success": True, "clip": clip.to_dict()}
+    job = add_twitch_clip_scan(clip.id, clip.broadcaster_name)
+    if job is not None:
+        rescanner.add_job(job.id)
+        return {"success": True, "clip": clip.to_dict()}
+    return {"success": False, "error": "Clip is alread being processed"}
+
+
+@sharp.function()
+def get_game_ids():
+    twitch_api = get_twitch_api()
+    games = twitch_api.get_top_games(first=100)
+    data = games['data']
+    return data
+
+
+@sharp.function()
+def get_clip_scan_jobs(page: int = 1):
+    try:
+
+        by_page = get_twitch_clip_scan_by_page(page)
+        return {"success": True,
+                'items': list(map(lambda x: (x[0].to_dict(), x[1].to_dict()), by_page))}
+    except BaseException as be:
+
+        return {"success": False, 'error': str(be)}
 
 
 @sharp.function()
@@ -58,12 +92,6 @@ def deleteclips(clip_id: str):
         db.session.commit()
         db.session.flush()
 
-    return {"success": True}
-
-
-@sharp.function()
-def rescan_clip(clip_id: int):
-    rescanner_monitor.add_job(clip_id)
     return {"success": True}
 
 
@@ -134,24 +162,38 @@ def tags_job(clip_id: int):
 
 
 @sharp.function()
-def clips_search(creator_name: str, clip_type: str = "", page: int = 1):
+def clips_search(creator_name: str, clip_type: List[str] = [], page: int = 1):
     int_page = int(page)
-    if clip_type == "all":
-        query_filter_by = TwitchClipInstance.query.filter_by(creator_name=creator_name, type=clip_type).order_by(
-            TwitchClipInstance.id.desc())
+    if int_page < 1:
+        int_page = 1
 
-    else:
-        query_filter_by = TwitchClipInstance.query.filter_by(creator_name=creator_name).order_by(
-            TwitchClipInstance.id.desc())
+    q = TwitchClipInstance.query.join(TwitchClipTag,
+                                      TwitchClipInstance.id == TwitchClipTag.clip_id, isouter=False).with_entities(
+        TwitchClipInstance, TwitchClipTag)
 
-    clips_response = get_query_by_page(query_filter_by, int_page)
-    clip_list = query_to_list(clips_response)
-    return {"success": True, 'items': clip_list}
+    if len(clip_type) > 0:
+        q = q.filter(TwitchClipTag.tag.in_(clip_type))
+
+    if len(creator_name) > 0:
+        q = q.filter(TwitchClipInstance.broadcaster_name == creator_name)
+
+    clips_response = q.limit(100).offset((int_page - 1) * 100).all()
+
+    clip_dict = {}
+    for a in q:
+        if a[1] is None:
+            continue
+        if a[0] not in clip_dict:
+            clip_dict[a[0]] = (a[0].to_dict(), [])
+        clip_dict[a[0]][1].append(a[1].to_dict())
+
+    return {"success": True, 'items': list(clip_dict.values())}
 
 
 @sharp.function()
 def all_clips(clip_type: str = "", page: int = 1):
     int_page = int(page)
+
     if clip_type == "all":
         filter_by = TwitchClipInstance.query.filter_by()  # .order_by(TwitchClipLog.id.desc())
     else:
@@ -173,14 +215,16 @@ def store_clip(clip_data, type):
 
         clip = get_twitch_api().get_clips(clip_id=clip_data[0]["id"])
         if len(clip["data"]) == 0:
-            print("couldn't get clip")
-            return
-        data = clip["data"][0]
-        log = TwitchClipInstance(data)
-        log.type = type
+            sleep(15)
+            clip = get_twitch_api().get_clips(clip_id=clip_data[0]["id"])
+            if len(clip["data"]) == 0:
+                print("couldn't get clip")
+                return
+        clip = add_twitch_clip_instance_from_api(clip['data'][0], type)
 
-        db.session.commit()
-        db.session.flush()
+        job = add_twitch_clip_scan(clip.id, clip.broadcaster_name)
+        if job is not None:
+            rescanner.add_job(job.id)
     except BaseException as e:
         print(e)
         traceback.print_exc()

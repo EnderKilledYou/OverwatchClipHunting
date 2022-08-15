@@ -1,4 +1,4 @@
-from twitch.twitch_clip_tag import TwitchClipTag
+from Database.Twitch.twitch_clip_tag import TwitchClipTag
 
 
 def get_twitch_clips_by_tag(tag: str, page: int = 1):

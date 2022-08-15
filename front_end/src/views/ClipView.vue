@@ -1,99 +1,100 @@
 <template>
   <div class="home">
-    <label for="streamer_name"> Add Clip
-      <input class="text-info" id="clip_id" type="text" v-model="clip_id">
-      <button @click="AddClip()" class="btn btn-block">Add</button>
-    </label>
-    <div class="btn-group-justified">
-      <button class="btn btn-info" @click="PrevPage">Previous</button>
-      {{ page }}
-      <button class="btn btn-info" @click="NextPage">Next</button>
+
+    <div class="row">
+
+
+
+
+        <div class="btn-group-justified">
+          <button class="btn btn-info" @click="PrevPage">Previous</button>
+          {{ page }}
+          <button class="btn btn-info" @click="NextPage">Next</button>
+        </div>
+
+
+
+        <label for="clip_type"> Search Type
+          <select class="form-control " style="height:20vh" v-model="clipType" multiple>
+            <option value="elim">Eliminations</option>
+            <option value="blocking">Blocking</option>
+            <option value="elimed">Deaths</option>
+            <option value="healing">Healing</option>
+            <option value="orbed">Orbed</option>
+            <option value="slept">Slept</option>
+            <option value="assist">Assist</option>
+            <option value="defense">Defending</option>
+            <option value="spawn_room">Spawn Room</option>
+            <option value="game_start">Game Start</option>
+            <option value="game_end">Game End</option>
+            <option value="queue_start">Queue Start</option>
+
+
+          </select>
+
+          <input class="text-info" id="streamer_name" type="text" v-model="streamerName" placeholder=" Search Streamer">
+
+        </label>
+        <div class="btn-group-justified">
+          <button @click="Clear()" class="btn btn-block btn-outline-dark">Clear</button>
+          <button @click="Search()" class="btn btn-block btn-outline-dark">Search</button>
+        </div>
+
     </div>
-    <label for="streamer_name"> Search Streamer
-      <input class="text-info" id="streamer_name" type="text" v-model="streamerName">
+    <div class="row row-cols-3 row-cols-md-4 g-4">
+      <div class="col" v-for="item in items" :key="item.id">
+        <div class="card">
+          <a target="_blank" :href="`https://clips.twitch.tv/` +item[0].video_id"><img class="card-img-top"
+                                                                                       :src="item[0].thumbnail_url"
+                                                                                       :alt="title"></a>
 
-    </label>
-    <label for="clip_type"> Search Type
-      <input class="text-info" id="clip_type" type="text" v-model="clipType">
+          <div class="card-body">
+            <h5 class="card-title"> {{ item[0].broadcaster_name }}</h5>
+            <p class="card-text">{{ item[0].title }}</p>
+            <div class="row" v-for="tag in item[1]">
+              {{ tag.tag }} betweens {{ tag.clip_start }} {{ tag.clip_end }} <a v-if="tag.has_file"
+                                                                                :href="`/tag_video/${tag.id}`"><span
+                class="small"> view</span></a>
 
-    </label>
-    <button @click="Search()" class="btn btn-block">Search</button>
-    <table class="table table-striped table-responsive">
-      <thead>
-      <tr>
-        <th>
-          Thumbnail
-        </th>
-        <th>
-          Streamer
-        </th>
-        <th>
-          Clip Tags
-        </th>
-        <th>
-          Title
-        </th>
-        <th>
-
-        </th>
-      </tr>
-      </thead>
-      <tbody>
-      <tr v-for="clip in items">
-        <td>
-          <a target="_blank" :href="`https://clips.twitch.tv/` +clip[0].video_id"> <img :src="clip[0].thumbnail_url" class="img-responsive"/></a>
-        </td>
-        <td>
-          {{ clip[0].broadcaster_name }}
-        </td>
-        <td>
-          <div v-for="tag in clip[1]">
-            {{ tag.tag }} betweens {{ tag.clip_start }} {{ tag.clip_end }}
-
+            </div>
           </div>
+          <div class="card-footer">
 
-        </td>
-        <td>
-          {{ clip[0].title }}
-        </td>
+            <button class="btn btn-info" @click="Rescan(item[0])">Rescan</button>
+            <button class="btn btn-danger" @click="Delete(item[0])">Delete</button>
+          </div>
+        </div>
 
-        <td>
-          <button class="btn btn-danger" @click="Delete(clip[0])">Delete</button>
-        </td>
-      </tr>
-      </tbody>
-    </table>
+      </div>
+    </div>
+
   </div>
 </template>
 
 <script lang="ts">
 import {Options, Vue} from 'vue-class-component';
-import HelloWorld from '@/components/HelloWorld.vue';
+
 import {
-  add_streamer, API, delete_clip,
-  list_all_clips,
-  list_clips,
-  list_streamer,
-  remove_streamer,
-  StreamerMonitorState,
-  TwitchClipLog, TwitchClipTag
+  API, TwitchClipLog, TwitchClipTag
 } from "@/api"; // @ is an alias to /src
 
 @Options({
-  components: {
-    HelloWorld,
-  },
+  components: {},
 })
 export default class ClipView extends Vue {
   private items: [TwitchClipLog, TwitchClipTag][] = [];
 
   streamerName: string = ""
-  clipType: string = "all"
+  clipType: string[] = []
   private interval: number = 0;
   private streamer: string = "";
   private page: number = 1
   private clip_id: string = ""
 
+  async Rescan(clip: TwitchClipLog) {
+    debugger;
+    await API.add_clip(clip.video_id)
+  }
 
   created() {
 
@@ -136,10 +137,7 @@ export default class ClipView extends Vue {
 
   async list_items() {
     let streamerResponse;
-    if (this.streamer.length > 0)
-      streamerResponse = await API.clips(this.streamer, this.clipType, this.page);
-    else
-      streamerResponse = await API.all_clips(this.clipType, this.page);
+    streamerResponse = await API.clips_search(this.streamer, this.clipType, this.page)
     this.items = streamerResponse.items
   }
 

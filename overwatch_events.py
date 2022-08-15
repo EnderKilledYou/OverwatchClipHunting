@@ -24,10 +24,10 @@ def on_elim_event(frame: Frame, count: int, duration: int, last_death):
     # ocr.stream_clipper.clip_request(clip_time_stamp)
     if not can_clip(frame, 'elim'):
         return
-    if count == get_streamer_config(frame.source_name).min_elims:
-       # clip_timestamp = create_elim_timestamp(frame, duration)
-        created = create_clip(frame,'elim')
-        print(created)
+    if duration != get_streamer_config(frame.source_name).min_elims:
+        return
+    created = create_clip(frame, 'elim')
+    print(created)
 
 
 
@@ -48,7 +48,7 @@ def on_healing_event(frame: Frame, duration: int):
     if not can_clip(frame, 'healing'):
         return
 
-    if duration < get_streamer_config(frame.source_name).min_healing_duration:
+    if duration != get_streamer_config(frame.source_name).min_healing_duration:
         return
     created = create_clip(frame,'healing')
     print(created)
@@ -56,7 +56,8 @@ def on_healing_event(frame: Frame, duration: int):
 
 @overwatch_event.on('queue_start')
 def on_queue_start_event(frame: Frame):
-    print("Streamer " + frame.source_name + " queue_start ")
+    pass
+   # created = create_clip(frame,'healing')
 
 
 @overwatch_event.on('assist')
@@ -64,7 +65,7 @@ def on_assist_event(frame: Frame, duration: int):
     print("Streamer " + frame.source_name + " assist " + str(duration))
     if not can_clip(frame, 'assist'):
         return
-    if duration < get_streamer_config(frame.source_name).min_assist_duration:
+    if duration != get_streamer_config(frame.source_name).min_assist_duration:
         return
     created = create_clip(frame,'assist')
     # print(created)
@@ -75,7 +76,7 @@ def on_defense_event(frame: Frame, duration: int):
     print("Streamer " + frame.source_name + " defense " + str(duration))
     if not can_clip(frame, 'defense'):
         return
-    if duration < get_streamer_config(frame.source_name).min_defense_duration:
+    if duration != get_streamer_config(frame.source_name).min_defense_duration:
         return
     created = create_clip(frame,'defense')
     # print(created)
@@ -84,8 +85,7 @@ def on_defense_event(frame: Frame, duration: int):
 @overwatch_event.on('orbed')
 def on_orbed_event(frame: Frame):
     print("Streamer " + frame.source_name + " orbed")
-    if not can_clip(frame, 'orbed'):
-        return
+
 
     # created = create_clip(frame,'orbed')
     # print(created)
@@ -98,7 +98,7 @@ def on_orbed_event(frame: Frame):
         return
 
     created = create_clip(frame,'slept')
-    print(created)
+
 
 
 @overwatch_event.on('blocking')
@@ -108,8 +108,8 @@ def on_blocking_event(frame: Frame, duration: int):
         return
     if duration < get_streamer_config(frame.source_name).min_blocking_duration:
         return
-    # created = create_clip(frame,'blocking')
-    # print(created)
+    created = create_clip(frame,'blocking')
+    print(created)
 
 
 @overwatch_event.on('spawn_room')

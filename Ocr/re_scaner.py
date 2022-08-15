@@ -1,9 +1,18 @@
 import os
+import tempfile
+import traceback
+from operator import attrgetter
 from os.path import abspath
 
-from queue import Empty
+from queue import Empty, Queue
 
 import moviepy.config as mpy_conf
+from twitchdl.commands.download import _download_clip
+
+from Database.Twitch.twitch_clip_instance import get_twitch_clip_instance_by_id
+from Database.Twitch.twitch_clip_instance_scan_job import TwitchClipInstanceScanJob, update_scan_job_error, \
+    get_twitch_clip_scan_by_id, update_scan_job_percent, update_scan_job_started
+from Ocr.twitch_dl_args import Args
 
 mpy_conf.change_settings({'FFMPEG_BINARY': "C:\\ProgramData\\chocolatey\\bin\\ffmpeg.exe",
                           })
@@ -11,8 +20,8 @@ mpy_conf.change_settings({'FFMPEG_BINARY': "C:\\ProgramData\\chocolatey\\bin\\ff
 from Ocr.VideoCapReader import VideoCapReader, StreamEndedError, ClipVideoCapReader
 from Ocr.overwatch_clip_reader import OverwatchClipReader
 from something_manager import ThreadedManager
-from twitch.tag_and_bag import update_tag_and_bag_scan_progress, \
-    if_tag_cancel_request_exists, update_tag_and_bag_scan_scan_error
+from Database.tag_and_bag import update_tag_and_bag_scan_progress, \
+    if_tag_cancel_request_exists
 
 
 class InvalidFpsError(BaseException):
@@ -26,12 +35,11 @@ if not os.path.exists(tmp_path):
 
 
 class RescannerRequest:
-    def __init__(self, tag_id: int, mp4_url: str, broadcaster, clip_id: int ):
+    def __init__(self, tag_id: int, mp4_url: str, broadcaster, clip_id: int):
         self.tag_id = tag_id
         self.broadcaster = broadcaster
         self.mp4_url = mp4_url
         self.clip_id = clip_id
-
 
         # self.reader = ClipVideoCapReader(self._broadcaster, clip_id)
 
@@ -46,44 +54,77 @@ class ReScanner(ThreadedManager):
         self._frame_count = 0
         self.matcher = OverwatchClipReader()
 
-    def _do_work(self, job: RescannerRequest):
+    def _do_work(self, job_id: int):
         try:
+            reader_buffer = Queue()
+            job: TwitchClipInstanceScanJob = update_scan_job_started(job_id)
+            if job is None:
+                return
+
+            url = self._get_url(job)
+            if url is None:
+                return None
+            path = tmp_path + os.sep + next(tempfile._get_candidate_names()) + '.mp4'
+            _download_clip(url, Args(url, path))
             reader = ClipVideoCapReader(job.broadcaster, job.clip_id)
-            reader.read(job.mp4_url, self.buffer)
+            reader.read(path, reader_buffer)
+            reader.stop()
 
-        except StreamEndedError:
-            pass
+
         except BaseException as e:
             print(e)
-            update_tag_and_bag_scan_scan_error(job.tag_id, str(e))
+            traceback.print_exc()
+            if job is not None:
+                update_scan_job_error(job.id, str(e))
             return
-
+        finally:
+            if path is not None:
+                if os.path.exists(path):
+                    os.unlink(path)
         try:
-            self._scan_clip(job)
+            frames = queue_to_list(reader_buffer)
+            frames.sort(key=attrgetter('frame_number'))
+            self._scan_clip(job, frames)
         except BaseException as e:
             print(e)
-            update_tag_and_bag_scan_scan_error(job.tag_id, str(e))
+            traceback.print_exc()
+            update_scan_job_error(job.id, str(e))
             return
+
+    def _get_url(self, job: TwitchClipInstanceScanJob):
+        clip = get_twitch_clip_instance_by_id(job.clip_id)
+        if clip is None:
+            return None
+        return clip.video_id
 
     def _stop(self):
         self._reader.stop()
 
-    def _scan_clip(self, job: RescannerRequest):
-        size = self.buffer.qsize()
+    def _scan_clip(self, job: TwitchClipInstanceScanJob, reader_list):
+        size = len(reader_list)
         frame_number = 0
         try:
-            while True:
-                frame = self.buffer.get(False)
+            for frame in reader_list:
                 self.matcher.ocr(frame)
                 self._frame_count += 1
-                percent_done = frame_number + 1 / size
-                if int(percent_done) % 15 == 0:
-                    if if_tag_cancel_request_exists(job.tag_id):
-                        return
-                    update_tag_and_bag_scan_progress(job.tag_id, percent_done)
-        except Empty:
-            pass
+                frame_number = frame_number + 1
+                percent_done = frame_number / size
+                i = int(percent_done * 100.0)
+                if i > 0 and i % 15 == 0:
+                    update_scan_job_percent(job.id, percent_done)
+
         except BaseException as b:
+            traceback.print_exc()
             pass
 
-        update_tag_and_bag_scan_progress(job.tag_id, 1)
+        update_scan_job_percent(job.id, 1, True)
+
+
+def queue_to_list(queue: Queue):
+    items = []
+    try:
+        while True:
+            items.append(queue.get(False))
+    except Empty:
+        pass
+    return items

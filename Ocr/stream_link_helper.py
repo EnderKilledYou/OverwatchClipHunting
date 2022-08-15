@@ -31,7 +31,7 @@ class StreamLinkHelper:
             if not stream_res.endswith('p60'):
                 continue
             items.append((streams[stream_res], stream_res))
-        if len(items) < 1:
+        try:
+            return items.pop()[0]
+        except:
             return ocr_stream
-        items_ = items[:-1][0]
-        return items_[0]

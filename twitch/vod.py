@@ -1,9 +1,9 @@
 from twitchAPI.twitch import Twitch
 
-from twitch.twitch_user import TwitchUser
+from Database.Twitch.twitch_user import TwitchUser
 from config.config import consumer_secret, consumer_key
-from twitch.twitch_response import TwitchResponse
-from twitch.twitch_video import TwitchVideo
+from Database.Twitch.twitch_response import TwitchResponse
+from Database.Twitch.twitch_video import TwitchVideo
 
 
 def get_current_user(resp: TwitchResponse) -> TwitchUser:

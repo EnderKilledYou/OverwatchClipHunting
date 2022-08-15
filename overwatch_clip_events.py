@@ -1,7 +1,6 @@
 from pyee.base import EventEmitter
 
-from twitch.tag_and_bag import TagAndBagRequest
-from twitch.twitch_clip_tag import add_twitch_clip_tag_request
+from Database.Twitch.twitch_clip_tag import add_twitch_clip_tag_request
 
 overwatch_clips_event = EventEmitter()
 
@@ -25,25 +24,25 @@ def on_elimed_event(frame: Frame):  # you can save the frame data for a screen c
 @overwatch_clips_event.on('healing')
 def on_healing_event(frame: Frame, duration: int):
     print("Streamer " + frame.source_name + " healing " + str(duration))
-    add_twitch_clip_tag_request(frame.clip_id, 'elim', 1, duration, frame.ts_second)
+    add_twitch_clip_tag_request(frame.clip_id, 'healing', 1, duration, frame.ts_second)
 
 
 @overwatch_clips_event.on('queue_start')
 def on_queue_start_event(frame: Frame):
     print("Streamer " + frame.source_name + " queue_start ")
-    add_twitch_clip_tag_request(frame.clip_id, 'elim', 1, 1, frame.ts_second)
+    add_twitch_clip_tag_request(frame.clip_id, 'queue_start', 1, 1, frame.ts_second)
 
 
 @overwatch_clips_event.on('assist')
 def on_assist_event(frame: Frame, duration: int):
     print("Streamer " + frame.source_name + " assist " + str(duration))
-    add_twitch_clip_tag_request(frame.clip_id, 'elim', 1, duration, frame.ts_second)
+    add_twitch_clip_tag_request(frame.clip_id, 'assist', 1, duration, frame.ts_second)
 
 
 @overwatch_clips_event.on('defense')
 def on_defense_event(frame: Frame, duration: int):
     print("Streamer " + frame.source_name + " defense " + str(duration))
-    add_twitch_clip_tag_request(frame.clip_id, 'elim', 1, duration, frame.ts_second)
+    add_twitch_clip_tag_request(frame.clip_id, 'defense', 1, duration, frame.ts_second)
 
 
 @overwatch_clips_event.on('orbed')

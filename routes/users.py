@@ -1,6 +1,6 @@
-from flask import Blueprint, jsonify, session, abort
+from flask import Blueprint, jsonify, session
 
-from twitch.twitch_user import TwitchUser
+from Database.Twitch.twitch_user import TwitchUser
 from users.streamer_config import update_config, get_config_by_id, get_configs, get_configs_name
 
 streamer_config = Blueprint('streamer_config', __name__)

@@ -1,6 +1,7 @@
 from dateutil.parser import isoparse
 from sqlalchemy_serializer import SerializerMixin
 
+from OrmHelpers.BasicWithId import BasicWithId
 from config.db_config import db
 
 
@@ -33,3 +34,5 @@ class TwitchUser(db.Model, SerializerMixin):
         self.type = user['type']
         self.view_count = user['view_count']
 
+
+twitch_user_helper = BasicWithId(TwitchUser)

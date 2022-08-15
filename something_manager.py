@@ -2,13 +2,14 @@ import threading
 from queue import Queue, Empty
 from time import sleep
 
+from Database.Twitch.twitch_clip_instance_scan_job import update_scan_job_in_queue
 from Ocr.tag_clipper_request import TagClipperRequest
 
 
 class ThreadedManager:
     max_threads: int
 
-    def __init__(self, max_threads=2, exit_on_empty=True):
+    def __init__(self, max_threads=2, exit_on_empty=False):
         self._exit_on_empty = exit_on_empty
         self.max_threads = max_threads
         self.buffer = Queue()
@@ -33,6 +34,7 @@ class ThreadedManager:
         pass
 
     def add_job(self, scan_job ):
+        update_scan_job_in_queue(scan_job)
         self.buffer.put(scan_job)
 
     def _do_work(self, item):

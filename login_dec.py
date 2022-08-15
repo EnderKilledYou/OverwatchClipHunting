@@ -3,7 +3,7 @@ from flask import abort, session, request
 
 import config.config
 from bots.bot_user import get_user_by_token
-from twitch.twitch_user import TwitchUser
+from Database.Twitch.twitch_user import TwitchUser
 
 
 def requires_admin_user():

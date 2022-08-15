@@ -50,6 +50,7 @@ class ClipBuffer:
                                 time_end=self.dumped_data_seconds + duration)
         except BaseException as e:
             print(e)
+            traceback.print_exc()
         finally:
             if lock_acquired:
                 self.buffer_lock.release()
@@ -95,7 +96,7 @@ class ClipBuffer:
         except BaseException as e:
             print("Error buffering to file:")
             print(e)
-
+            traceback.print_exc()
         finally:
             safe_close(self.buffer_fd)
             safe_close(reader)

@@ -20,13 +20,23 @@ class MonitorManager:
         return list(map(self.map_for_web, self.get_monitors()))
 
     def map_for_web(self, monitor: Monitor):
-        qsize = monitor.ocr.buffer.qsize()
         name = monitor.broadcaster
-        seconds = qsize / get_streamer_config(name).max_frames_to_scan_per_second
+        reader = monitor.ocr.reader
+        if reader:
+            qsize = reader.items_read - reader.items_drained
+
+            seconds = qsize / 4
+            return {
+                'name': name,
+                'frames_read':reader.items_read,
+                'frames_done': reader.items_drained,
+                'seconds': seconds,
+                'queue_size': qsize
+            }
         return {
             'name': name,
-            'seconds': seconds,
-            'queue_size': qsize
+            'seconds': 0,
+            'queue_size': 0
         }
 
     def add_stream_to_monitor(self, stream_name):
@@ -48,7 +58,7 @@ class MonitorManager:
             if monitor.broadcaster == stream_name:
                 monitor.stop()
             else:
-                tmp.append(monitor.ocr)
+                tmp.append(monitor)
         self.copy_tmp_to_monitors(tmp)
 
     def copy_tmp_to_monitors(self, tmp):

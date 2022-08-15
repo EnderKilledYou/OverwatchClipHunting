@@ -24,12 +24,13 @@ class ScreenReader:
         while self.Active and self.framebuffer._active:
             frame = self.wait_next_frame()
             if frame is None:
+                sleep(1)
                 continue
 
             self.ocr(frame)
 
     def wait_next_frame(self):
         try:
-            return self.framebuffer.buffer.get(False)
+            return self.framebuffer.get_one()
         except BaseException as e:
             return None

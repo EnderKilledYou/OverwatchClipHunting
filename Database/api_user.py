@@ -19,6 +19,7 @@ class ApiUser(db.Model, SerializerMixin):
 def get_user_by_name(name, twitch_user_id):
     return ApiUser.query.filter_by(name=name, twitch_user_id=twitch_user_id).first()
 
+
 def get_subuser_count(twitch_user_id):
     return db.session.query(func.count(ApiUser.twitch_user_id)).scalar()
 
@@ -33,7 +34,7 @@ def get_user_by_token(token: str):
 def add_user_with_token(**kwargs):
     user = ApiUser(kwargs)
     user.token = generate_token()
-    routes.streamer.add(user)
+    db.session.add(user)
     db.session.flush()
     return user
 

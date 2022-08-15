@@ -1,9 +1,8 @@
 import traceback
 
-from app import app
 from Ocr.re_scaner import ReScanner
-from twitch.tag_and_bag import TagAndBagRequest, add_tag_and_bag_request
-from twitch.twitch_clip_instance import TwitchClipInstance, add_twitch_clip_instance_from_api, \
+from Database.tag_and_bag import add_tag_and_bag_request
+from Database.Twitch.twitch_clip_instance import add_twitch_clip_instance_from_api, \
     delete_twitch_clip_instance, get_twitch_clip_instance_by_video_id
 from twitch_helpers import get_twitch_api
 

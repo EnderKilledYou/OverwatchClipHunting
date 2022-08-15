@@ -9,19 +9,10 @@ from twitchdl.commands.download import _download_clip
 import config.config
 from Ocr.re_scaner import tmp_path
 from Ocr.tag_clipper_request import TagClipperRequest
+from Ocr.twitch_dl_args import Args
 from something_manager import ThreadedManager
-from twitch.twitch_clip_instance import get_twitch_clip_instance_by_id
-from twitch.twitch_clip_tag import update_tag_and_bag_filename
-
-
-class Args:
-    def __init__(self, video_id: str, out_file: str):
-        self.quality = "source"
-        self.output = out_file
-        self.video = video_id
-        self.start = None
-        self.end = None
-        self.overwrite = True
+from Database.Twitch.twitch_clip_instance import get_twitch_clip_instance_by_id, TwitchClipInstance
+from Database.Twitch.twitch_clip_tag import update_tag_and_bag_filename
 
 
 class TagClipper(ThreadedManager):
@@ -50,15 +41,10 @@ class TagClipper(ThreadedManager):
     def _do_work(self, item: TagClipperRequest):
         try:
             file_info = self._download(item.video_id)
-            file = file_info[0]
-            clip = get_twitch_clip_instance_by_id(item.clip_id)
-            storage_path = abspath(
-                f'./videos{os.sep}{clip.broadcaster_name}{os.sep}{str(clip.created_at.year)}{os.sep}{str(clip.created_at.month)}{os.sep}{str(clip.created_at.day)}{os.sep}')
-            if not os.path.exists(storage_path):
-                os.makedirs(storage_path)
-            probe = ffmpeg.probe(file)
-            video_info = next(s for s in probe['streams'] if s['codec_type'] == 'video')
-            fps = int(video_info['r_frame_rate'].split('/')[0])
+            file: str = file_info[0]
+            clip: TwitchClipInstance = get_twitch_clip_instance_by_id(item.clip_id)
+            storage_path = self.get_storage_path(clip)
+
             for section in item.clip_parts:
                 out_file = storage_path + os.sep + next(tempfile._get_candidate_names()) + '.mp4'
                 trim(file, out_file, section.clip_start, section.clip_end)
@@ -70,6 +56,14 @@ class TagClipper(ThreadedManager):
             item.return_queue.put((clip.id,))
         except BaseException as e:
             item.return_queue.put((clip.id, str(e)))
+
+
+def get_storage_path(clip: TwitchClipInstance):
+    storage_path = abspath(
+        f'./videos{os.sep}{clip.broadcaster_name}{os.sep}{str(clip.created_at.year)}{os.sep}{str(clip.created_at.month)}{os.sep}{str(clip.created_at.day)}{os.sep}')
+    if not os.path.exists(storage_path):
+        os.makedirs(storage_path)
+    return storage_path
 
 
 def trim(input_path, output_path, start=30, end=60):

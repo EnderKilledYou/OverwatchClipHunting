@@ -5,7 +5,7 @@ bot_users = Blueprint('bot_users', __name__)
 from bots.bot_user import BotUser
 from flask_events import flask_event
 from sharp_api import get_sharp
-from twitch.twitch_response import get_response_by_twitch_id, get_twitch_api_from_db
+from Database.Twitch.twitch_response import get_response_by_twitch_id, get_twitch_api_from_db
 from login_dec import requires_bot_user, requires_admin_user
 
 sharp_api = get_sharp()

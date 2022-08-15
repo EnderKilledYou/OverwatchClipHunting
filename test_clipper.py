@@ -1,10 +1,7 @@
-from app import app
 from Ocr.tag_clipper import TagClipper
 from Ocr.tag_clipper_request import TagClipperRequest
-from test_rescanner import bag_and_tag_clip
-from twitch.twitch_clip_instance import get_twitch_clip_instance_by_video_id
-from twitch.twitch_clip_tag import get_tag_and_bag_by_clip_id
-from twitch_helpers import get_twitch_api
+from Database.Twitch.twitch_clip_instance import get_twitch_clip_instance_by_video_id
+from Database.Twitch.twitch_clip_tag import get_tag_and_bag_by_clip_id
 
 
 def test_tag_clipper():

@@ -3,7 +3,7 @@ from flask import Blueprint, jsonify, session
 sub_users = Blueprint('sub_users', __name__)
 from login_dec import requires_logged_in
 from sharp_api import get_sharp
-from twitch.api_user import get_user_by_name, add_user_with_token, get_subuser_count, delete_user, reset_token
+from Database.api_user import get_user_by_name, add_user_with_token, get_subuser_count, delete_user, reset_token
 
 sharp = get_sharp()
 

@@ -20,7 +20,7 @@ class FrameAggregator:
     last_escort_frame: int = -1
     last_slept_frame: int = 1
     healing_streak: int = 0
-
+    elim_streak: int = 0;
     defense_streak: int = 0
     last_defense_frame: int = -1
     assist_streak: int = 0
@@ -51,41 +51,19 @@ class FrameAggregator:
         :return:
         """
         self.check_if_was_queue(frame)
-        if self.last_elim_frame_id > frame.frame_number:
-            print(
-                "Skipping {3} Kill at {0}, out of order second: {1} Frame num {1} Last Frame {2}  ".format(
-                    str(frame.ts_second),
-                    frame.frame_number, self.last_elim_frame_id, frame.source_name))
-            return
-        self.last_elim_frame_id = frame.frame_number
-
         if self.too_soon_after_death('elim', frame):
             return
-
-        if self.last_elim_frame_second == -1:
-            time_since_last_kill = 3
-            self.last_elim_frame_second = frame.ts_second
-            self.last_elim_frame = frame.frame_number
+        elim_frame_distance = frame.ts_second - self.last_elim_frame
+        if self.last_elim_frame != -1 and elim_frame_distance < 1:
+            return
+        if elim_frame_distance < 4:
+            self.elim_streak += 1
+            self.elim_duration += elim_frame_distance
         else:
-            elim_frame_second = self.last_elim_frame_second
-            time_since_last_kill = frame.ts_second - elim_frame_second
-            self.last_elim_frame_second = frame.ts_second
-            elim_frame_distance = frame.frame_number - self.last_elim_frame
-
-            if elim_frame_distance < 4:
-                print(
-                    "Skipping {3} Kill at {0}, time since last kill is too soon:  {1}  elim_frame_second : {2} ".format(
-                        str(frame.ts_second),
-                        time_since_last_kill, elim_frame_second, frame.source_name))
-                return
-
-        if time_since_last_kill >= 2:
-            self.elim_count = 1
-            self.elim_duration = 0
-        else:
-            self.elim_count = self.elim_count + 1
-            self.elim_duration += time_since_last_kill
-        self.emitter.emit('elim', frame, self.elim_count, self.elim_duration, self.last_death_frame)
+            self.elim_streak = 1
+        print("Hero {1} elim at {0}   ".format(str(frame.ts_second), frame.source_name))
+        self.last_elim_frame = frame.ts_second
+        thread_function(self.emitter.emit, 'elim', frame, self.elim_streak, self.elim_duration, self.last_death_frame)
 
     def too_soon_after_death(self, event_name, frame):
         time_since_last_death = frame.ts_second - self.last_death_frame

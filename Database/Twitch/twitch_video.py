@@ -1,9 +1,9 @@
 from dateutil.parser import isoparse
 from sqlalchemy_serializer import SerializerMixin
 
-import routes.streamer
+from OrmHelpers.BasicWithId import BasicWithId
 from config.db_config import db
-from twitch.twitch_video_marker import TwitchVideoMarker
+from Database.Twitch.twitch_video_marker import TwitchVideoMarker
 
 
 class TwitchVideo(db.Model, SerializerMixin):
@@ -60,3 +60,5 @@ class TwitchVideo(db.Model, SerializerMixin):
         self.language = video['language']
         self.type = video['type']
         self.duration = video['duration']
+
+twitch_video_helper = BasicWithId(TwitchVideo)

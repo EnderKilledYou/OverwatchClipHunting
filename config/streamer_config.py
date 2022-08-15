@@ -1,10 +1,10 @@
 class StreamerConfig:
     make_clips = True  # Set to false for just watch mode
-    min_healing_duration = 99  # set stupid high to ignore
-    min_elims = 99
-    min_blocking_duration = 99
-    min_defense_duration = 99
-    min_assist_duration = 99
+    min_healing_duration = 2  # set stupid high to ignore
+    min_elims = 2
+    min_blocking_duration = 2
+    min_defense_duration = 2
+    min_assist_duration = 2
     stream_prefers_quality = '720p60'
     wait_for_mode = True
     buffer_prefers_quality = 'best'
