@@ -7,6 +7,7 @@ ENV PYTHONUNBUFFERED True
 ENV APP_HOME /app
 WORKDIR $APP_HOME
 COPY . ./
+COPY backup-cron /etc/cron.d/backup-cron
 
 RUN chmod +x /app/install_debian.sh
 RUN /app/install_debian.sh
@@ -14,10 +15,8 @@ RUN /app/install_debian.sh
 # Install production dependencies.
 RUN pip install --no-cache-dir -r Requirements.txt
 
-COPY backup-cron /etc/cron.d/backup-cron
-RUN chmod 0644 /etc/cron.d/backup-cron
-RUN crontab /etc/cron.d/backup-cron
-RUN python3 startup_file.py
+
+RUN /app/startup.sh
 
 # Run the web service on container startup. Here we use the gunicorn
 # webserver, with 4 worker processes and 32 threads.
