@@ -1,0 +1,2 @@
+*/5 * * * * python db_file.py
+## 0 * * * * python db_file.py

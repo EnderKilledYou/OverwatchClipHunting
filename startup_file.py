@@ -6,22 +6,14 @@ os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = abspath("./inspiring-lore-357817-
 from google.cloud import storage
 
 
-def write():
-
-
+def read():
     storage_client = storage.Client()
     bucket = storage_client.bucket('app_storage_state')
     blob = bucket.blob("twitch.sqlite3")
-    time_stamp = bucket.blob("timestamp.txt")
-
-
-    with open("twitch.sqlite3", "rb") as db:
-        data = db.read()
-    with blob.open("wb") as f:
-        f.write(data)
-    with time_stamp.open("w") as t:
-        t.write(str(datetime.now()))
-
+    with blob.open("rb") as f:
+        with open("twitch.sqlite", "wb") as db:
+            db.write()
 
 if __name__ == '__main__':
-    write()
+    print("start up file starting")
+    read()
