@@ -19,5 +19,5 @@ RUN chmod +x /app/startup.sh
 RUN /app/startup.sh
 
 
-ENV zombie https://cliphunter-2f3vvue3ua-uw.a.run.app/nC8%2Al%24x4%2Boobm%3DEU5WJvZYu%3DPJXE9OBhP7%3D/
+# ENV zombie https://cliphunter-2f3vvue3ua-uw.a.run.app/nC8%2Al%24x4%2Boobm%3DEU5WJvZYu%3DPJXE9OBhP7%3D/
 CMD exec gunicorn --bind :$PORT --workers 1 --threads 8 --timeout 0 app:app
