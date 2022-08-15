@@ -22,3 +22,5 @@ if __name__ == '__main__':
     print("start up file starting")
     if "zombie" not in os.environ:
         read()
+    cpuCount = os.cpu_count()
+    print("Number of CPUs in the system:", cpuCount)

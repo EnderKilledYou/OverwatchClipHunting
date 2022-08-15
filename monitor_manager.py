@@ -31,7 +31,7 @@ class MonitorManager:
         twitch_api = get_twitch_api()
         while self.farm_twitch:
             sleep(60)
-            count = 10 - len(self._monitors)
+            count = 2 - len(self._monitors)
             if count < 1:
                 continue
             streams = twitch_api.get_streams(game_id="488552", language=['en'], first=100)

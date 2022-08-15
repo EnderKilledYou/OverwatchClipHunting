@@ -51,7 +51,7 @@ class VideoCapReader:
         if fps == 0:
             fps = 60
 
-        self.sample_every_count = fps // 8
+        self.sample_every_count = fps // 4
         for frame in self._yield_frames(fps, max):
             buffer.put(frame)
 
