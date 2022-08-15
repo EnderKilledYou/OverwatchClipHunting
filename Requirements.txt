@@ -22,4 +22,6 @@ python-vlc
 Flask-Sharp
 twitch-dl==1.22.0
 pytest
-WTForms-Alchemy
+gunicorn
+ffmpeg-python
+google-cloud-storage

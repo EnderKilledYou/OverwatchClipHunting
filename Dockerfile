@@ -12,11 +12,11 @@ RUN chmod +x /app/install_debian.sh
 RUN /app/install_debian.sh
 
 # Install production dependencies.
-RUN pip install --no-cache-dir -r requirements.txt
+RUN pip install --no-cache-dir -r Requirements.txt
 
 
 # Run the web service on container startup. Here we use the gunicorn
 # webserver, with 4 worker processes and 32 threads.
 # For environments with multiple CPU cores, increase the number of workers
 # to be equal to the cores available.
-CMD exec gunicorn --bind :$PORT --workers 4 --threads 32 --timeout 0 app:app
+CMD exec gunicorn --bind :$PORT --workers 1 --threads 8 --timeout 0 app:app

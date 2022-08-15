@@ -1,3 +1,5 @@
+from os.path import abspath
+
 from app import app
 from config.db_config import db
 from sqlalchemy import func
@@ -14,4 +16,6 @@ def test_query():
         if "data" in api_data_result and len(api_data_result["data"]) > 0:
             api_data = api_data_result["data"][0]
             fix_vod_and_duration(api_data)
+
+
 

@@ -1,3 +1,5 @@
+from os.path import abspath
+
 from flask import Flask, render_template
 
 from config.config import flask_secret_key
