@@ -18,7 +18,7 @@ class ZombieKey:
         return True
 
 
-api_keys = [ZombieKey('abc')]
+api_keys = [ZombieKey('nC8*l$x4+oobm=EU5WJvZYu=PJXE9OBhP7=')]
 
 
 @zombie_route.route('/<api_key>/zombie_tag')
