@@ -15,7 +15,7 @@ RUN /app/install_debian.sh
 # Install production dependencies.
 RUN pip install --no-cache-dir -r Requirements.txt
 
-
+RUN chmod +x /app/startup.sh
 RUN /app/startup.sh
 
 # Run the web service on container startup. Here we use the gunicorn
