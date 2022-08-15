@@ -2,7 +2,6 @@ from datetime import datetime
 
 from sqlalchemy_serializer import SerializerMixin
 
-from Database.MissingRecordError import RecordExistsError
 from Database.Twitch.twitch_clip_instance import get_twitch_clip_instance_by_id
 from Database.Twitch.twitch_clip_tag import get_tag_and_bag_by_clip_id
 from OrmHelpers.BasicWithId import BasicWithId

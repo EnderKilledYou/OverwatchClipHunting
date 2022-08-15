@@ -13,7 +13,8 @@ zombie_route = Blueprint('zombie', __name__)
 
 class ZombieKey:
     pass
-
+    def __init__(self,match_val):
+        self.match_val = match_val
     def match_key(self) -> bool:
         return True
 

@@ -17,6 +17,8 @@ def config_app() -> Flask:
 
 
 def register_blueprints(app: Flask):
+    from config.db_config import init_db
+    init_db()
     from routes.twitch import twitch as twitch_blueprint
     from routes.monitor import monitor as monitor_blueprint
     from routes.clips import clips as clips_blueprint
@@ -24,14 +26,15 @@ def register_blueprints(app: Flask):
     from routes.streamer import streamer as streamer_blueprint
 
     from routes.zombie import zombie_route as zombie_callback_blueprint
+
     app.register_blueprint(zombie_callback_blueprint)
     app.register_blueprint(clips_blueprint)
     app.register_blueprint(streamer_blueprint)
     app.register_blueprint(twitch_blueprint)
     app.register_blueprint(monitor_blueprint)
     app.register_blueprint(video_blueprint)
-    from config.db_config import init_db
-    init_db()
+
+
 
 
 app = config_app()

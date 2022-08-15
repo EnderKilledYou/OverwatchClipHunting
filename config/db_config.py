@@ -1,6 +1,8 @@
 from flask_sqlalchemy import SQLAlchemy
 
 
+
+
 def config_db() -> SQLAlchemy:
     """
 
@@ -18,6 +20,8 @@ db = config_db()
 
 def init_db():
     from app import app
+    #TwitchClipInstanceScanJob()
+    from Database.Twitch.twitch_clip_instance_scan_job import TwitchClipInstanceScanJob
     db.init_app(app)
     db.create_all()
 
