@@ -11,6 +11,8 @@ def read():
     storage_client = storage.Client()
     bucket = storage_client.bucket('app_storage_state')
     blob = bucket.blob("twitch.sqlite3")
+    if not blob.exists(storage_client):
+        return
     with blob.open("rb") as f:
         with open("twitch.sqlite", "wb") as db:
             db.write(f.read())
