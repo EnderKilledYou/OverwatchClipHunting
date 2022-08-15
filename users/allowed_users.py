@@ -31,6 +31,7 @@ def update_user(user: AllowedUser, description: str):
     db.session.commit()
     db.session.flush()
 
+
 def update_user_setting(user: AllowedUser, description: str):
     user.description = description
     db.session.commit()
@@ -52,4 +53,5 @@ def disable_user(user: AllowedUser):
 
 def delete_user(user: AllowedUser):
     db.session.delete(user)
+    db.session.commit(user)
     db.session.flush()

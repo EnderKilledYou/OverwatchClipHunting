@@ -8,10 +8,14 @@ from Ocr.video_frame_buffer import VideoFrameBuffer
 
 
 
+
+
+
 class Monitor:
     ocr: VideoFrameBuffer
     broadcaster: str
     matcher: ScreenReader
+
 
 
 

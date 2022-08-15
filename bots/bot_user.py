@@ -47,6 +47,7 @@ def reset_token(user: BotUser):
 
 def delete_user(user: BotUser):
     db.session.delete(user)
+    db.session.commit(user)
     db.session.flush()
 
 
