@@ -22,7 +22,7 @@ RUN /app/install_debian.sh
 RUN tesseract --help
 
 # Install production dependencies.
-RUN python3 -m pip install --no-cache-dir -r Requirements.txt
+RUN python3.8 -m pip install --no-cache-dir -r Requirements.txt
 
 RUN chmod +x /app/startup.sh
 RUN /app/startup.sh
