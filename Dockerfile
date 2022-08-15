@@ -21,6 +21,7 @@ RUN /app/install_debian.sh
 
 RUN tesseract --help
 
+RUN python3.8 -m pip install --upgrade pip
 # Install production dependencies.
 RUN python3.8 -m pip install --no-cache-dir -r Requirements.txt
 
