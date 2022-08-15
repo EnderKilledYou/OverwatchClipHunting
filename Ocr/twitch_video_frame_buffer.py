@@ -39,10 +39,11 @@ class TwitchEater(VideoFrameBuffer):
 
     def buffer_broadcast(self, matcher: ScreenReader):
         self.matcher = matcher
+        self._consumers(matcher)
+
         ocr_stream = StreamLinkHelper.get_best_stream(self.broadcaster)
         if ocr_stream is None:
             return
-        self._consumers(matcher)
         self.capture_url_or_file(ocr_stream.url)
 
     def _consumers(self, matcher: ScreenReader):

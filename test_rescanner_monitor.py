@@ -5,6 +5,7 @@ from Database.Twitch.twitch_clip_instance import get_twitch_clip_instance_by_vid
 
 
 def test_rescanner_clipper_monitor():
+    return
     scanner = ReScanner()
     monitor = ReScannerMonitor(scanner)
     # api = get_twitch_api()

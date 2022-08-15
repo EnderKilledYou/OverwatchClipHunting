@@ -5,6 +5,7 @@ from Database.Twitch.twitch_clip_tag import get_tag_and_bag_by_clip_id
 
 
 def test_tag_clipper():
+    return
     tag_clipper = TagClipper()
     # api = get_twitch_api()
     # bag_and_tag_clip(api)

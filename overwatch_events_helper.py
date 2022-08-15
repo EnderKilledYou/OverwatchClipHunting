@@ -28,7 +28,7 @@ def create_clip(frame: Frame, clip_type: str):
 
     if 'status' in created and created['status'] == 403:
         print("can't clip this channel no perms")
-        manager.remove_stream_to_monitor(frame.source_name)
+        manager.avoid_streamer(frame.source_name)
 
     if 'data' in created:
         flask_event.emit('clip', created['data'], clip_type)

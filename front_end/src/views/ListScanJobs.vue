@@ -18,7 +18,7 @@
           <div class="card-body">
             <h5 class="card-title"> {{ stateToString(item[0].state) }}</h5>
             <p class="card-text">{{ item[1].title }}</p>
-
+            <p class="card-text">{{ item[0].error}} </p>
           </div>
           <div class="card-footer">
 

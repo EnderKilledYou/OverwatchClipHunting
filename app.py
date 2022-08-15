@@ -34,6 +34,13 @@ app = config_app()
 
 register_blueprints(app)
 
+try:
+  import googleclouddebugger
+  googleclouddebugger.enable(
+    breakpoint_enable_canary=True
+  )
+except ImportError:
+  pass
 
 
 @app.route('/')

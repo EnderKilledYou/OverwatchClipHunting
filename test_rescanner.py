@@ -8,6 +8,7 @@ from twitch_helpers import get_twitch_api
 
 
 def test_rescanner():
+    return
     twitch_api = get_twitch_api()
     try:
         bag_and_tag_clip(twitch_api)

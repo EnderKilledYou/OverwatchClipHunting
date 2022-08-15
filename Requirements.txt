@@ -25,3 +25,4 @@ pytest
 gunicorn
 ffmpeg-python
 google-cloud-storage
+google-python-cloud-debugger

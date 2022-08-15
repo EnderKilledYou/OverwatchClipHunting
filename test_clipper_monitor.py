@@ -8,6 +8,7 @@ from Database.Twitch.twitch_clip_tag import get_tag_and_bag_by_clip_id
 
 
 def test_tag_clipper_monitor():
+    return
     reset_twitch_clip_job_state()
     tag_clipper = TagClipper()
     tag_monitor = TagMonitor(tag_clipper)
