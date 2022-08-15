@@ -18,8 +18,6 @@ RUN pip install --no-cache-dir -r Requirements.txt
 RUN chmod +x /app/startup.sh
 RUN /app/startup.sh
 
-# Run the web service on container startup. Here we use the gunicorn
-# webserver, with 4 worker processes and 32 threads.
-# For environments with multiple CPU cores, increase the number of workers
-# to be equal to the cores available.
+
+ENV zombie main_host
 CMD exec gunicorn --bind :$PORT --workers 1 --threads 8 --timeout 0 app:app
