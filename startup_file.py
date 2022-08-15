@@ -12,7 +12,7 @@ def read():
     blob = bucket.blob("twitch.sqlite3")
     with blob.open("rb") as f:
         with open("twitch.sqlite", "wb") as db:
-            db.write()
+            db.write(f.read())
 
 if __name__ == '__main__':
     print("start up file starting")
