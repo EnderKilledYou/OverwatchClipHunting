@@ -1,3 +1,4 @@
+import os
 from os.path import abspath
 
 from flask import Flask, render_template
@@ -21,6 +22,9 @@ def register_blueprints(app: Flask):
     from routes.clips import clips as clips_blueprint
     from routes.video import video as video_blueprint
     from routes.streamer import streamer as streamer_blueprint
+
+    from routes.zombie import zombie_route as zombie_callback_blueprint
+    app.register_blueprint(zombie_callback_blueprint)
     app.register_blueprint(clips_blueprint)
     app.register_blueprint(streamer_blueprint)
     app.register_blueprint(twitch_blueprint)
@@ -35,12 +39,13 @@ app = config_app()
 register_blueprints(app)
 
 try:
-  import googleclouddebugger
-  googleclouddebugger.enable(
-    breakpoint_enable_canary=True
-  )
+    import googleclouddebugger
+
+    googleclouddebugger.enable(
+        breakpoint_enable_canary=True
+    )
 except ImportError:
-  pass
+    pass
 
 
 @app.route('/')
