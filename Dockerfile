@@ -1,4 +1,4 @@
-FROM debian:bookworm-20220801 as BASE
+FROM debian:bookworm-20210816-slim as BASE
 ENV PYTHONUNBUFFERED True
 ENV APP_HOME /app
 ENV VUE_HOME /app/front_end
