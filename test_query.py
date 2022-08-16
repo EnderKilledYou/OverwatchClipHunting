@@ -12,7 +12,7 @@ from twitch_helpers import get_twitch_api
 
 def test_query():
     man = MonitorManager()
-    man.farm_twitch_mode()
+    man.heart_beat()
     return
     twitch = get_twitch_api()
     for clip in TwitchClipInstance.query.filter_by():

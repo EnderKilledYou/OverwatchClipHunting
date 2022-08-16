@@ -9,36 +9,7 @@
       <button @click="AutoTwitch()" class="btn btn-block">Auto Twitch</button>
       <button @click="StopAutoTwitch()" class="btn btn-block">Stop Auto Twitch</button>
     </label>
-    <table class="table table-striped table-responsive" v-if="twitch_streams_filtered.length >0">
-      <thead>
-      <tr>
-        <th>
-          Started At
-        </th>
-        <th>
-
-        </th>
-
-      </tr>
-      </thead>
-      <tbody>
-      <tr v-for="watcher in twitch_streams_filtered">
-        <td>
-          <figure class="figure">
-            <a target="_blank" :href="`https://twitch.tv/` +watcher.video_id"> <img
-                :src="watcher.thumbnail_url.replace('{width}','100').replace('{height}','100')"
-                class="  img-responsive"/></a>
-
-            <figcaption> {{ watcher.user_name }}</figcaption>
-            <figcaption> {{ watcher.started_at }}</figcaption>
-          </figure>
-        </td>
-        <td>
-          <button class="btn btn-danger" @click="Watch2( watcher.user_name)">Watch</button>
-        </td>
-      </tr>
-      </tbody>
-    </table>
+    <on-twitch-now :twitch_streams_filtered="twitch_streams_filtered" @updatedmonitored="list_items"/>
     <div class="row row-cols-3 row-cols-md-4 g-4">
       <div class="col" v-for="watcher in items" :key="watcher.name">
         <div class="card">
@@ -50,7 +21,8 @@
                 watcher.name
               }}</a></h5>
             <p class="card-text"> {{ watcher.frames_done }} / {{ watcher.frames_read }} ( {{ watcher.seconds }} s) </p>
-
+            <p class="card-text"> {{ watcher.data.viewer_count }} (since: {{ new Date(watcher.data.started_at).toLocaleString() }}</p>
+            <p class="card-text"> {{ watcher.data.game_name }} </p>
           </div>
           <div class="card-footer">
 
@@ -67,12 +39,14 @@
 <script lang="ts">
 import {Options, Vue} from 'vue-class-component';
 import HelloWorld from '@/components/HelloWorld.vue';
-import {add_streamer, list_streamer, remove_streamer, StreamerMonitorState, API} from "@/api"; // @ is an alias to /src
+import {API, StreamerMonitorState} from "@/api";
+import OnTwitchNow from "@/views/OnTwitchNow.vue"; // @ is an alias to /src
 
 let interval: number | null | undefined = null
 
 @Options({
   components: {
+    OnTwitchNow,
     HelloWorld,
   },
 })
@@ -108,6 +82,7 @@ export default class HomeView extends Vue {
   }
 
   created() {
+
     this.list_items()
     if (interval)
       clearInterval(interval)
