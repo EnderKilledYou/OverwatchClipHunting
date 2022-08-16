@@ -12,14 +12,11 @@ RUN update-ca-certificates
 
 
 # node and yarn
-COPY setup_node_16.sh .
-RUN bash ./setup_node_16.sh
-RUN apt install nodejs -y
 RUN curl -sL https://dl.yarnpkg.com/debian/pubkey.gpg | gpg --dearmor | tee /usr/share/keyrings/yarnkey.gpg >/dev/null
 RUN echo "deb [signed-by=/usr/share/keyrings/yarnkey.gpg] https://dl.yarnpkg.com/debian stable main" | tee /etc/apt/sources.list.d/yarn.list
 RUN DEBIAN_FRONTEND=noninteractive apt-get update -y && apt-get install yarn -y
 
-RUN python -v
+RUN python3 -v
 #python
 RUN add-apt-repository  ppa:deadsnakes/ppa
 RUN DEBIAN_FRONTEND=noninteractive apt-get update && apt-get install -y python3.8 tesseract-ocr python3-pip
