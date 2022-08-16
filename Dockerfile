@@ -8,7 +8,7 @@ RUN update-ca-certificates
 RUN curl -sL https://deb.nodesource.com/setup_16.x -o /tmp/nodesource_setup.sh
 RUN bash /tmp/nodesource_setup.sh
 RUN apt install nodejs -y
-RUN add-apt-repository ppa:alex-p/tesseract-ocr5
+
 RUN add-apt-repository  ppa:deadsnakes/ppa
 RUN DEBIAN_FRONTEND=noninteractive apt-get update && apt-get install -y python3.8 tesseract-ocr
 
@@ -28,7 +28,7 @@ RUN curl -sL https://dl.yarnpkg.com/debian/pubkey.gpg | gpg --dearmor | tee /usr
 RUN echo "deb [signed-by=/usr/share/keyrings/yarnkey.gpg] https://dl.yarnpkg.com/debian stable main" | tee /etc/apt/sources.list.d/yarn.list
 RUN DEBIAN_FRONTEND=noninteractive apt-get update -y && apt-get install yarn -y
 WORKDIR /app/front_end
-RUN nohup `$(yarn install && yarn run build)` &
+RUN yarn install && yarn run build
 WORKDIR /app/
 RUN python3.8 -m pip install --upgrade pip
 RUN python3.8 -m pip install --no-cache-dir -r Requirements.txt
