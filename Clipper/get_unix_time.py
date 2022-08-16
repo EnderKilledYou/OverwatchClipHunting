@@ -1,7 +1,7 @@
-from datetime import datetime
+import datetime
+import time
 
 
 def get_unix_time():
-    presentDate = datetime.now()
-    unix_timestamp = datetime.timestamp(presentDate) * 1000
-    return unix_timestamp
+
+    return  int( (time.mktime(datetime.datetime.now().timetuple())) )

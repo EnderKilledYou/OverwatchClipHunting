@@ -6,6 +6,7 @@ from Ocr.frame_aggregator import FrameAggregator
 from Ocr.frame_tester import FrameTester
 from Ocr.region_result import RegionResult
 from Ocr.screen_region import ScreenRegion
+from config.config import tess_fast_dir
 
 
 class OverwatchSearchingForGameScreenRegion(ScreenRegion):
@@ -13,7 +14,7 @@ class OverwatchSearchingForGameScreenRegion(ScreenRegion):
                 show: bool = False):
 
         top = self.crop(pil)
-        text = image_to_string(top)
+        text = image_to_string(top,config=f'--tessdata-dir "{tess_fast_dir}"',lang='eng')
         text_stripped = text.strip()
         if len(text_stripped) == 0:
             return

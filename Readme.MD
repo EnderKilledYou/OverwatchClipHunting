@@ -12,8 +12,7 @@
 ### Change config/config_example.py to config/config.py
 
 
-
-
+ 
 ```python
 #config/config.py
 
