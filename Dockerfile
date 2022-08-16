@@ -30,6 +30,6 @@ RUN npm install && npm run build
 
 # build back end
 WORKDIR $APP_HOME
-RUN python3.8 -m pip install --no-cache-dir -r Requirements.txt
+RUN python3 -m pip install --no-cache-dir -r Requirements.txt
 
 CMD exec gunicorn --bind :$PORT --workers 1 --threads 8 --timeout 0 app:app
