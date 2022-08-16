@@ -6,6 +6,13 @@ from sqlalchemy_serializer import SerializerMixin
 from Clipper.get_unix_time import get_unix_time
 from config.db_config import db
 
+class SubClipPreferences(db.Model, SerializerMixin):
+    serialize_rules = ()
+    serialize_only = ('id', 'name')
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String)
+    before_amount= db.Column(db.String)
+
 
 class ZombieUser(db.Model, SerializerMixin):
     serialize_rules = ()

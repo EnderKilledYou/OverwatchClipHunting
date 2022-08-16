@@ -1,9 +1,12 @@
 import os
 from os.path import abspath
+from threading import Thread
+from time import sleep
 
-from flask import Flask, render_template
+from flask import Flask, render_template, jsonify
 
 from config.config import flask_secret_key
+from db_file import write_db_tocloud
 
 
 def config_app() -> Flask:
@@ -35,18 +38,33 @@ def register_blueprints(app: Flask):
     app.register_blueprint(video_blueprint)
 
 
-
-
 app = config_app()
 
 register_blueprints(app)
 
 
+class RepeatingTimer(Thread):
 
-@app.route('/')
-def index():
-    return render_template('index.html')
+    def run(self):
+        while True:
+            sleep(60 * 2)
+            print("backing up db")
+            write_db_tocloud()
+            sleep(60 * 60 * 24)
 
 
+@app.route("/heartbeat")
+def heartbeat():
+    return jsonify({"status": "healthy"})
+
+
+@app.route('/', defaults={'path': ''})
+@app.route('/<path:path>')
+def catch_all(path):
+    return app.send_static_file("index.html")
+
+
+thread = RepeatingTimer()
+thread.start()
 if __name__ == '__main__':
     app.run(threaded=True)

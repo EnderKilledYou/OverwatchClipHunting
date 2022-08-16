@@ -6,7 +6,7 @@ os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = abspath("./inspiring-lore-357817-
 from google.cloud import storage
 
 
-def write():
+def write_db_tocloud():
 
 
     storage_client = storage.Client()
@@ -24,4 +24,4 @@ def write():
 
 
 if __name__ == '__main__':
-    write()
+    write_db_tocloud()
