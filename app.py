@@ -62,7 +62,7 @@ def heartbeat():
 def not_found(e):
     return app.send_static_file("index.html")
 
-if os.environ['PRODUCTION']:
+if 'OCR_PRODUCTION' in os.environ:
     read_db_from_cloud()
     thread = RepeatingTimer()
     thread.start()
