@@ -8,15 +8,9 @@ ENV OCR_PRODUCTION True
 
 FROM BASE as CERTSANDINSTALLS
 RUN DEBIAN_FRONTEND=noninteractive apt-get update
-RUN DEBIAN_FRONTEND=noninteractive apt-get -qq  -o=Dpkg::Use-Pty=0  --no-install-recommends install -y git python3 python3-pip nodejs npm tzdata ca-certificates ffmpeg libsm6 libxext6 cron tesseract-ocr
+RUN DEBIAN_FRONTEND=noninteractive apt-get -qq   --no-install-recommends install -y git python3 python3-pip nodejs npm tzdata ca-certificates ffmpeg libsm6 libxext6 cron tesseract-ocr  < /dev/null > /dev/null
 RUN sed -i '/^mozilla\/DST_Root_CA_X3.crt$/ s/^/!/' /etc/ca-certificates.conf
 RUN update-ca-certificates
-RUN echo test software exists
-RUN python3 -v
-RUN python3 -m pip
-RUN node -v
-
-
 
 FROM CERTSANDINSTALLS
 WORKDIR $APP_HOME

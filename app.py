@@ -45,18 +45,25 @@ app.url_map.strict_slashes = False
 register_blueprints(app)
 def install():
     if 'TESSERACT_DATA_FAST_INSTALL_FOLDER' in os.environ:
+        print("building building tesseract if not exists")
         if not os.path.exists(os.environ['TESSERACT_DATA_FAST_INSTALL_FOLDER']):
+            os.makedirs(os.environ['TESSERACT_DATA_FAST_INSTALL_FOLDER'])
             print("cloning tess data")
-            os.system('git clone https://github.com/tesseract-ocr/tessdata_fast.git ' + os.environ[
-                'TESSERACT_DATA_FAST_INSTALL_FOLDER'])
+            wd = os.getcwd()
+            os.chdir(os.environ['TESSERACT_DATA_FAST_INSTALL_FOLDER'])
+            os.system('git clone https://github.com/tesseract-ocr/tessdata_fast.git ')
+            os.chdir(wd)
             if not os.path.exists(os.environ['TESSERACT_DATA_FAST_INSTALL_FOLDER']):
                 print("Could not clone tess data")
                 sys.exit(-1)
+        print("tessy cloned")
     if 'VUE_HOME' in os.environ:
+        print("building vue")
         wd = os.getcwd()
         os.chdir(os.environ['VUE_HOME'])
         os.system('npm install && npm run build')
         os.chdir(wd)
+        print("vue built")
 
 threading.Thread(target=install).start()
 class RepeatingTimer(Thread):
