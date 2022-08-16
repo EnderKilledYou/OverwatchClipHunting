@@ -25,6 +25,10 @@ RUN /app/install_debian.sh
 
 RUN tesseract --help
 
+WORKDIR /app/frontend
+RUN npm install
+RUN npm run build
+WORKDIR /app/
 RUN python3.8 -m pip install --upgrade pip
 # Install production dependencies.
 RUN python3.8 -m pip install --no-cache-dir -r Requirements.txt
