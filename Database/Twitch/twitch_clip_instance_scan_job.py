@@ -93,6 +93,21 @@ def update_scan_job_percent(scan_job_id: int, percent: float, is_complete: bool 
     db.session.commit()
     db.session.flush()
 
+def update_scan_job_in_scanning(scan_job_id: int):
+    item: TwitchClipInstanceScanJob = TwitchClipInstanceScanJob.query.filter_by(id=scan_job_id).first()
+    if item is None:
+        return
+    item.state = 6
+    db.session.commit()
+    db.session.flush()
+
+def update_scan_job_in_subclip(scan_job_id: int):
+    item: TwitchClipInstanceScanJob = TwitchClipInstanceScanJob.query.filter_by(id=scan_job_id).first()
+    if item is None:
+        return
+    item.state = 7
+    db.session.commit()
+    db.session.flush()
 
 def update_scan_job_in_queue(scan_job_id: int):
     item: TwitchClipInstanceScanJob = TwitchClipInstanceScanJob.query.filter_by(id=scan_job_id).first()

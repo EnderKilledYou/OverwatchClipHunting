@@ -14,7 +14,7 @@ from twitchdl.download import download_file
 
 from Database.Twitch.twitch_clip_instance import get_twitch_clip_instance_by_id, update_twitch_clip_instance_filename
 from Database.Twitch.twitch_clip_instance_scan_job import TwitchClipInstanceScanJob, update_scan_job_error, \
-    update_scan_job_percent, update_scan_job_started, update_scan_job_in_queue
+    update_scan_job_percent, update_scan_job_started, update_scan_job_in_queue, update_scan_job_in_scanning
 from Ocr.clip_to_tag import clip_tag_to_clip
 
 from Ocr.twitch_dl_args import Args
@@ -77,10 +77,11 @@ class ReScanner(ThreadedManager):
             #     if os.path.exists(path):
             #         os.unlink(path)
         try:
+            update_scan_job_in_scanning(job.id)
             frames = queue_to_list(reader_buffer)
             frames.sort(key=attrgetter('frame_number'))
             self._scan_clip(job, frames)
-            Timer(180, clip_tag_to_clip, (job.clip_id, path)).start()
+            Timer(180, clip_tag_to_clip, (job.clip_id, path, job.id)).start()
 
         except BaseException as e:
             print(e, file=sys.stderr)
@@ -107,14 +108,14 @@ class ReScanner(ThreadedManager):
                 frame_number = frame_number + 1
                 percent_done = frame_number / size
                 i = int(percent_done * 100.0)
-                if i > 0 and i % 15 == 0:
+                if i > 0 and i % 15 == 0 and i < 80:
                     update_scan_job_percent(job.id, percent_done)
 
         except BaseException as b:
             traceback.print_exc()
             pass
 
-        update_scan_job_percent(job.id, 1, True)
+        update_scan_job_percent(job.id, 1)
 
 
 def queue_to_list(queue: Queue):

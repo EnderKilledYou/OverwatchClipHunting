@@ -9,20 +9,22 @@ import ffmpeg
 from Database.Twitch.twitch_clip_instance import get_twitch_clip_instance_by_id, TwitchClipInstance, \
     update_twitch_clip_instance_filename
 from Database.Twitch.get_tag_and_bag import get_tag_and_bag_by_clip_id
+from Database.Twitch.twitch_clip_instance_scan_job import update_scan_job_percent, update_scan_job_error, \
+    update_scan_job_in_subclip
 
 from something_manager import ThreadedManager
 
 
 class TagClipper(ThreadedManager):
     def __init__(self):
-        super(TagClipper, self).__init__(2, False)
+        super(TagClipper, self).__init__(1, False)
 
     def _do_work(self, job):
 
-        (clip_id, file) = job
+        (clip_id, file, scan_job_id) = job
 
         try:
-
+            update_scan_job_in_subclip(scan_job_id)
             clip: TwitchClipInstance = get_twitch_clip_instance_by_id(clip_id)
             storage_path = get_storage_path(clip)
             clip_parts = get_tag_and_bag_by_clip_id(clip_id)
@@ -38,8 +40,11 @@ class TagClipper(ThreadedManager):
             update_twitch_clip_instance_filename(clip_id, None)
 
         except BaseException as e:
+            update_scan_job_error(scan_job_id, str(e))
             print(e, file=sys.stderr)
             traceback.print_exception(e)
+        finally:
+            update_scan_job_percent(scan_job_id, 1, True)
 
 
 from Database.Twitch.update_tag_and_bag_filename import update_tag_and_bag_filename

@@ -56,13 +56,17 @@ export default class ListScanJob extends Vue {
       case 0:
         return "in queue"
       case 1:
-        return "running"
+        return "Downloading clip"
       case 2:
         return "complete"
       case 3:
         return "error"
       case 5:
         return "in queue"
+      case 6:
+        return "scanning..."
+      case 7:
+        return "getting sub clips and yielding clip downloader"
       default:
         return "unknown"
     }
