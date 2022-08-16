@@ -28,6 +28,8 @@ def config_app() -> Flask:
     return appx
 
 
+
+
 def register_blueprints(app: Flask):
     from config.db_config import init_db
     init_db()
