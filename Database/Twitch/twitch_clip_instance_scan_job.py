@@ -23,7 +23,7 @@ from OrmHelpers.BasicWithId import BasicWithId
 
 twitch_clip_instance_scan_job_helper = BasicWithId(TwitchClipInstanceScanJob)
 
-from Database.Twitch.twitch_clip_tag import get_tag_and_bag_by_clip_id
+from Database.Twitch.get_tag_and_bag import get_tag_and_bag_by_clip_id
 
 
 def get_twitch_clip_scan_by_id(id: int) -> TwitchClipInstanceScanJob:

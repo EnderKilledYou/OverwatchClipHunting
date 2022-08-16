@@ -7,7 +7,7 @@ from Ocr.tag_clipper_request import TagClipperRequest
 from something_manager import ThreadedManager
 from Database.Twitch.twitch_clip_instance import get_twitch_clip_instance_by_id
 from Database.Twitch.tag_clipper_job import update_twitch_clip_job_state
-from Database.Twitch.twitch_clip_tag import get_tag_and_bag_by_clip_id
+from Database.Twitch.get_tag_and_bag import get_tag_and_bag_by_clip_id
 
 
 class ScannerMonitor(ThreadedManager):

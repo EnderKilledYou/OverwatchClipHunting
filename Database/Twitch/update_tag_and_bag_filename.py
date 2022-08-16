@@ -9,7 +9,7 @@ def update_tag_and_bag_filename(id: int, filename_str) -> TwitchClipTag:
         raise MissingRecordError("can't update a t and b that doesn't exist")
 
     item.file_name = filename_str
-    item.has_file = filename_str is None
+    item.has_file = filename_str is not None
     db.session.commit()
     db.session.flush()
     return item

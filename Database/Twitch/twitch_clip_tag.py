@@ -1,15 +1,14 @@
-from typing import List
+from typing import Tuple
 
 from sqlalchemy_serializer import SerializerMixin
 
 from config.db_config import db
 
 
-
 class TwitchClipTag(db.Model, SerializerMixin):
     serialize_rules = ()
     serialize_only = (
-        'id', 'clip_id', 'tag', 'clip_start', 'clip_end', 'tag_amount', 'tag_duration')
+        'id', 'clip_id', 'tag', 'clip_start', 'clip_end', 'tag_amount', 'tag_duration','tag_start','clip_start','clip_end','file_name','has_file')
     id = db.Column(db.Integer, primary_key=True)
     clip_created_at = db.Column(db.DateTime)
     clip_id = db.Column(db.Integer)
@@ -22,21 +21,18 @@ class TwitchClipTag(db.Model, SerializerMixin):
     file_name = db.Column(db.String)
     has_file = db.Column(db.Boolean, default=False)
 
+
 from Database.MissingRecordError import MissingRecordError
 from Database.Twitch.twitch_clip_instance import get_twitch_clip_instance_by_id, TwitchClipInstance
 from Zombies.zombie_event import report_zombie_tag
-from Ocr.clip_to_tag import clip_tag_to_clip
 
 
 def if_tag_and_bag_exists(id: int) -> bool:
     return TwitchClipTag.query.filter_by(clip_id=id).first() is None
 
 
-
-
-
 def add_twitch_clip_tag_request(clip_id: int, tag: str, tag_amount: int, tag_duration: int,
-                                tag_start: int) -> TwitchClipTag:
+                                tag_start: int) -> Tuple[TwitchClipTag, TwitchClipInstance]:
     clip: TwitchClipInstance = get_twitch_clip_instance_by_id(clip_id)
     if not clip:
         raise MissingRecordError("can add a clip tag for a clip that doesn't exist")
@@ -47,16 +43,12 @@ def add_twitch_clip_tag_request(clip_id: int, tag: str, tag_amount: int, tag_dur
     db.session.add(request)
     db.session.commit()
     db.session.flush()
-    clip_tag_to_clip(request)
+
     report_zombie_tag(request, clip)
-    return (request, clip)
+    return request, clip
 
 
 def get_tag_and_bag_by_id(id: int) -> TwitchClipTag:
     return TwitchClipTag.query.filter_by(id=id).first()
-
-
-def get_tag_and_bag_by_clip_id(clip_id: int) -> List[TwitchClipTag]:
-    return list(TwitchClipTag.query.filter_by(clip_id=clip_id))
 
 

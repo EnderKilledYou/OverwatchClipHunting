@@ -4,7 +4,8 @@ import re
 from flask import request, Response, Blueprint
 
 from Database.MissingRecordError import MissingRecordError
-from Database.Twitch.twitch_clip_tag import  TwitchClipTag
+from Database.Twitch.twitch_clip_tag import TwitchClipTag, get_tag_and_bag_by_id
+from startup_file import get_blob_by_path
 
 video = Blueprint('video', __name__)
 
@@ -16,7 +17,8 @@ def after_request(response):
 
 
 def get_chunk(full_path, byte1=None, byte2=None):
-    file_size = os.stat(full_path).st_size
+    blob = get_blob_by_path(full_path)
+    file_size = blob.size
     start = 0
 
     if byte1 < file_size:
@@ -26,7 +28,7 @@ def get_chunk(full_path, byte1=None, byte2=None):
     else:
         length = file_size - start
 
-    with open(full_path, 'rb') as f:
+    with blob.open('rb') as f:
         f.seek(start)
         chunk = f.read(length)
     return chunk, start, length, file_size
@@ -35,7 +37,7 @@ def get_chunk(full_path, byte1=None, byte2=None):
 @video.route('/tag_video/<tag_id>')
 def get_file(tag_id: int):
     try:
-        tag: TwitchClipTag = twitch_clip_tag_helper.get_by_id(int(tag_id))
+        tag: TwitchClipTag = get_tag_and_bag_by_id(int(tag_id))
         if not tag:
             return
         if tag.file_name is None:

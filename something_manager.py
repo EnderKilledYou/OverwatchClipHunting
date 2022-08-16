@@ -1,3 +1,4 @@
+import sys
 import threading
 from queue import Queue, Empty
 from time import sleep
@@ -49,6 +50,7 @@ class ThreadedManager:
                     return
                 sleep(2)
             except BaseException as b:
+                print(b,file=sys.stderr)
                 pass
             finally:
                 pass

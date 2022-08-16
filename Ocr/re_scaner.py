@@ -10,10 +10,12 @@ from queue import Empty, Queue
 import moviepy.config as mpy_conf
 from twitchdl import twitch
 from twitchdl.commands.download import _clip_target_filename, get_clip_authenticated_url
+from twitchdl.download import download_file
 
 from Database.Twitch.twitch_clip_instance import get_twitch_clip_instance_by_id, update_twitch_clip_instance_filename
 from Database.Twitch.twitch_clip_instance_scan_job import TwitchClipInstanceScanJob, update_scan_job_error, \
     update_scan_job_percent, update_scan_job_started, update_scan_job_in_queue
+from Ocr.clip_to_tag import clip_tag_to_clip
 
 from Ocr.twitch_dl_args import Args
 
@@ -78,6 +80,7 @@ class ReScanner(ThreadedManager):
             frames = queue_to_list(reader_buffer)
             frames.sort(key=attrgetter('frame_number'))
             self._scan_clip(job, frames)
+            clip_tag_to_clip(job.clip_id, path)
         except BaseException as e:
             print(e, file=sys.stderr)
             traceback.print_exc()
@@ -130,12 +133,10 @@ def _download_clip(slug, args):
         return
     game = clip["game"]["name"] if clip["game"] else "Unknown"
 
-
-
     url = get_clip_authenticated_url(slug, args.quality)
     print("Selected URL: {}".format(url))
 
     print("Downloading clip...")
     print(url, args.output)
-
+    download_file(url, args.output)
     print("Downloaded: {} ".format(args.output))

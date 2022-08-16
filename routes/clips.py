@@ -17,7 +17,8 @@ from login_dec import requires_logged_in
 clips = Blueprint('clips', __name__)
 from Ocr.re_scaner import ReScanner
 
-from Database.Twitch.twitch_clip_tag import get_tag_and_bag_by_clip_id, TwitchClipTag
+from Database.Twitch.twitch_clip_tag import TwitchClipTag
+from Database.Twitch.get_tag_and_bag import get_tag_and_bag_by_clip_id
 
 from config.db_config import db
 from flask_events import flask_event

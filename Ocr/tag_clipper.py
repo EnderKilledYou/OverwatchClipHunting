@@ -1,26 +1,31 @@
 import os
+import sys
 import tempfile
+import traceback
 from os.path import abspath
 
 import ffmpeg
 
 from Database.Twitch.twitch_clip_instance import get_twitch_clip_instance_by_id, TwitchClipInstance
-
-
+from Database.Twitch.get_tag_and_bag import get_tag_and_bag_by_clip_id
 
 from something_manager import ThreadedManager
+
+
 class TagClipper(ThreadedManager):
     def __init__(self):
         super(TagClipper, self).__init__(2, False)
 
     def _do_work(self, job):
-        (item, file) = job
+
+        (clip_id, file) = job
+
         try:
 
-            clip: TwitchClipInstance = get_twitch_clip_instance_by_id(item.clip_id)
-            storage_path = self.get_storage_path(clip)
-
-            for section in item.clip_parts:
+            clip: TwitchClipInstance = get_twitch_clip_instance_by_id(clip_id)
+            storage_path = get_storage_path(clip)
+            clip_parts = get_tag_and_bag_by_clip_id(clip_id)
+            for section in clip_parts:
                 file_name = next(tempfile._get_candidate_names()) + '.mp4'
                 out_file = storage_path + os.sep + file_name
                 gloud_file = get_clip_path(clip) + file_name
@@ -29,23 +34,22 @@ class TagClipper(ThreadedManager):
                 copy_to_cloud(out_file, gloud_file)
                 os.unlink(out_file)
 
-            item.return_queue.put((clip.id,))
+
         except BaseException as e:
-            item.return_queue.put((clip.id, str(e)))
+            print(e, file=sys.stderr)
+            traceback.print_exception(e)
 
 
 from Database.Twitch.update_tag_and_bag_filename import update_tag_and_bag_filename
 from startup_file import copy_to_cloud
 
 
-
-
 def get_clip_path(clip: TwitchClipInstance):
-    return f'/videos{os.sep}{clip.broadcaster_name}{os.sep}{str(clip.created_at.year)}{os.sep}{str(clip.created_at.month)}{os.sep}{str(clip.created_at.day)}{os.sep}'
+    return f'videos/{clip.broadcaster_name}/{str(clip.created_at.year)}/{str(clip.created_at.month)}/{str(clip.created_at.day)}/'
 
 
 def get_storage_path(clip: TwitchClipInstance):
-    storage_path = abspath(get_clip_path(get_clip_path(clip)))
+    storage_path = abspath(get_clip_path(clip))
 
     if not os.path.exists(storage_path):
         os.makedirs(storage_path)

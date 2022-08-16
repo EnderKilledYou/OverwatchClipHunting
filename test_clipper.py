@@ -1,7 +1,7 @@
 from Ocr.tag_clipper import TagClipper
 from Ocr.tag_clipper_request import TagClipperRequest
 from Database.Twitch.twitch_clip_instance import get_twitch_clip_instance_by_video_id
-from Database.Twitch.twitch_clip_tag import get_tag_and_bag_by_clip_id
+from Database.Twitch.get_tag_and_bag import get_tag_and_bag_by_clip_id
 
 
 def test_tag_clipper():
