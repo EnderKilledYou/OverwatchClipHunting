@@ -3,6 +3,7 @@ from flask import Blueprint
 from Ocr.tag_clipper import TagClipper
 
 from Database.Twitch.tag_clipper_job import get_twitch_clip_job_by_clip_id, add_twitch_clip_job
+from db_file import install
 from twitch_helpers import get_twitch_api
 
 monitor = Blueprint('monitor', __name__)
@@ -14,7 +15,7 @@ sharp = get_sharp()
 
 tag_clipper = TagClipper()
 
-
+install()
 @sharp.function()
 def start_farm_twitch():
     manager.set_farm_twitch_mode(True)

@@ -25,8 +25,7 @@ def write_db_tocloud():
         t.write(str(datetime.now()))
 
 
-if __name__ == '__main__':
-    write_db_tocloud()
+
 
 def install():
     if 'INSTALL_SCRIPT' in os.environ:
