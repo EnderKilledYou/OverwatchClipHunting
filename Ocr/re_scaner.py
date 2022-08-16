@@ -18,8 +18,6 @@ from Ocr.clip_to_tag import clip_tag_to_clip
 
 from Ocr.twitch_dl_args import Args
 
-mpy_conf.change_settings({'FFMPEG_BINARY': "C:\\ProgramData\\chocolatey\\bin\\ffmpeg.exe",
-                          })
 
 from Ocr.VideoCapReader import VideoCapReader, StreamEndedError, ClipVideoCapReader
 from Ocr.overwatch_clip_reader import OverwatchClipReader
