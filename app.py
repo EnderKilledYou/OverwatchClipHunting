@@ -48,7 +48,7 @@ def install():
         os.system(os.environ['INSTALL_SCRIPT'])
 
 
-threading.Thread(target=install).start()
+# threading.Thread(target=install).start()
 class RepeatingTimer(Thread):
 
     def run(self):

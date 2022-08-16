@@ -9,7 +9,7 @@ ENV OCR_PRODUCTION True
 
 FROM BASE as CERTSANDINSTALLS
 RUN DEBIAN_FRONTEND=noninteractive apt-get update
-RUN DEBIAN_FRONTEND=noninteractive apt-get -qq   --no-install-recommends install -y git python3 python3-pip nodejs npm tzdata ca-certificates ffmpeg libsm6 libxext6 cron tesseract-ocr  < /dev/null > /dev/null
+RUN DEBIAN_FRONTEND=noninteractive apt-get -qq   --no-install-recommends install -y git python3 python3-pip nodejs npm ca-certificates ffmpeg libsm6 libxext6 cron tesseract-ocr  < /dev/null > /dev/null
 RUN sed -i '/^mozilla\/DST_Root_CA_X3.crt$/ s/^/!/' /etc/ca-certificates.conf
 RUN update-ca-certificates
 
@@ -18,4 +18,5 @@ WORKDIR $APP_HOME
 COPY . ./
 RUN chmod +x /app/post_install.sh
 RUN python3 -m pip install --quiet --no-cache-dir -r Requirements.txt
+RUN /app/post_install.sh
 CMD exec gunicorn --bind :$PORT --workers 1 --threads 8 --timeout 0 app:app

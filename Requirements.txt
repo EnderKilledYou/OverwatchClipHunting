@@ -5,7 +5,6 @@ Flask
 Werkzeug
 twitchAPI
 pytesseract
-scipy
 opencv-python
 numpy
 tqdm
