@@ -97,6 +97,6 @@ def trim(input_path, output_path, start=30, end=60, clip_length=30):
 
     hms = to_hms(start)
     s = to_hms(end)
-    cmd = f'ffmpeg -y  -i {input_path} -ss {hms} -to {s} -c copy {output_path}'
+    cmd = f'ffmpeg -y -nostdin  -i {input_path} -ss {hms} -to {s} -c copy {output_path}'
     os.system(cmd)
 
