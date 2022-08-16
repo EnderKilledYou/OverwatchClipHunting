@@ -17,13 +17,13 @@ tag_clipper = TagClipper()
 
 @sharp.function()
 def start_farm_twitch():
-    manager.start_farm_twitch_mode()
+    manager.set_farm_twitch_mode(True)
     return {"success": True, }
 
 
 @sharp.function()
 def stop_farm_twitch():
-    manager.stop_farm_twitch_mode()
+    manager.set_farm_twitch_mode(False)
     return {"success": True, }
 
 

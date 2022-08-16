@@ -9,7 +9,8 @@
       <button @click="AutoTwitch()" class="btn btn-block">Auto Twitch</button>
       <button @click="StopAutoTwitch()" class="btn btn-block">Stop Auto Twitch</button>
     </label>
-    <on-twitch-now :twitch_streams_filtered="twitch_streams_filtered" @updatedmonitored="list_items"/>
+    <on-twitch-now v-if="twitch_streams_filtered.length >0" :streams="twitch_streams_filtered"
+                   @updatedmonitored="list_items"/>
     <div class="row row-cols-3 row-cols-md-4 g-4">
       <div class="col" v-for="watcher in items" :key="watcher.name">
         <div class="card">
@@ -20,8 +21,10 @@
             <h5 class="card-title"><a target="_blank" :href="`https://twitch.tv/` + watcher.name">{{
                 watcher.name
               }}</a></h5>
-            <p class="card-text"> {{ watcher.frames_done }} / {{ watcher.frames_read }} ( {{ watcher.seconds }} s) </p>
-            <p class="card-text"> {{ watcher.data.viewer_count }} (since: {{ new Date(watcher.data.started_at).toLocaleString() }}</p>
+            <p class="card-text"> {{ watcher.frames_done }} ( {{ watcher.seconds }} s)   / {{ watcher.frames_read }} (
+              {{ watcher.frames_read_seconds }} s)</p>
+            <p class="card-text"> {{ watcher.data.viewer_count }} watching since:
+              {{ new Date(watcher.data.started_at).toLocaleString() }}</p>
             <p class="card-text"> {{ watcher.data.game_name }} </p>
           </div>
           <div class="card-footer">

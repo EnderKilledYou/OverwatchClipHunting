@@ -1,5 +1,6 @@
 <template>
-  <table class="table table-striped table-responsive" v-if="twitch_streams_filtered.length >0">
+  <table class="table table-striped table-responsive" >
+
     <thead>
     <tr>
       <th>
@@ -12,7 +13,7 @@
     </tr>
     </thead>
     <tbody>
-    <tr v-for="watcher in twitch_streams_filtered">
+    <tr v-for="watcher in streams">
       <td>
         <figure class="figure">
           <a target="_blank" :href="`https://twitch.tv/` +watcher.video_id"> <img
@@ -24,7 +25,7 @@
         </figure>
       </td>
       <td>
-        <button class="btn btn-danger" :watch2="Watch2( watcher.user_name)">Watch</button>
+        <button class="btn btn-danger" @click="Watch2( watcher.user_name)">Watch</button>
       </td>
     </tr>
     </tbody>
@@ -36,14 +37,19 @@ import {Options, Vue} from "vue-class-component";
 
 
 @Options({
+  props: ['streams'],
+  emits: ['updatedmonitored'],
+
+
   components: {},
 })
 export default class HomeView extends Vue {
 
 
   async Watch2(streamerName: string) {
+    debugger
     const streamerResponse = await API.add(streamerName)
-      this.$emit('updatedmonitored')
+    this.$emit('updatedmonitored')
   }
 }
 </script>

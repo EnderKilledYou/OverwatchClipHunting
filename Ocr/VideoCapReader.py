@@ -20,6 +20,7 @@ class VideoCapReader:
         self.sample_every_count = 30
         self.items_read = 0
         self.items_drained = 0
+        self.fps = 1
 
     def incr_items_drained(self):
         self.items_drained = self.items_drained + 1
@@ -50,7 +51,7 @@ class VideoCapReader:
             fps = 60
         if fps == 0:
             fps = 60
-
+        self.fps = fps
         self.sample_every_count = fps // 4
         for frame in self._yield_frames(fps, max):
             buffer.put(frame)

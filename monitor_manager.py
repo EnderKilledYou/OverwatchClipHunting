@@ -1,4 +1,6 @@
+import sys
 import threading
+import traceback
 from random import shuffle
 from threading import Thread
 from time import sleep
@@ -16,24 +18,45 @@ class MonitorManager:
         self.avoids = ['leesibb', 'Seyeumi', 'jay3', 'erinfps', 'guru', 'warn']
         self.max_monitored = 2
         self.monitor_list = []
-        self.farm_twitch = False
+        self._active = False
+        self._farm_twitch_mode = False
+
+    def set_farm_twitch_mode(self, mode: bool):
+        self._farm_twitch_mode = mode
+
+    def stop_monitor(self):
+        self._active = False
+        self._farm_twitch_thread.stop()
+
+    def start_monitor(self):
+        self._active = False
+        while self._farm_twitch_thread and self._farm_twitch_thread.is_alive():
+            sleep(10)
+        self._farm_twitch_thread = threading.Thread(target=self._heart_beat_thread)
         self._farm_twitch_thread.start()
+        self._active = True
 
-    def stop_farm_twitch_mode(self):
-        self.farm_twitch = False
-
-    def start_farm_twitch_mode(self):
-        self.farm_twitch = True
-
-    def heart_beat(self):
+    def _heart_beat_thread(self):
         twitch_api = get_twitch_api()
         sleeps = 0
-        while True:
-            if self.farm_twitch and sleeps % 10 == 0:
-                self.farm_twitch(twitch_api)
+        while self._active:
+            if sleeps % 6 == 0:
+                self._heart_beat(twitch_api)
             sleep(10)
+            sleeps = sleeps + 1
 
-    def farm_twitch(self, twitch_api):
+    def _heart_beat(self, twitch_api):
+        try:
+            self.trim_monitored_streams(twitch_api)
+        finally:
+            pass
+        try:
+            if self._farm_twitch_mode:
+                self._farm_twitch(twitch_api)
+        finally:
+            pass
+
+    def _farm_twitch(self, twitch_api):
         count = 2 - len(self._monitors)
         if count < 1:
             return
@@ -72,11 +95,12 @@ class MonitorManager:
         if reader:
             qsize = reader.items_read - reader.items_drained
 
-            seconds = qsize / 4
+            seconds = qsize * (reader.fps / reader.sample_every_count)
             return {
                 'name': name,
                 'frames_read': reader.items_read * reader.sample_every_count,
                 'frames_done': reader.items_drained * reader.sample_every_count,
+                'frames_read_seconds': (reader.items_drained * reader.sample_every_count) // reader.fps,
                 'seconds': seconds,
                 'queue_size': qsize,
                 'data': monitor.web_dict
@@ -87,8 +111,7 @@ class MonitorManager:
             'queue_size': 0
         }
 
-    def trim_monitored_streams(self):
-        twitch_api = get_twitch_api()
+    def trim_monitored_streams(self, twitch_api):
         removes = []
         self._monitor_lock.acquire(True, -1)
 
@@ -97,13 +120,18 @@ class MonitorManager:
 
             for monitor in self._monitors:
                 found = False
+                lower = monitor.lower()
                 for stream in live_streams_list:
-                    if monitor.web_dict['user_login'] == stream['user_login']:
-                        found = True
-                        monitor.web_dict = stream
-                if not found:
-                    removes.append(monitor.broadcaster)
 
+                    if lower == stream['user_login']:
+                        found = True
+                        self._monitors[monitor].web_dict = stream
+                if not found:
+                    removes.append(monitor)
+        except BaseException as e:
+            print(e, file=sys.stderr)
+            traceback.print_exc()
+            traceback.print_stack()
 
 
         finally:
@@ -112,7 +140,10 @@ class MonitorManager:
         self.remove_streams_to_monitor(removes)
 
     def get_monitored_streams(self, twitch_api):
-        live_streams = twitch_api.get_streams(user_login=list(self._monitors))
+        user_logins = list(self._monitors)
+        if len(user_logins) == 0:
+            return
+        live_streams = twitch_api.get_streams(user_login=user_logins)
         if live_streams and 'data' in live_streams:
             return live_streams['data']
         print("live streams didn't return a valid response")
