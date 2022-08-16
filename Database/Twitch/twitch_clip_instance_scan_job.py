@@ -123,6 +123,7 @@ def update_scan_job_started(scan_job_id: int):
     if item is None:
         return
     item.state = 1
+    item.percent = 0
     db.session.commit()
     db.session.flush()
     return item

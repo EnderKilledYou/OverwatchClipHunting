@@ -23,10 +23,11 @@
           <div class="card-footer">
 
             <div class="progress">
-              <div class="progress-bar" role="progressbar" :style="`width: ${item[0].percent * 100}%`"
+              <div :class="stateToProgressBarClass(item[0].state)" role="progressbar"
+                   :style="`width: ${item[0].percent * 100}%`"
                    :aria-valuenow="item[0].percent * 100" aria-valuemin="0" aria-valuemax="100"></div>
             </div>
-            <button @click="Rescan(item[1])" v-if="item[0].state === 3">
+            <button @click="Rescan(item[1])">
               Rescan
             </button>
           </div>
@@ -50,6 +51,27 @@ let interval: number | null | undefined = null
 export default class ListScanJob extends Vue {
   items: [TwitchClipInstanceScanJob, TwitchClipLog][] = []
   page: number = 1
+
+  stateToProgressBarClass(state: number) {
+     switch (+state) {
+      case 0:
+        return ['progress-bar', 'bg-danger']
+      case 1:
+        return ['progress-bar', 'bg-danger']
+      case 2:
+        return ['progress-bar' ]
+      case 3:
+        return ['progress-bar', 'bg-info']
+      case 5:
+        return ['progress-bar', 'bg-danger']
+      case 6:
+        return ['progress-bar', 'bg-success']
+      case 7:
+        return ['progress-bar', 'bg-danger']
+      default:
+        return "unknown"
+    }
+  }
 
   stateToString(num: number) {
     switch (+num) {

@@ -92,7 +92,7 @@ export default class ClipView extends Vue {
   private clip_id: string = ""
 
   async Rescan(clip: TwitchClipLog) {
-    debugger;
+ 
     await API.add_clip(clip.video_id)
   }
 

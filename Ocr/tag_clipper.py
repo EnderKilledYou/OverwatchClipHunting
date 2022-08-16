@@ -28,7 +28,14 @@ class TagClipper(ThreadedManager):
             clip: TwitchClipInstance = get_twitch_clip_instance_by_id(clip_id)
             storage_path = get_storage_path(clip)
             clip_parts = get_tag_and_bag_by_clip_id(clip_id)
+            update_scan_job_percent(scan_job_id, 0)
+            i = 0.0
+            total = float(len(clip_parts))
+
             for section in clip_parts:
+                percent = i / total
+                update_scan_job_percent(scan_job_id, percent)
+                i += 1
                 file_name = next(tempfile._get_candidate_names()) + '.mp4'
                 out_file = storage_path + os.sep + file_name
                 gloud_file = get_clip_path(clip) + file_name
@@ -36,16 +43,18 @@ class TagClipper(ThreadedManager):
                 update_tag_and_bag_filename(section.id, gloud_file)
                 copy_to_cloud(out_file, gloud_file)
                 os.unlink(out_file)
-            os.unlink(file)
+
             update_twitch_clip_instance_filename(clip_id, None)
 
         except BaseException as e:
             update_scan_job_error(scan_job_id, str(e))
             print(e, file=sys.stderr)
             traceback.print_exception(e)
+            return
         finally:
-            update_scan_job_percent(scan_job_id, 1, True)
-
+            if os.path.exists(file):
+                os.unlink(file)
+        update_scan_job_percent(scan_job_id, 1, True)
 
 from Database.Twitch.update_tag_and_bag_filename import update_tag_and_bag_filename
 from startup_file import copy_to_cloud

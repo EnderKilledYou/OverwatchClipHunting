@@ -29,7 +29,7 @@
                 :src="watcher.thumbnail_url.replace('{width}','100').replace('{height}','100')"
                 class="  img-responsive"/></a>
 
-            <figcaption> {{ watcher.user_name }} - {{ watcher.title }} - {{ watcher.viewer_count }}</figcaption>
+            <figcaption> {{ watcher.user_name }}</figcaption>
             <figcaption> {{ watcher.started_at }}</figcaption>
           </figure>
         </td>
@@ -40,12 +40,13 @@
       </tbody>
     </table>
     <div class="row row-cols-3 row-cols-md-4 g-4">
-      <div class="col" v-for="watcher in items" :key="item.id">
+      <div class="col" v-for="watcher in items" :key="watcher.name">
         <div class="card">
-
+          <img class="card-img-top"
+               :src="watcher.data.thumbnail_url.replace('{width}','300').replace('{height}','300')"/>
 
           <div class="card-body">
-            <h5 class="card-title"><a target="_blank" :href="`https://twitch.tv/` + watcher.name"> {{
+            <h5 class="card-title"><a target="_blank" :href="`https://twitch.tv/` + watcher.name">{{
                 watcher.name
               }}</a></h5>
             <p class="card-text"> {{ watcher.frames_done }} / {{ watcher.frames_read }} ( {{ watcher.seconds }} s) </p>

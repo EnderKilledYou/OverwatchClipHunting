@@ -96,7 +96,7 @@ class MonitorManager:
                 print("avoiding " + stream_name)
                 return
             if stream_name not in self._monitors:
-                exists = twitch_api.get_streams(user_login=['stream_name'])
+                exists = twitch_api.get_streams(user_login=[stream_name])
                 if exists and 'data' in exists and len(exists['data']) == 1:
                     self._monitors[stream_name] = Monitor(stream_name, exists['data'][0])
         finally:
