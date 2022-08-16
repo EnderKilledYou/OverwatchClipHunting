@@ -1,14 +1,8 @@
-import os
-import sys
-import threading
-from threading import Thread
-from time import sleep
+
 
 from flask import Flask, jsonify
 
 from config.config import flask_secret_key
-from db_file import write_db_tocloud
-from startup_file import read_db_from_cloud
 
 
 def config_app() -> Flask:
@@ -43,20 +37,6 @@ def register_blueprints(app: Flask):
 app = config_app()
 app.url_map.strict_slashes = False
 register_blueprints(app)
-def install():
-    if 'INSTALL_SCRIPT' in os.environ:
-        os.system(os.environ['INSTALL_SCRIPT'])
-
-
-# threading.Thread(target=install).start()
-class RepeatingTimer(Thread):
-
-    def run(self):
-        while True:
-            sleep(60 * 2)
-            print("backing up db")
-            write_db_tocloud()
-            sleep(60 * 60 * 6)
 
 
 @app.route("/heartbeat")
