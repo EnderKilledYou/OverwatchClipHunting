@@ -9,3 +9,8 @@
   update-ca-certificates
   apt-get update
   apt-get -y upgrade
+  curl -sL https://deb.nodesource.com/setup_16.x | bash -
+  apt -y install nodejs
+  node  -v
+  cd /app/front_end/
+  npm install && npm run build
