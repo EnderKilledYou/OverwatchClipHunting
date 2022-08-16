@@ -19,3 +19,5 @@ COPY . ./
 RUN chmod +x /app/post_install.sh
 RUN /app/post_install.sh
 CMD exec gunicorn --bind :$PORT --workers 1 --threads 8 --timeout 0 app:app
+
+
