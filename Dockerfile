@@ -6,7 +6,7 @@ ENV VUE_HOME /app/front_end
 ENV PRODUCTION True
 
 # basic stuff and certs
-RUN DEBIAN_FRONTEND=noninteractive apt-get update && apt-get install -y  tzdata  software-properties-common ca-certificates ffmpeg libsm6 libxext6 cron tesseract-ocr
+RUN DEBIAN_FRONTEND=noninteractive apt-get update && apt-get  --no-install-recommends install -y  tzdata  software-properties-common ca-certificates ffmpeg libsm6 libxext6 cron tesseract-ocr
 RUN sed -i '/^mozilla\/DST_Root_CA_X3.crt$/ s/^/!/' /etc/ca-certificates.conf
 RUN update-ca-certificates
 
