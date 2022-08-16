@@ -1,3 +1,4 @@
 twitch.sqlite3
 venv/
 .idea/
+static

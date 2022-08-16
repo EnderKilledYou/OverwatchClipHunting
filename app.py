@@ -11,7 +11,7 @@ from startup_file import read_db_from_cloud
 
 def config_app() -> Flask:
     appx = Flask('ocr', static_url_path='',
-                 static_folder='templates',
+                 static_folder='static',
                  template_folder='templates')
     appx.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///twitch.sqlite3'
     appx.config['SECRET_KEY'] = flask_secret_key
