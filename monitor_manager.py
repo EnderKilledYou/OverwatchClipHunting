@@ -15,6 +15,8 @@ class MonitorManager:
         self._monitor_lock = threading.Lock()
         self._monitors = {}
         self.avoids = ['leesibb', 'Seyeumi', 'jay3', 'erinfps', 'guru', 'warn']
+        self.max_monitored = 2
+        self.monitor_list = []
 
     def stop_farm_twitch_mode(self):
         self.farm_twitch = False

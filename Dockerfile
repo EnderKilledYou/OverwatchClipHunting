@@ -27,10 +27,12 @@ RUN update-ca-certificates
 
 RUN npm install -g npm -y
 RUN tesseract --help
-
+RUN curl -sL https://dl.yarnpkg.com/debian/pubkey.gpg | gpg --dearmor | tee /usr/share/keyrings/yarnkey.gpg >/dev/null
+RUN echo "deb [signed-by=/usr/share/keyrings/yarnkey.gpg] https://dl.yarnpkg.com/debian stable main" | tee /etc/apt/sources.list.d/yarn.list
+RUN apt-get update -y && apt-get install yarn -y
 WORKDIR /app/front_end
-RUN npm install
-RUN npm run build
+RUN yarn install
+RUN yarn run build
 WORKDIR /app/
 RUN python3.8 -m pip install --upgrade pip
 RUN python3.8 -m pip install --no-cache-dir -r Requirements.txt

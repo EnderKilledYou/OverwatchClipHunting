@@ -6,6 +6,7 @@ from operator import attrgetter
 from os.path import abspath
 from threading import Timer
 from queue import Empty, Queue
+from time import sleep
 
 import moviepy.config as mpy_conf
 from twitchdl import twitch
@@ -71,17 +72,14 @@ class ReScanner(ThreadedManager):
             if job is not None:
                 update_scan_job_error(job.id, str(e))
             return
-        finally:
-            pass
-            # if path is not None:
-            #     if os.path.exists(path):
-            #         os.unlink(path)
+
         try:
             update_scan_job_in_scanning(job.id)
             frames = queue_to_list(reader_buffer)
             frames.sort(key=attrgetter('frame_number'))
             self._scan_clip(job, frames)
-            Timer(180, clip_tag_to_clip, (job.clip_id, path, job.id)).start()
+            sleep(30)
+            clip_tag_to_clip(job.clip_id, path, job.id)
 
         except BaseException as e:
             print(e, file=sys.stderr)
@@ -108,7 +106,7 @@ class ReScanner(ThreadedManager):
                 frame_number = frame_number + 1
                 percent_done = frame_number / size
                 i = int(percent_done * 100.0)
-                if i > 0 and i % 15 == 0 and i < 80:
+                if i > 0 and i % 15 == 0 :
                     update_scan_job_percent(job.id, percent_done)
 
         except BaseException as b:
