@@ -10,14 +10,10 @@ RUN bash /tmp/nodesource_setup.sh
 RUN apt install nodejs -y
 
 RUN add-apt-repository  ppa:deadsnakes/ppa
-RUN DEBIAN_FRONTEND=noninteractive apt-get update && apt-get install -y python3.8 tesseract-ocr python3.8-pip
+RUN DEBIAN_FRONTEND=noninteractive apt-get update && apt-get install -y python3.8 tesseract-ocr python3-pip
 
 
-
-# Allow statements and log messages to immediately appear in the Knative logs
 ENV PYTHONUNBUFFERED True
-
-# Copy local code to the container image.
 ENV APP_HOME /app
 WORKDIR $APP_HOME
 COPY . ./
