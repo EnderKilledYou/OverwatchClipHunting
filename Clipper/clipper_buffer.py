@@ -1,4 +1,5 @@
 import os
+import sys
 import threading
 import traceback
 from functools import partial
@@ -49,7 +50,7 @@ class ClipBuffer:
                 return ClipFile(file_path=file_path, time_start=self.dumped_data_seconds,
                                 time_end=self.dumped_data_seconds + duration)
         except BaseException as e:
-            print(e)
+            print(e, file=sys.stderr)
             traceback.print_exc()
         finally:
             if lock_acquired:
@@ -95,7 +96,7 @@ class ClipBuffer:
 
         except BaseException as e:
             print("Error buffering to file:")
-            print(e)
+            print(e, file=sys.stderr)
             traceback.print_exc()
         finally:
             safe_close(self.buffer_fd)

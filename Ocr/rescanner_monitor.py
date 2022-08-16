@@ -26,4 +26,4 @@ class ReScannerMonitor(ThreadedManager):
     def _do_work(self, clip_id):
         # reset_twitch_clip_job_state()  # reset the jobs that dies half if server crash
         request = make_rescanner_job_from_clip_id(clip_id)
-        self.rescanner.add_job(request)
+        self.rescanner.add_job(request.id)

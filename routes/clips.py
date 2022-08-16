@@ -1,4 +1,5 @@
 import atexit
+import sys
 import traceback
 from time import sleep
 from typing import Optional, List
@@ -227,5 +228,5 @@ def store_clip(clip_data, type):
         if job is not None:
             rescanner.add_job(job.id)
     except BaseException as e:
-        print(e)
+        print(e, file=sys.stderr)
         traceback.print_exc()

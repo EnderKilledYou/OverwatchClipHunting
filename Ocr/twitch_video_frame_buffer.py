@@ -1,4 +1,5 @@
 import os
+import sys
 import threading
 import traceback
 
@@ -75,7 +76,7 @@ class TwitchEater(VideoFrameBuffer):
             print("Stream was not live")
             return
         except BaseException as e:
-            print(e)
+            print(e, file=sys.stderr)
             traceback.print_exc()
             return
         finally:

@@ -1,4 +1,5 @@
 import os
+import sys
 import tempfile
 import traceback
 from operator import attrgetter
@@ -60,7 +61,7 @@ class ReScanner(ThreadedManager):
             job: TwitchClipInstanceScanJob = update_scan_job_started(job_id)
             if job is None:
                 return
-            update_scan_job_in_queue(job)
+            update_scan_job_in_queue(job.id)
             url = self._get_url(job)
             if url is None:
                 return None
@@ -72,7 +73,7 @@ class ReScanner(ThreadedManager):
 
 
         except BaseException as e:
-            print(e)
+            print(e, file=sys.stderr)
             traceback.print_exc()
             if job is not None:
                 update_scan_job_error(job.id, str(e))
@@ -86,7 +87,7 @@ class ReScanner(ThreadedManager):
             frames.sort(key=attrgetter('frame_number'))
             self._scan_clip(job, frames)
         except BaseException as e:
-            print(e)
+            print(e, file=sys.stderr)
             traceback.print_exc()
             update_scan_job_error(job.id, str(e))
             return

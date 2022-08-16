@@ -106,7 +106,7 @@ class Clipper:
                 if file is not None:
                     self._trim_buffer_and_clip_safe(file)
             except BaseException as e:
-                print(e)
+                print(e, file=sys.stderr)
                 traceback.print_exc()
 
     def start(self, stream: TwitchHLSStream):

@@ -1,3 +1,5 @@
+import sys
+
 import cv2 as cv
 from PIL import Image
 from pyee import EventEmitter
@@ -57,6 +59,6 @@ class OverwatchScreenReader(ScreenReader):
                     self.skip_frames += 2
 
         except Exception as e:
-            print(e)
+            print(e, file=sys.stderr)
             import traceback
             traceback.print_exc()
