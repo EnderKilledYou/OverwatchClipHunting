@@ -10,7 +10,7 @@ RUN bash /tmp/nodesource_setup.sh
 RUN apt install nodejs -y
 
 RUN add-apt-repository  ppa:deadsnakes/ppa
-RUN DEBIAN_FRONTEND=noninteractive apt-get update && apt-get install -y python3.8 tesseract-ocr
+RUN DEBIAN_FRONTEND=noninteractive apt-get update && apt-get install -y python3.8 tesseract-ocr python3.8-pip
 
 
 
