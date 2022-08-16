@@ -25,7 +25,7 @@ RUN /app/install_debian.sh
 
 RUN tesseract --help
 
-WORKDIR /app/frontend
+WORKDIR /app/front_end
 RUN npm install
 RUN npm run build
 WORKDIR /app/
