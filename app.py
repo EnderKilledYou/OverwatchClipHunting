@@ -1,5 +1,6 @@
+import os
 
-
+import sqlalchemy
 from flask import Flask, jsonify
 
 from config.config import flask_secret_key
@@ -9,7 +10,19 @@ def config_app() -> Flask:
     appx = Flask('ocr', static_url_path='',
                  static_folder='static',
                  template_folder='templates')
-    appx.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///twitch.sqlite3'
+    if 'PRODUCTION' in os.environ:
+        ssl_args = {'ssl_ca': 'server-ca.pem'}
+        app.config[
+            'SQLALCHEMY_DATABASE_URI'] = sqlalchemy.engine.url.URL.create(
+            drivername="mysql+pymysql",
+            username=os.environ['DB_USER'],
+            password=os.environ['DB_SECRET'],
+            database='word',
+            query={"unix_socket": '/cloudsql/inspiring-lore-357817:us-central1:cliphunta/', 'ssl_ca': 'server-ca.pem'},
+        )
+
+    else:
+        appx.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///twitch.sqlite3'
     appx.config['SECRET_KEY'] = flask_secret_key
 
     return appx
@@ -49,9 +62,9 @@ def not_found(e):
     return app.send_static_file("index.html")
 
 
-#if 'OCR_PRODUCTION' in os.environ:
-    # read_db_from_cloud()
-    # thread = RepeatingTimer()
-    # thread.start()
+# if 'OCR_PRODUCTION' in os.environ:
+# read_db_from_cloud()
+# thread = RepeatingTimer()
+# thread.start()
 if __name__ == '__main__':
     app.run(threaded=True)
