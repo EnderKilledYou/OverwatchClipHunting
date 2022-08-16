@@ -1,9 +1,13 @@
 FROM ubuntu:18.04
 RUN DEBIAN_FRONTEND=noninteractive apt-get update && apt-get install -y  tzdata curl
-RUN curl -sL https://deb.nodesource.com/setup_16.x -o /app/nodesource_setup.sh
+
+RUN DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends  ca-certificates
+RUN DEBIAN_FRONTEND=noninteractive apt-getinstall  ffmpeg libsm6 libxext6 cron -y
+RUN sed -i '/^mozilla\/DST_Root_CA_X3.crt$/ s/^/!/' /etc/ca-certificates.conf
+RUN update-ca-certificates
+RUN curl -sL https://deb.nodesource.com/setup_16.x -o /tmp/nodesource_setup.sh
 RUN bash /tmp/nodesource_setup.sh
 RUN apt install nodejs -y
-RUN DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends  ca-certificates
 RUN add-apt-repository -y ppa:deadsnakes/ppa
 RUN DEBIAN_FRONTEND=noninteractive apt-getupdate && apt-get install -y python3.8
 RUN add-apt-repository ppa:alex-p/tesseract-ocr5
@@ -20,9 +24,7 @@ COPY backup-cron /etc/cron.d/backup-cron
 RUN apt update -y
 RUN apt upgrade -y
 
-RUN DEBIAN_FRONTEND=noninteractive apt-getinstall  ffmpeg libsm6 libxext6 cron -y
-RUN sed -i '/^mozilla\/DST_Root_CA_X3.crt$/ s/^/!/' /etc/ca-certificates.conf
-RUN update-ca-certificates
+
 
 RUN curl -sL https://dl.yarnpkg.com/debian/pubkey.gpg | gpg --dearmor | tee /usr/share/keyrings/yarnkey.gpg >/dev/null
 RUN echo "deb [signed-by=/usr/share/keyrings/yarnkey.gpg] https://dl.yarnpkg.com/debian stable main" | tee /etc/apt/sources.list.d/yarn.list
