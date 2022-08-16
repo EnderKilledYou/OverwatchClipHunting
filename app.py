@@ -1,4 +1,5 @@
 import os
+import sys
 from threading import Thread
 from time import sleep
 
@@ -42,6 +43,20 @@ app = config_app()
 app.url_map.strict_slashes = False
 register_blueprints(app)
 
+if 'TESSERACT_DATA_FAST_INSTALL_FOLDER' in os.environ:
+    if not os.path.exists(os.environ['TESSERACT_DATA_FAST_INSTALL_FOLDER']):
+        print("cloning tess data")
+        os.system('git clone https://github.com/tesseract-ocr/tessdata_fast.git ' + os.environ[
+            'TESSERACT_DATA_FAST_INSTALL_FOLDER'])
+        if not os.path.exists(os.environ['TESSERACT_DATA_FAST_INSTALL_FOLDER']):
+            print("Could not clone tess data")
+            sys.exit(-1)
+if 'VUE_HOME' in os.environ:
+    wd = os.getcwd()
+    os.chdir(os.environ['VUE_HOME'])
+    os.system('npm install && npm run build')
+    os.chdir(wd)
+
 
 class RepeatingTimer(Thread):
 
@@ -61,6 +76,7 @@ def heartbeat():
 @app.errorhandler(404)
 def not_found(e):
     return app.send_static_file("index.html")
+
 
 if 'OCR_PRODUCTION' in os.environ:
     read_db_from_cloud()

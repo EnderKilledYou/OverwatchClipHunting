@@ -15,18 +15,15 @@ RUN python3 -v
 RUN python3 -m pip
 RUN node -v
 
-FROM CERTSANDINSTALLS as TESSY
-RUN git clone https://github.com/tesseract-ocr/tessdata_fast.git $TESSERACT_DATA_FAST_INSTALL_FOLDER
 
-FROM TESSY as COPYFILES
+
+FROM CERTSANDINSTALLS as COPYFILES
 WORKDIR $APP_HOME
 COPY . ./
 
-FROM COPYFILES as INSTALLVUE
-WORKDIR $VUE_HOME
-RUN npm install && npm run build
 
-FROM INSTALLVUE as STARTGUN
+
+FROM CERTSANDINSTALLS as STARTGUN
 WORKDIR $APP_HOME
 RUN python3 -m pip install --no-cache-dir -r Requirements.txt
 
