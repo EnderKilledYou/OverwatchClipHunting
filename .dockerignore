@@ -8,7 +8,7 @@ __pycache__/
 .git
 # C extensions
 *.so
-front_end
+
 # Distribution / packaging
 .Python
 build/
