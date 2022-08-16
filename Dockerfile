@@ -7,22 +7,23 @@ ENV TESSERACT_DATA_FAST_INSTALL_FOLDER /FAST_DATA
 ENV TESSERACT_DATA_FAST /FAST_DATA/tessdata_fast
 ENV OCR_PRODUCTION True
 
+FROM BASE as CERTSANDINSTALLS
 RUN echo "basic stuff and certs"
 RUN DEBIAN_FRONTEND=noninteractive apt-get update && apt-get  --no-install-recommends install -y git python3 python3-pip nodejs npm tzdata  software-properties-common ca-certificates ffmpeg libsm6 libxext6 cron tesseract-ocr
 RUN sed -i '/^mozilla\/DST_Root_CA_X3.crt$/ s/^/!/' /etc/ca-certificates.conf
 RUN update-ca-certificates
-
 RUN echo test software exists
 RUN python3 -v
 RUN python3 -m pip
 RUN node -v
 
+FROM CERTSANDINSTALLS as TESSY
 RUN echo tesseract
 WORKDIR $TESSERACT_DATA_FAST_INSTALL_FOLDER
 RUN git clone https://github.com/tesseract-ocr/tessdata_fast.git
 
 
-FROM BASE as Work
+FROM TESSY as Work
 RUN echo start copy files
 WORKDIR $APP_HOME
 COPY . ./
