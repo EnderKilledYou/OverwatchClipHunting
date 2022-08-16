@@ -4,7 +4,7 @@ import traceback
 from random import shuffle
 from threading import Thread
 from time import sleep
-from monitor import Monitor
+from Database.monitor import Monitor, remove_stream_to_monitor, add_stream_to_monitor, get_monitor_by_name, get_monitors
 from twitch_helpers import get_twitch_api
 
 
@@ -40,6 +40,7 @@ class MonitorManager:
         twitch_api = get_twitch_api()
         sleeps = 0
         while self._active:
+
             if sleeps % 6 == 0:
                 self._heart_beat(twitch_api)
             sleep(10)
@@ -47,6 +48,7 @@ class MonitorManager:
 
     def _heart_beat(self, twitch_api):
         try:
+
             self.trim_monitored_streams(twitch_api)
         finally:
             pass
@@ -114,21 +116,22 @@ class MonitorManager:
 
     def trim_monitored_streams(self, twitch_api):
         removes = []
+
         self._monitor_lock.acquire(True, -1)
 
         try:
+            mons = self.get_monitors_from_db_as_dict()
             live_streams_list = self.get_monitored_streams(twitch_api)
 
-            for monitor in self._monitors:
-                found = False
+            for monitor in mons:
                 lower = monitor.lower()
                 for stream in live_streams_list:
-
-                    if lower == stream['user_login']:
-                        found = True
-                        self._monitors[monitor].web_dict = stream
-                if not found:
-                    removes.append(monitor)
+                    if lower != stream['user_login']:
+                        remove_stream_to_monitor(monitor)
+                        del mons[monitor]
+                        continue
+                    mons[monitor].web_dict = stream
+            self._monitors = mons
         except BaseException as e:
             print(e, file=sys.stderr)
             traceback.print_exc()
@@ -139,6 +142,13 @@ class MonitorManager:
             self._monitor_lock.release()
 
         self.remove_streams_to_monitor(removes)
+
+    def get_monitors_from_db_as_dict(self):
+        tmp = get_monitors()
+        mons = {}
+        for a in tmp:
+            mons[a.broadcaster] = a
+        return mons
 
     def get_monitored_streams(self, twitch_api):
         user_logins = list(self._monitors)
@@ -157,10 +167,19 @@ class MonitorManager:
             if stream_name.lower() in self.avoids:
                 print("avoiding " + stream_name)
                 return
-            if stream_name not in self._monitors:
-                exists = twitch_api.get_streams(user_login=[stream_name])
-                if exists and 'data' in exists and len(exists['data']) == 1:
-                    self._monitors[stream_name] = Monitor(stream_name, exists['data'][0])
+            if stream_name in self._monitors:
+                return
+            exists = twitch_api.get_streams(user_login=[stream_name])
+            if not exists or 'data' not in exists or len(exists['data']) < 1:
+                return
+            existing_monitor = get_monitor_by_name(stream_name)
+            if existing_monitor is not None:
+                return
+            monitor = Monitor(stream_name, exists['data'][0])
+            monitor = add_stream_to_monitor(monitor)
+            if monitor:
+                self._monitors[stream_name] = monitor
+
         finally:
             self._monitor_lock.release()
 
@@ -189,5 +208,6 @@ class MonitorManager:
                 return
             self._monitors[stream_name].stop()
             del self._monitors[stream_name]
+            remove_stream_to_monitor(stream_name)
         finally:
             self._monitor_lock.release()

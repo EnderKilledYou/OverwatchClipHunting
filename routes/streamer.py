@@ -1,5 +1,6 @@
 from flask import Blueprint
 
+from Database.monitor import remove_stream_to_monitor
 from routes.monitor_manager import manager
 
 streamer = Blueprint('streamer', __name__)
@@ -25,7 +26,7 @@ def list():
 @sharp.function()
 def remove(stream_name: str):
     if manager.is_stream_monitored(stream_name):
-        manager.remove_stream_to_monitor(stream_name)
+        remove_stream_to_monitor(stream_name)
 
     for_web = manager.get_stream_monitors_for_web()
     return {"success": True, 'items': for_web}
