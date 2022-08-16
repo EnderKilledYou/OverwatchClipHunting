@@ -1,5 +1,5 @@
 FROM ubuntu:18.04
-RUN DEBIAN_FRONTEND=noninteractive apt-get update && apt-get install -y  tzdata curl
+RUN DEBIAN_FRONTEND=noninteractive apt-get update && apt-get install -y  tzdata  software-properties-common curl
 
 RUN DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends  ca-certificates
 RUN DEBIAN_FRONTEND=noninteractive apt-get install  ffmpeg libsm6 libxext6 cron -y
