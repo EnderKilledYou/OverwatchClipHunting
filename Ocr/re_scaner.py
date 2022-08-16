@@ -130,12 +130,7 @@ def _download_clip(slug, args):
         return
     game = clip["game"]["name"] if clip["game"] else "Unknown"
 
-    print("Found: {} by {}, playing {} ".format(
-        clip["title"],
-        clip["broadcaster"]["displayName"],
-        game,
 
-    ))
 
     url = get_clip_authenticated_url(slug, args.quality)
     print("Selected URL: {}".format(url))
