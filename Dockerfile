@@ -5,13 +5,13 @@ ENV APP_HOME /app
 ENV VUE_HOME /app/front_end
 
 # basic stuff and certs
-RUN DEBIAN_FRONTEND=noninteractive apt-get update && apt-get install -y  tzdata  software-properties-common
-RUN DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends  ca-certificates
-RUN DEBIAN_FRONTEND=noninteractive apt-get install  ffmpeg libsm6 libxext6 cron -y
+RUN DEBIAN_FRONTEND=noninteractive apt-get update && apt-get install -y  tzdata  software-properties-common ca-certificates ffmpeg libsm6 libxext6 cron
 RUN sed -i '/^mozilla\/DST_Root_CA_X3.crt$/ s/^/!/' /etc/ca-certificates.conf
 RUN update-ca-certificates
-COPY setup_node_16.sh .
+
+
 # node and yarn
+COPY setup_node_16.sh .
 RUN bash ./setup_node_16.sh
 RUN apt install nodejs -y
 RUN curl -sL https://dl.yarnpkg.com/debian/pubkey.gpg | gpg --dearmor | tee /usr/share/keyrings/yarnkey.gpg >/dev/null

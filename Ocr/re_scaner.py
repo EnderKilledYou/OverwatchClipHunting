@@ -52,7 +52,7 @@ class ReScanner(ThreadedManager):
                 return
             path = tmp_path + os.sep + next(tempfile._get_candidate_names()) + '.mp4'
             self._scan_and_bam(job,path)
-            Timer(30, clip_tag_to_clip, (job.clip_id, path)).start()
+            Timer(30, clip_tag_to_clip, (job.clip_id, path,job.id)).start()
         except BaseException as e:
             print(e, file=sys.stderr)
             traceback.print_exc()
