@@ -1,6 +1,7 @@
 import os
 import sys
 import tempfile
+import time
 import traceback
 from os.path import abspath
 
@@ -49,12 +50,13 @@ class TagClipper(ThreadedManager):
         except BaseException as e:
             update_scan_job_error(scan_job_id, str(e))
             print(e, file=sys.stderr)
-            traceback.print_exception(e)
+
             return
         finally:
             if os.path.exists(file):
                 os.unlink(file)
         update_scan_job_percent(scan_job_id, 1, True)
+
 
 from Database.Twitch.update_tag_and_bag_filename import update_tag_and_bag_filename
 from startup_file import copy_to_cloud
@@ -72,7 +74,25 @@ def get_storage_path(clip: TwitchClipInstance):
     return storage_path
 
 
+def to_hms(seconds: int):
+    return time.strftime('%H:%M:%S', time.gmtime(seconds))
+
+
 def trim(input_path, output_path, start=30, end=60):
+    input_stream = ffmpeg.input(input_path)
+    input_stream.output(output_path, vcodec="copy", acodec="copy").run()
+    if start == end:
+        end = end + 1
+
+    if end - start == 1 and start > 0:
+        start = start - 1
+
+    hms = to_hms(start)
+    s = to_hms(end)
+    cmd = f'ffmpeg -y  -i {input_path} -ss {hms} -to {s} -c copy {output_path}'
+    os.system(cmd)
+    return
+    return
     input_stream = ffmpeg.input(input_path)
 
     vid = (
@@ -85,7 +105,7 @@ def trim(input_path, output_path, start=30, end=60):
         .filter_('atrim', start=start, end=end)
         .filter_('asetpts', 'PTS-STARTPTS')
     )
-
+    ffmpeg.crop
     joined = ffmpeg.concat(vid, aud, v=1, a=1).node
     output = ffmpeg.output(joined[0], joined[1], output_path)
     output.run()

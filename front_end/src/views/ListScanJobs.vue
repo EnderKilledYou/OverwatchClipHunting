@@ -55,21 +55,21 @@ export default class ListScanJob extends Vue {
   stateToProgressBarClass(state: number) {
      switch (+state) {
       case 0:
-        return ['progress-bar', 'bg-danger']
+        return ['progress-bar', 'bg-danger','progress-bar-striped','progress-bar-animated']
       case 1:
-        return ['progress-bar', 'bg-danger']
+        return ['progress-bar', 'bg-danger','progress-bar-striped','progress-bar-animated']
       case 2:
         return ['progress-bar' ]
       case 3:
-        return ['progress-bar', 'bg-info']
+        return ['progress-bar', 'bg-info','progress-bar-striped','progress-bar-animated']
       case 5:
-        return ['progress-bar', 'bg-danger']
+        return ['progress-bar', 'bg-danger','progress-bar-striped','progress-bar-animated']
       case 6:
-        return ['progress-bar', 'bg-success']
+        return ['progress-bar', 'bg-success','progress-bar-striped','progress-bar-animated']
       case 7:
-        return ['progress-bar', 'bg-danger']
+        return ['progress-bar', 'bg-danger','progress-bar-striped','progress-bar-animated']
       default:
-        return "unknown"
+        return ['progress-bar','progress-bar-striped','progress-bar-animated']
     }
   }
 

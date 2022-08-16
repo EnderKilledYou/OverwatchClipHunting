@@ -9,7 +9,7 @@
       <button @click="AutoTwitch()" class="btn btn-block">Auto Twitch</button>
       <button @click="StopAutoTwitch()" class="btn btn-block">Stop Auto Twitch</button>
     </label>
-    <table class="table table-striped table-responsive">
+    <table class="table table-striped table-responsive" v-if="twitch_streams_filtered.length >0">
       <thead>
       <tr>
         <th>
