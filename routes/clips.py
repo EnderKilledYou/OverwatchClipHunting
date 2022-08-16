@@ -69,7 +69,7 @@ def get_game_ids():
 def get_clip_scan_jobs(page: int = 1):
     try:
 
-        by_page = get_twitch_clip_scan_by_page(page)
+        by_page = get_twitch_clip_scan_by_page(page,10)
         return {"success": True,
                 'items': list(map(lambda x: (x[0].to_dict(), x[1].to_dict()), by_page))}
     except BaseException as be:

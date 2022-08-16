@@ -18,7 +18,7 @@
           <div class="card-body">
             <h5 class="card-title"> {{ stateToString(item[0].state) }}</h5>
             <p class="card-text">{{ item[1].title }}</p>
-            <p class="card-text">{{ item[0].error}} </p>
+            <p class="card-text">{{ item[0].error }} </p>
           </div>
           <div class="card-footer">
 
@@ -41,6 +41,8 @@
 import {Options, Vue} from "vue-class-component";
 import TwitchClipInstanceScanJob from "@/views/TwitchClipInstanceScanJob";
 import {API, TwitchClipLog} from "@/api";
+
+let interval: number | null | undefined = null
 
 @Options({
   components: {},
@@ -84,6 +86,9 @@ export default class ListScanJob extends Vue {
 
   created() {
     this.list_items()
+    if (interval)
+      clearInterval(interval)
+    interval = setInterval(this.list_items.bind(this), 5000)
   }
 
   async list_items() {

@@ -33,9 +33,9 @@ def get_twitch_clip_scan_by_clip_id(clip_id: int) -> TwitchClipInstanceScanJob:
     return TwitchClipInstanceScanJob.query.filter_by(clip_id=clip_id).first()
 
 
-def get_twitch_clip_scan_by_page(page: int):
+def get_twitch_clip_scan_by_page(page: int,page_count:int = 25):
     try:
-        resp = TwitchClipInstanceScanJob.query.filter_by().paginate(page=page, per_page=25).items
+        resp = TwitchClipInstanceScanJob.query.filter_by().paginate(page=page, per_page=page_count).items
         output = []
         for a in resp:
             by_id = get_twitch_clip_instance_by_id(a.clip_id)
