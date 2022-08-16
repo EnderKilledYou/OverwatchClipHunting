@@ -1,5 +1,4 @@
 flask_login
-flask_expects_json
 flask_sqlalchemy
 flask_oauthlib
 sqlalchemy_serializer
@@ -17,8 +16,6 @@ streamlink
 scipy
 cryptocode
 pyee
-moviepy
-python-vlc
 Flask-Sharp
 twitch-dl==1.22.0
 pytest

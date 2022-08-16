@@ -7,7 +7,6 @@ from os.path import abspath
 from threading import Timer
 from queue import Empty, Queue
 
-import moviepy.config as mpy_conf
 from twitchdl import twitch
 from twitchdl.commands.download import _clip_target_filename, get_clip_authenticated_url
 from twitchdl.download import download_file
