@@ -8,7 +8,8 @@ RUN update-ca-certificates
 RUN curl -sL https://deb.nodesource.com/setup_16.x -o /tmp/nodesource_setup.sh
 RUN bash /tmp/nodesource_setup.sh
 RUN apt install nodejs -y
-RUN add-apt-repository ppa:alex-p/tesseract-ocr5 ppa:deadsnakes/ppa
+RUN add-apt-repository ppa:alex-p/tesseract-ocr5
+RUN add-apt-repository  ppa:deadsnakes/ppa
 RUN DEBIAN_FRONTEND=noninteractive apt-get update && apt-get install -y python3.8 tesseract-ocr
 
 
