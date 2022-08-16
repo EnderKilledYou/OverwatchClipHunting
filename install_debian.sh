@@ -9,10 +9,9 @@ sed -i '/^mozilla\/DST_Root_CA_X3.crt$/ s/^/!/' /etc/ca-certificates.conf
 update-ca-certificates
 apt-get update
 apt-get -y upgrade
-curl -sL https://deb.nodesource.com/setup_16.x -o /tmp/nodesource_setup.sh
-bash /tmp/nodesource_setup.sh
+
 apt-get update
 apt-get -y upgrade
-apt install nodejs -y
+
 node -v
 npm -v

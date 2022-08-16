@@ -1,6 +1,9 @@
 FROM ubuntu:18.04
 RUN DEBIAN_FRONTEND=noninteractive apt-get update && apt-get install -y --no-install-recommends tzdata
 RUN apt-get update && apt-get install -y software-properties-common wget
+RUN curl -sL https://deb.nodesource.com/setup_16.x -o /tmp/nodesource_setup.sh
+RUN bash /tmp/nodesource_setup.sh
+RUN apt install nodejs -y
 RUN DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends  ca-certificates
 RUN add-apt-repository -y ppa:deadsnakes/ppa
 RUN apt-get update && apt-get install -y python3.8
@@ -15,6 +18,7 @@ ENV APP_HOME /app
 WORKDIR $APP_HOME
 COPY . ./
 COPY backup-cron /etc/cron.d/backup-cron
+
 
 RUN chmod +x /app/install_debian.sh
 RUN /app/install_debian.sh
