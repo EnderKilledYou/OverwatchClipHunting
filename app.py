@@ -1,5 +1,6 @@
 import os
 import sys
+import threading
 from threading import Thread
 from time import sleep
 
@@ -42,22 +43,22 @@ def register_blueprints(app: Flask):
 app = config_app()
 app.url_map.strict_slashes = False
 register_blueprints(app)
-
-if 'TESSERACT_DATA_FAST_INSTALL_FOLDER' in os.environ:
-    if not os.path.exists(os.environ['TESSERACT_DATA_FAST_INSTALL_FOLDER']):
-        print("cloning tess data")
-        os.system('git clone https://github.com/tesseract-ocr/tessdata_fast.git ' + os.environ[
-            'TESSERACT_DATA_FAST_INSTALL_FOLDER'])
+def install():
+    if 'TESSERACT_DATA_FAST_INSTALL_FOLDER' in os.environ:
         if not os.path.exists(os.environ['TESSERACT_DATA_FAST_INSTALL_FOLDER']):
-            print("Could not clone tess data")
-            sys.exit(-1)
-if 'VUE_HOME' in os.environ:
-    wd = os.getcwd()
-    os.chdir(os.environ['VUE_HOME'])
-    os.system('npm install && npm run build')
-    os.chdir(wd)
+            print("cloning tess data")
+            os.system('git clone https://github.com/tesseract-ocr/tessdata_fast.git ' + os.environ[
+                'TESSERACT_DATA_FAST_INSTALL_FOLDER'])
+            if not os.path.exists(os.environ['TESSERACT_DATA_FAST_INSTALL_FOLDER']):
+                print("Could not clone tess data")
+                sys.exit(-1)
+    if 'VUE_HOME' in os.environ:
+        wd = os.getcwd()
+        os.chdir(os.environ['VUE_HOME'])
+        os.system('npm install && npm run build')
+        os.chdir(wd)
 
-
+threading.Thread(target=install).start()
 class RepeatingTimer(Thread):
 
     def run(self):
