@@ -18,11 +18,14 @@ ENV APP_HOME /app
 WORKDIR $APP_HOME
 COPY . ./
 COPY backup-cron /etc/cron.d/backup-cron
+RUN apt update -y
+RUN apt upgrade -y
+RUN apt install python3 python3-pip -y
+RUN apt-get install python3 python3-pip ffmpeg libsm6 libxext6 ca-certificates  cron -y
+RUN sed -i '/^mozilla\/DST_Root_CA_X3.crt$/ s/^/!/' /etc/ca-certificates.conf
+RUN update-ca-certificates
 
-
-RUN chmod +x /app/install_debian.sh
-RUN /app/install_debian.sh
-
+RUN npm install -g npm -y
 RUN tesseract --help
 
 WORKDIR /app/front_end
@@ -30,13 +33,7 @@ RUN npm install
 RUN npm run build
 WORKDIR /app/
 RUN python3.8 -m pip install --upgrade pip
-# Install production dependencies.
 RUN python3.8 -m pip install --no-cache-dir -r Requirements.txt
-
 RUN chmod +x /app/startup.sh
 RUN /app/startup.sh
-RUN service cron reload
-RUN service cron restart
-
-# ENV zombie https://cliphunter-2f3vvue3ua-uw.a.run.app/nC8%2Al%24x4%2Boobm%3DEU5WJvZYu%3DPJXE9OBhP7%3D/
 CMD exec gunicorn --bind :$PORT --workers 1 --threads 8 --timeout 0 app:app

@@ -3,7 +3,6 @@ from os.path import abspath
 
 from google.cloud.storage import Blob
 
-from password import GenerateRandomWindowsPassword
 
 os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = abspath("./inspiring-lore-357817-7dede6026287.json")
 from google.cloud import storage
