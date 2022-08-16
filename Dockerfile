@@ -14,5 +14,3 @@ RUN echo test software exists
 RUN python3 -v
 RUN python3 -m pip
 RUN node -v
-
-CMD echo "hi"
