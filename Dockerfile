@@ -17,14 +17,8 @@ RUN node -v
 
 
 
-FROM CERTSANDINSTALLS as COPYFILES
+FROM CERTSANDINSTALLS
 WORKDIR $APP_HOME
 COPY . ./
-
-
-
-FROM CERTSANDINSTALLS as STARTGUN
-WORKDIR $APP_HOME
 RUN python3 -m pip install --no-cache-dir -r Requirements.txt
-
 CMD exec gunicorn --bind :$PORT --workers 1 --threads 8 --timeout 0 app:app
