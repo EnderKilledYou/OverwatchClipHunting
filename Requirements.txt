@@ -1,4 +1,3 @@
-flask_login
 flask_sqlalchemy
 flask_oauthlib
 sqlalchemy_serializer
@@ -10,7 +9,6 @@ scipy
 opencv-python
 numpy
 tqdm
-click
 Pillow
 streamlink
 scipy
@@ -20,6 +18,4 @@ Flask-Sharp
 twitch-dl==1.22.0
 pytest
 gunicorn
-ffmpeg-python
 google-cloud-storage
-google-python-cloud-debugger

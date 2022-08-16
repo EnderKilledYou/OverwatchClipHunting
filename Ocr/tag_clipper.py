@@ -5,7 +5,7 @@ import time
 import traceback
 from os.path import abspath
 
-import ffmpeg
+
 
 from Database.Twitch.twitch_clip_instance import get_twitch_clip_instance_by_id, TwitchClipInstance, \
     update_twitch_clip_instance_filename
@@ -79,8 +79,6 @@ def to_hms(seconds: int):
 
 
 def trim(input_path, output_path, start=30, end=60, clip_length=30):
-    input_stream = ffmpeg.input(input_path)
-    input_stream.output(output_path, vcodec="copy", acodec="copy").run()
 
     min_clip = 5 - (end - start)
     if min_clip == 1:
@@ -101,21 +99,4 @@ def trim(input_path, output_path, start=30, end=60, clip_length=30):
     s = to_hms(end)
     cmd = f'ffmpeg -y  -i {input_path} -ss {hms} -to {s} -c copy {output_path}'
     os.system(cmd)
-    return
-    return
-    input_stream = ffmpeg.input(input_path)
 
-    vid = (
-        input_stream.video
-        .trim(start=start, end=end)
-        .setpts('PTS-STARTPTS')
-    )
-    aud = (
-        input_stream.audio
-        .filter_('atrim', start=start, end=end)
-        .filter_('asetpts', 'PTS-STARTPTS')
-    )
-    ffmpeg.crop
-    joined = ffmpeg.concat(vid, aud, v=1, a=1).node
-    output = ffmpeg.output(joined[0], joined[1], output_path)
-    output.run()

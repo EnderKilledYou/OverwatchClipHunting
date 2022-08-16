@@ -1,9 +1,8 @@
 import os
-from os.path import abspath
 from threading import Thread
 from time import sleep
 
-from flask import Flask, render_template, jsonify
+from flask import Flask, jsonify
 
 from config.config import flask_secret_key
 from db_file import write_db_tocloud
