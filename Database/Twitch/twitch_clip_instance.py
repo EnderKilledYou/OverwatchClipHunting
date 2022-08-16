@@ -20,6 +20,7 @@ class TwitchClipInstance(db.Model, SerializerMixin):
     type = db.Column(db.String)
     vod_offset = db.Column(db.Integer)
     duration = db.Column(db.Integer)
+    file_path = db.Column(db.String)
 
     def __init__(self, from_api={}):
         if 'id' in from_api:
@@ -42,6 +43,7 @@ def fix_vod_and_duration(api_data):
     db.session.commit()
     db.session.flush()
 
+
 def add_twitch_clip_instance_from_api(api_data, clip_type: str) -> TwitchClipInstance:
     if 'created_at' in api_data:
         api_data['created_at'] = isoparse(api_data['created_at'])
@@ -52,6 +54,14 @@ def add_twitch_clip_instance_from_api(api_data, clip_type: str) -> TwitchClipIns
     db.session.flush()
     return log
 
+
+def update_twitch_clip_instance_filename(twitch_clip_id: int, file_path):
+    item = get_twitch_clip_instance_by_id(twitch_clip_id)
+    if not item:
+        return
+    item.file_path = file_path
+    db.session.commit()
+    db.session.flush()
 
 def get_twitch_clip_instance_by_id(id: int) -> TwitchClipInstance:
     return TwitchClipInstance.query.filter_by(id=id).first()

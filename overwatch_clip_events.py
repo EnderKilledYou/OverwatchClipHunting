@@ -1,12 +1,10 @@
 from pyee.base import EventEmitter
-
-from Database.Twitch.twitch_clip_tag import add_twitch_clip_tag_request
-
 overwatch_clips_event = EventEmitter()
+from Ocr.tag_clipper import TagClipper
 
 from Ocr.frame import Frame
 
-
+from Database.Twitch.twitch_clip_tag import add_twitch_clip_tag_request
 @overwatch_clips_event.on('elim')
 def on_elim_event(frame: Frame, count: int, duration: int, last_death):
     print("{4} Kill count: {0} seconds in: {1} last death: {2} , Duration: {3}  ".format(count, str(frame.ts_second),

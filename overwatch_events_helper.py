@@ -1,12 +1,10 @@
 import json
 import os.path
-import threading
 
-import monitor_manager
 from flask_events import flask_event
 from Ocr.frame import Frame
 from Clipper.clip_timestamp import ClipTimeStamp
-from in_flask import in_flask
+
 from config.streamer_configs import get_streamer_config
 from routes.monitor_manager import manager
 from twitch_helpers import get_broadcaster_id, get_twitch_api

@@ -2,8 +2,6 @@ import threading
 from queue import Queue, Empty
 from time import sleep
 
-from Database.Twitch.twitch_clip_instance_scan_job import update_scan_job_in_queue
-from Ocr.tag_clipper_request import TagClipperRequest
 
 
 class ThreadedManager:

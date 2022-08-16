@@ -4,7 +4,7 @@ import re
 from flask import request, Response, Blueprint
 
 from Database.MissingRecordError import MissingRecordError
-from Database.Twitch.twitch_clip_tag import twitch_clip_tag_helper, TwitchClipTag
+from Database.Twitch.twitch_clip_tag import  TwitchClipTag
 
 video = Blueprint('video', __name__)
 

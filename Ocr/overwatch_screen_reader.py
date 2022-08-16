@@ -13,9 +13,10 @@ from Ocr.overwatch_searching_for_game_screen_region import OverwatchSearchingFor
 from Ocr.screen_reader import ScreenReader
 from Ocr.video_frame_buffer import VideoFrameBuffer
 
-from overwatch_events import overwatch_event
+
 class OverwatchScreenReader(ScreenReader):
     def __init__(self, framebuffer: VideoFrameBuffer ):
+        from overwatch_events import overwatch_event
         super(OverwatchScreenReader, self).__init__(framebuffer)
         self.skip_frames = 0
 

@@ -8,11 +8,13 @@ from os.path import abspath
 from queue import Empty, Queue
 
 import moviepy.config as mpy_conf
-from twitchdl.commands.download import _download_clip
+from twitchdl import twitch
+from twitchdl.commands.download import _clip_target_filename, get_clip_authenticated_url
 
-from Database.Twitch.twitch_clip_instance import get_twitch_clip_instance_by_id
+from Database.Twitch.twitch_clip_instance import get_twitch_clip_instance_by_id, update_twitch_clip_instance_filename
 from Database.Twitch.twitch_clip_instance_scan_job import TwitchClipInstanceScanJob, update_scan_job_error, \
-    get_twitch_clip_scan_by_id, update_scan_job_percent, update_scan_job_started, update_scan_job_in_queue
+    update_scan_job_percent, update_scan_job_started, update_scan_job_in_queue
+
 from Ocr.twitch_dl_args import Args
 
 mpy_conf.change_settings({'FFMPEG_BINARY': "C:\\ProgramData\\chocolatey\\bin\\ffmpeg.exe",
@@ -21,8 +23,6 @@ mpy_conf.change_settings({'FFMPEG_BINARY': "C:\\ProgramData\\chocolatey\\bin\\ff
 from Ocr.VideoCapReader import VideoCapReader, StreamEndedError, ClipVideoCapReader
 from Ocr.overwatch_clip_reader import OverwatchClipReader
 from something_manager import ThreadedManager
-from Database.tag_and_bag import update_tag_and_bag_scan_progress, \
-    if_tag_cancel_request_exists
 
 
 class InvalidFpsError(BaseException):
@@ -35,16 +35,6 @@ if not os.path.exists(tmp_path):
     os.makedirs(tmp_path)
 
 
-class RescannerRequest:
-    def __init__(self, tag_id: int, mp4_url: str, broadcaster, clip_id: int):
-        self.tag_id = tag_id
-        self.broadcaster = broadcaster
-        self.mp4_url = mp4_url
-        self.clip_id = clip_id
-
-        # self.reader = ClipVideoCapReader(self._broadcaster, clip_id)
-
-
 class ReScanner(ThreadedManager):
     _frame_count: int
     _reader: VideoCapReader
@@ -52,6 +42,7 @@ class ReScanner(ThreadedManager):
     # self._instance.thumbnail_url.split("-preview", 1)[0] + ".mp4"
     def __init__(self):
         super(ReScanner, self).__init__(1)
+
         self._frame_count = 0
         self.matcher = OverwatchClipReader()
 
@@ -70,7 +61,7 @@ class ReScanner(ThreadedManager):
             reader = ClipVideoCapReader(job.broadcaster, job.clip_id)
             reader.read(path, reader_buffer)
             reader.stop()
-
+            update_twitch_clip_instance_filename(job.clip_id, path)
 
         except BaseException as e:
             print(e, file=sys.stderr)
@@ -79,9 +70,10 @@ class ReScanner(ThreadedManager):
                 update_scan_job_error(job.id, str(e))
             return
         finally:
-            if path is not None:
-                if os.path.exists(path):
-                    os.unlink(path)
+            pass
+            # if path is not None:
+            #     if os.path.exists(path):
+            #         os.unlink(path)
         try:
             frames = queue_to_list(reader_buffer)
             frames.sort(key=attrgetter('frame_number'))
@@ -129,3 +121,26 @@ def queue_to_list(queue: Queue):
     except Empty:
         pass
     return items
+
+
+def _download_clip(slug, args):
+    print("<dim>Looking up clip...</dim>")
+    clip = twitch.get_clip(slug)
+    if not clip:
+        return
+    game = clip["game"]["name"] if clip["game"] else "Unknown"
+
+    print("Found: {} by {}, playing {} ".format(
+        clip["title"],
+        clip["broadcaster"]["displayName"],
+        game,
+
+    ))
+
+    url = get_clip_authenticated_url(slug, args.quality)
+    print("Selected URL: {}".format(url))
+
+    print("Downloading clip...")
+    print(url, args.output)
+
+    print("Downloaded: {} ".format(args.output))

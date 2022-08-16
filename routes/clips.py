@@ -16,7 +16,7 @@ from login_dec import requires_logged_in
 
 clips = Blueprint('clips', __name__)
 from Ocr.re_scaner import ReScanner
-from Ocr.rescanner_monitor import ReScannerMonitor, make_rescanner_job_from_clip_id
+
 from Database.Twitch.twitch_clip_tag import get_tag_and_bag_by_clip_id, TwitchClipTag
 
 from config.db_config import db

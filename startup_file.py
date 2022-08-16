@@ -7,6 +7,16 @@ os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = abspath("./inspiring-lore-357817-
 from google.cloud import storage
 
 
+def copy_to_cloud(local_file, remote_file):
+    storage_client = storage.Client()
+    bucket = storage_client.bucket('app_storage_state')
+    blob = bucket.blob(remote_file)
+    with open(local_file, 'rb') as local:
+        local_data = local.read()
+        with blob.open('wb') as writer:
+            writer.write(local_data)
+
+
 def read():
     storage_client = storage.Client()
     bucket = storage_client.bucket('app_storage_state')

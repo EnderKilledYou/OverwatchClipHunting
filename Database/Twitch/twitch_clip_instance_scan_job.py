@@ -1,10 +1,5 @@
 from datetime import datetime
-
 from sqlalchemy_serializer import SerializerMixin
-
-from Database.Twitch.twitch_clip_instance import get_twitch_clip_instance_by_id
-from Database.Twitch.twitch_clip_tag import get_tag_and_bag_by_clip_id
-from OrmHelpers.BasicWithId import BasicWithId
 from config.db_config import db
 
 
@@ -22,7 +17,13 @@ class TwitchClipInstanceScanJob(db.Model, SerializerMixin):
     error = db.Column(db.String, default='')
 
 
+from Database.Twitch.twitch_clip_instance import get_twitch_clip_instance_by_id
+
+from OrmHelpers.BasicWithId import BasicWithId
+
 twitch_clip_instance_scan_job_helper = BasicWithId(TwitchClipInstanceScanJob)
+
+from Database.Twitch.twitch_clip_tag import get_tag_and_bag_by_clip_id
 
 
 def get_twitch_clip_scan_by_id(id: int) -> TwitchClipInstanceScanJob:
@@ -33,7 +34,7 @@ def get_twitch_clip_scan_by_clip_id(clip_id: int) -> TwitchClipInstanceScanJob:
     return TwitchClipInstanceScanJob.query.filter_by(clip_id=clip_id).first()
 
 
-def get_twitch_clip_scan_by_page(page: int,page_count:int = 25):
+def get_twitch_clip_scan_by_page(page: int, page_count: int = 25):
     try:
         resp = TwitchClipInstanceScanJob.query.filter_by().paginate(page=page, per_page=page_count).items
         output = []

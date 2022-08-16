@@ -3,64 +3,50 @@ import tempfile
 from os.path import abspath
 
 import ffmpeg
-import requests
-import twitchdl.download
-from twitchdl.commands.download import _download_clip
-import config.config
-from Ocr.re_scaner import tmp_path
-from Ocr.tag_clipper_request import TagClipperRequest
-from Ocr.twitch_dl_args import Args
-from something_manager import ThreadedManager
+
 from Database.Twitch.twitch_clip_instance import get_twitch_clip_instance_by_id, TwitchClipInstance
-from Database.Twitch.twitch_clip_tag import update_tag_and_bag_filename
 
 
+
+from something_manager import ThreadedManager
 class TagClipper(ThreadedManager):
     def __init__(self):
         super(TagClipper, self).__init__(2, False)
 
-    def _stream_to_file(self, url, path):
-        _download_clip(url, Args(url, path))
-        return
-        twitchdl.CLIENT_ID = config.config.consumer_key
-        twitchdl.download.download_file()
-        response = requests.get(url, stream=True, timeout=60)
-        size = 0
-        with open(path, 'wb') as target:
-            for chunk in response.iter_content(chunk_size=8096):
-                target.write(chunk)
-                size += len(chunk)
-
-        return size
-
-    def _download(self, url: str):
-        self.file_name = tmp_path + os.sep + next(tempfile._get_candidate_names()) + '.mp4'
-        size = self._stream_to_file(url, self.file_name)
-        return self.file_name, size
-
-    def _do_work(self, item: TagClipperRequest):
+    def _do_work(self, job):
+        (item, file) = job
         try:
-            file_info = self._download(item.video_id)
-            file: str = file_info[0]
+
             clip: TwitchClipInstance = get_twitch_clip_instance_by_id(item.clip_id)
             storage_path = self.get_storage_path(clip)
 
             for section in item.clip_parts:
-                out_file = storage_path + os.sep + next(tempfile._get_candidate_names()) + '.mp4'
+                file_name = next(tempfile._get_candidate_names()) + '.mp4'
+                out_file = storage_path + os.sep + file_name
+                gloud_file = get_clip_path(clip) + file_name
                 trim(file, out_file, section.clip_start, section.clip_end)
-                # ffmpeg.input(file).trim(start_frame=section.clip_start * fps, end_frame=section.clip_end * fps).output(
-                #    out_file).run()
-                update_tag_and_bag_filename(section.id, out_file)
+                update_tag_and_bag_filename(section.id, gloud_file)
+                copy_to_cloud(out_file, gloud_file)
+                os.unlink(out_file)
 
-            os.unlink(file)
             item.return_queue.put((clip.id,))
         except BaseException as e:
             item.return_queue.put((clip.id, str(e)))
 
 
+from Database.Twitch.update_tag_and_bag_filename import update_tag_and_bag_filename
+from startup_file import copy_to_cloud
+
+
+
+
+def get_clip_path(clip: TwitchClipInstance):
+    return f'/videos{os.sep}{clip.broadcaster_name}{os.sep}{str(clip.created_at.year)}{os.sep}{str(clip.created_at.month)}{os.sep}{str(clip.created_at.day)}{os.sep}'
+
+
 def get_storage_path(clip: TwitchClipInstance):
-    storage_path = abspath(
-        f'./videos{os.sep}{clip.broadcaster_name}{os.sep}{str(clip.created_at.year)}{os.sep}{str(clip.created_at.month)}{os.sep}{str(clip.created_at.day)}{os.sep}')
+    storage_path = abspath(get_clip_path(get_clip_path(clip)))
+
     if not os.path.exists(storage_path):
         os.makedirs(storage_path)
     return storage_path

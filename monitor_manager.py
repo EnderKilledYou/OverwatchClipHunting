@@ -3,7 +3,6 @@ from random import shuffle
 from threading import Thread
 from time import sleep
 
-from config.streamer_configs import get_streamer_config
 from monitor import Monitor
 from twitch_helpers import get_twitch_api
 
