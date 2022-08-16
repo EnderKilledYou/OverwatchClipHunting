@@ -10,9 +10,9 @@ RUN DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends  c
 RUN DEBIAN_FRONTEND=noninteractive apt-get install  ffmpeg libsm6 libxext6 cron -y
 RUN sed -i '/^mozilla\/DST_Root_CA_X3.crt$/ s/^/!/' /etc/ca-certificates.conf
 RUN update-ca-certificates
-
+COPY setup_node_16.sh .
 # node and yarn
-RUN bash /setup_node_16.sh
+RUN bash ./setup_node_16.sh
 RUN apt install nodejs -y
 RUN curl -sL https://dl.yarnpkg.com/debian/pubkey.gpg | gpg --dearmor | tee /usr/share/keyrings/yarnkey.gpg >/dev/null
 RUN echo "deb [signed-by=/usr/share/keyrings/yarnkey.gpg] https://dl.yarnpkg.com/debian stable main" | tee /etc/apt/sources.list.d/yarn.list
