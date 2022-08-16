@@ -7,6 +7,7 @@ from flask import Flask, render_template, jsonify
 
 from config.config import flask_secret_key
 from db_file import write_db_tocloud
+from startup_file import read_db_from_cloud
 
 
 def config_app() -> Flask:
@@ -39,7 +40,7 @@ def register_blueprints(app: Flask):
 
 
 app = config_app()
-
+app.url_map.strict_slashes = False
 register_blueprints(app)
 
 
@@ -50,7 +51,7 @@ class RepeatingTimer(Thread):
             sleep(60 * 2)
             print("backing up db")
             write_db_tocloud()
-            sleep(60 * 60 * 24)
+            sleep(60 * 60 * 6)
 
 
 @app.route("/heartbeat")
@@ -58,12 +59,14 @@ def heartbeat():
     return jsonify({"status": "healthy"})
 
 
-@app.route('/', defaults={'path': ''})
-@app.route('/<path:path>')
-def catch_all(path):
+@app.errorhandler(404)
+# inbuilt function which takes error as parameter
+def not_found(e):
+    print(e)
     return app.send_static_file("index.html")
 
 
+read_db_from_cloud()
 thread = RepeatingTimer()
 thread.start()
 if __name__ == '__main__':

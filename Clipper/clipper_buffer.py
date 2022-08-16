@@ -111,11 +111,11 @@ class ClipBuffer:
 
     def _create_stream_iterator(self, chunk_size, reader):
         try:
-            prebuffer = reader.read(chunk_size)
+            prebuffer = reader.read_db_from_cloud(chunk_size)
 
             stream_iterator = chain(
                 [prebuffer],
-                iter(partial(reader.read, chunk_size), b"")
+                iter(partial(reader.read_db_from_cloud, chunk_size), b"")
             )
         except StreamError as st:
             print("Error opening data stream")

@@ -78,14 +78,24 @@ def to_hms(seconds: int):
     return time.strftime('%H:%M:%S', time.gmtime(seconds))
 
 
-def trim(input_path, output_path, start=30, end=60):
+def trim(input_path, output_path, start=30, end=60, clip_length=30):
     input_stream = ffmpeg.input(input_path)
     input_stream.output(output_path, vcodec="copy", acodec="copy").run()
-    if start == end:
-        end = end + 1
 
-    if end - start == 1 and start > 0:
-        start = start - 1
+    min_clip = 5 - (end - start)
+    if min_clip == 1:
+        min_clip = 2
+    if min_clip > 0:
+        distance_from_end = clip_length - end
+        distance_from_start = start
+        half_min = min_clip / 2
+        if distance_from_start > half_min and distance_from_end > half_min:
+            start -= half_min
+            end += half_min
+        elif distance_from_start > min_clip:
+            start -= min_clip
+        elif distance_from_end > min_clip:
+            end += min_clip
 
     hms = to_hms(start)
     s = to_hms(end)

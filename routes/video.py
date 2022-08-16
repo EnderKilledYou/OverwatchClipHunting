@@ -30,7 +30,7 @@ def get_chunk(full_path, byte1=None, byte2=None):
 
     with blob.open('rb') as f:
         f.seek(start)
-        chunk = f.read(length)
+        chunk = f.read_db_from_cloud(length)
     return chunk, start, length, file_size
 
 

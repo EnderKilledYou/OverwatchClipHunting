@@ -27,7 +27,7 @@ def copy_to_cloud(local_file, remote_file):
             writer.write(local_data)
 
 
-def read():
+def read_db_from_cloud():
     storage_client = storage.Client()
     bucket = storage_client.bucket('app_storage_state')
     blob = bucket.blob("twitch.sqlite3")
@@ -41,6 +41,6 @@ def read():
 if __name__ == '__main__':
     print("start up file starting")
     if "zombie" not in os.environ:
-        read()
+        read_db_from_cloud()
     cpuCount = os.cpu_count()
     print("Number of CPUs in the system:", cpuCount)

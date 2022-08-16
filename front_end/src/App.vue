@@ -8,7 +8,7 @@
     </button>
     <div class="collapse navbar-collapse" id="navbarNav">
       <ul class="navbar-nav">
-        <li class="nav-item active">
+        <li class="nav-item  ">
 
           <router-link class="nav-link" to="/">Home <span class="sr-only">(current)</span></router-link>
         </li>
@@ -17,10 +17,10 @@
           <router-link class="nav-link" to="/clips_viewer">clips viewer</router-link>
         </li>
         <li class="nav-item">
-          <router-link class="nav-link" to="/search_twitch/">search</router-link>
+          <router-link class="nav-link" to="/search_twitch">search</router-link>
         </li>
         <li class="nav-item">
-          <router-link class="nav-link" to="/list_scan_jobs/">scanners</router-link>
+          <router-link class="nav-link" to="/list_scan_jobs">scanners</router-link>
         </li>
 
       </ul>
