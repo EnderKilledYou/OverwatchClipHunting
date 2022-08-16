@@ -60,14 +60,12 @@ def heartbeat():
 
 
 @app.errorhandler(404)
-# inbuilt function which takes error as parameter
 def not_found(e):
-    print(e)
     return app.send_static_file("index.html")
 
-
-read_db_from_cloud()
-thread = RepeatingTimer()
-thread.start()
+if os.environ['PRODUCTION']:
+    read_db_from_cloud()
+    thread = RepeatingTimer()
+    thread.start()
 if __name__ == '__main__':
     app.run(threaded=True)

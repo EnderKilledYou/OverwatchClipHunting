@@ -1,8 +1,9 @@
-FROM ubuntu:18.04
+FROM debian:bookworm-20220801
 #env
 ENV PYTHONUNBUFFERED True
 ENV APP_HOME /app
 ENV VUE_HOME /app/front_end
+ENV PRODUCTION True
 
 # basic stuff and certs
 RUN DEBIAN_FRONTEND=noninteractive apt-get update && apt-get install -y  tzdata  software-properties-common ca-certificates ffmpeg libsm6 libxext6 cron
