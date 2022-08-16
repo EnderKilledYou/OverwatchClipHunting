@@ -1,4 +1,4 @@
-FROM debian:bookworm-20210816-slim as BASE
+FROM python:3.10-slim as BASE
 ENV PYTHONUNBUFFERED True
 ENV APP_HOME /app
 ENV VUE_HOME /app/front_end
@@ -9,7 +9,7 @@ ENV OCR_PRODUCTION True
 ARG DEBIAN_FRONTEND=noninteractive
 
 FROM BASE as CERTSANDINSTALLS
-RUN  apt-get update  &&  apt-get -qq -y  --no-install-recommends install git python3 python3-pip nodejs npm ca-certificates ffmpeg libsm6 libxext6 tesseract-ocr  < /dev/null > /dev/null
+RUN  apt-get update  &&  apt-get -qq -y  --no-install-recommends install git nodejs npm ca-certificates ffmpeg libsm6 libxext6 tesseract-ocr  < /dev/null > /dev/null
 RUN sed -i '/^mozilla\/DST_Root_CA_X3.crt$/ s/^/!/' /etc/ca-certificates.conf
 RUN update-ca-certificates
 
