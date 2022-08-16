@@ -1,4 +1,4 @@
-FROM debian:bookworm-20220801
+FROM debian:bookworm-20220801 as BASE
 #env
 ENV PYTHONUNBUFFERED True
 ENV APP_HOME /app
@@ -21,6 +21,8 @@ RUN echo tesseract
 WORKDIR $TESSERACT_DATA_FAST_INSTALL_FOLDER
 RUN git clone https://github.com/tesseract-ocr/tessdata_fast.git
 
+
+FROM BASE as Work
 RUN echo start copy files
 WORKDIR $APP_HOME
 COPY . ./
