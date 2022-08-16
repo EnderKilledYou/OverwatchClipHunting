@@ -125,6 +125,8 @@ def search_twitch_clips(broadcaster: Optional[str] = None,
     try:
         if started_at is not None:
             started_at = isoparse(started_at)
+        if ended_at is not None:
+            ended_at = isoparse(ended_at)
         broadcaster_id = parse_broadcaster_id(broadcaster, twitch_api)
         result = twitch_api.get_clips(broadcaster_id=broadcaster_id,
                                       game_id=game_id,
