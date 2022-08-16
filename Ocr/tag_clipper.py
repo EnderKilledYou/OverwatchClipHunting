@@ -6,7 +6,8 @@ from os.path import abspath
 
 import ffmpeg
 
-from Database.Twitch.twitch_clip_instance import get_twitch_clip_instance_by_id, TwitchClipInstance
+from Database.Twitch.twitch_clip_instance import get_twitch_clip_instance_by_id, TwitchClipInstance, \
+    update_twitch_clip_instance_filename
 from Database.Twitch.get_tag_and_bag import get_tag_and_bag_by_clip_id
 
 from something_manager import ThreadedManager
@@ -33,7 +34,8 @@ class TagClipper(ThreadedManager):
                 update_tag_and_bag_filename(section.id, gloud_file)
                 copy_to_cloud(out_file, gloud_file)
                 os.unlink(out_file)
-
+            os.unlink(file)
+            update_twitch_clip_instance_filename(clip_id, None)
 
         except BaseException as e:
             print(e, file=sys.stderr)

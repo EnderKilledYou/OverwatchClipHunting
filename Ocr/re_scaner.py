@@ -4,7 +4,7 @@ import tempfile
 import traceback
 from operator import attrgetter
 from os.path import abspath
-
+from threading import Timer
 from queue import Empty, Queue
 
 import moviepy.config as mpy_conf
@@ -80,7 +80,8 @@ class ReScanner(ThreadedManager):
             frames = queue_to_list(reader_buffer)
             frames.sort(key=attrgetter('frame_number'))
             self._scan_clip(job, frames)
-            clip_tag_to_clip(job.clip_id, path)
+            Timer(180, clip_tag_to_clip, (job.clip_id, path)).start()
+
         except BaseException as e:
             print(e, file=sys.stderr)
             traceback.print_exc()
