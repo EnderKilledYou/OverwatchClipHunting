@@ -43,51 +43,45 @@ class ReScanner(ThreadedManager):
 
     # self._instance.thumbnail_url.split("-preview", 1)[0] + ".mp4"
     def __init__(self):
-        super(ReScanner, self).__init__(1)
+        super(ReScanner, self).__init__(3)
 
         self._frame_count = 0
         self.matcher = OverwatchClipReader()
 
     def _do_work(self, job_id: int):
         try:
-            reader_buffer = Queue()
             job: TwitchClipInstanceScanJob = update_scan_job_started(job_id)
             if job is None:
                 return
-            update_scan_job_in_queue(job.id)
-            url = self._get_url(job)
-            if url is None:
-                return None
             path = tmp_path + os.sep + next(tempfile._get_candidate_names()) + '.mp4'
-            _download_clip(url, Args(url, path))
-            reader = ClipVideoCapReader(job.broadcaster, job.clip_id)
-            reader.read(path, reader_buffer)
-            reader.stop()
-            update_twitch_clip_instance_filename(job.clip_id, path)
-
+            self._scan_and_bam(job,path)
+            Timer(30, clip_tag_to_clip, (job.clip_id, path)).start()
         except BaseException as e:
             print(e, file=sys.stderr)
             traceback.print_exc()
             if job is not None:
                 update_scan_job_error(job.id, str(e))
-            return
-        finally:
-            pass
-            # if path is not None:
-            #     if os.path.exists(path):
-            #         os.unlink(path)
-        try:
-            update_scan_job_in_scanning(job.id)
-            frames = queue_to_list(reader_buffer)
-            frames.sort(key=attrgetter('frame_number'))
-            self._scan_clip(job, frames)
-            Timer(30, clip_tag_to_clip, (job.clip_id, path)).start()
 
-        except BaseException as e:
-            print(e, file=sys.stderr)
-            traceback.print_exc()
-            update_scan_job_error(job.id, str(e))
+    def _scan_and_bam(self, job: TwitchClipInstanceScanJob,path:str):
+        reader_buffer = Queue()
+        update_scan_job_in_queue(job.id)
+        url = self._get_url(job)
+        if url is None:
             return
+
+        _download_clip(url, Args(url, path))
+        self._read(job, path, reader_buffer)
+
+        update_twitch_clip_instance_filename(job.clip_id, path)
+        update_scan_job_in_scanning(job.id)
+        frames = queue_to_list(reader_buffer)
+        frames.sort(key=attrgetter('frame_number'))
+        self._scan_clip(job, frames)
+
+    def _read(self, job, path, reader_buffer):
+        reader = ClipVideoCapReader(job.broadcaster, job.clip_id)
+        reader.read(path, reader_buffer)
+        reader.stop()
 
     def _get_url(self, job: TwitchClipInstanceScanJob):
         clip = get_twitch_clip_instance_by_id(job.clip_id)
@@ -108,7 +102,7 @@ class ReScanner(ThreadedManager):
                 frame_number = frame_number + 1
                 percent_done = frame_number / size
                 i = int(percent_done * 100.0)
-                if i > 0 and i % 15 == 0 :
+                if i > 0 and i % 15 == 0:
                     update_scan_job_percent(job.id, percent_done)
 
         except BaseException as b:
