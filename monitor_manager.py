@@ -79,7 +79,8 @@ class MonitorManager:
                 'frames_read': reader.items_read,
                 'frames_done': reader.items_drained,
                 'seconds': seconds,
-                'queue_size': qsize
+                'queue_size': qsize,
+                'data': monitor.web_dict
             }
         return {
             'name': name,
@@ -88,14 +89,16 @@ class MonitorManager:
         }
 
     def add_stream_to_monitor(self, stream_name):
-
+        twitch_api = get_twitch_api()
         self._monitor_lock.acquire(True, -1)
         try:
             if stream_name.lower() in self.avoids:
                 print("avoiding " + stream_name)
                 return
             if stream_name not in self._monitors:
-                self._monitors[stream_name] = Monitor(stream_name)
+                exists = twitch_api.get_streams(user_login=['stream_name'])
+                if exists and 'data' in exists and len(exists['data']) == 1:
+                    self._monitors[stream_name] = Monitor(stream_name, exists['data'][0])
         finally:
             self._monitor_lock.release()
 

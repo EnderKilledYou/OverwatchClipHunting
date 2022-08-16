@@ -61,7 +61,7 @@ class ReScanner(ThreadedManager):
 
     def _scan_and_bam(self, job: TwitchClipInstanceScanJob,path:str):
         reader_buffer = Queue()
-        update_scan_job_in_queue(job.id)
+
         url = self._get_url(job)
         if url is None:
             return

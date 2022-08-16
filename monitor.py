@@ -19,13 +19,14 @@ class Monitor:
 
 
 
-    def __init__(self, broadcaster: str):
+    def __init__(self, broadcaster: str, web_dict = {}):
         print("Monitor Starting: " + broadcaster)
         self.broadcaster = broadcaster
         self.ocr = TwitchEater(broadcaster)
         self.matcher = OverwatchScreenReader(self.ocr)
         self.producer_thread = threading.Thread(target=self.ocr.buffer_broadcast, args=[self.matcher])
         self.producer_thread.start()
+        self.web_dict =web_dict
 
     def dump(self):
         tmp = self.ocr.buffer

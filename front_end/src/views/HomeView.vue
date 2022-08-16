@@ -39,55 +39,27 @@
       </tr>
       </tbody>
     </table>
-    <table class="table table-striped table-responsive">
-      <thead>
-      <tr>
-        <th>
-          Streamer Name
-        </th>
-        <th>
-          Backqueue in seconds
-        </th>
-        <th>
-          Backqueue in frames
-        </th>
-        <th>
-          Frames Read
+    <div class="row row-cols-3 row-cols-md-4 g-4">
+      <div class="col" v-for="watcher in items" :key="item.id">
+        <div class="card">
 
-        </th>
-        <th>
-          Frames Done
-        </th>
-        <th>
 
-        </th>
-      </tr>
-      </thead>
-      <tbody>
-      <tr v-for="watcher in items">
-        <td>
-          {{ watcher.name }}
-        </td>
+          <div class="card-body">
+            <h5 class="card-title"><a target="_blank" :href="`https://twitch.tv/` + watcher.name"> {{
+                watcher.name
+              }}</a></h5>
+            <p class="card-text"> {{ watcher.frames_done }} / {{ watcher.frames_read }} ( {{ watcher.seconds }} s) </p>
 
-        <td>
-          {{ watcher.seconds }}
-        </td>
-        <td>
-          {{ watcher.queue_size }}
-        </td>
-        <td>
-          {{ watcher.frames_read }}
+          </div>
+          <div class="card-footer">
 
-        </td>
-        <td>
-          {{ watcher.frames_done }}
-        </td>
-        <td>
-          <button class="btn btn-danger" @click="Unwatch(watcher)">Stop</button>
-        </td>
-      </tr>
-      </tbody>
-    </table>
+            <button class="btn btn-danger" @click="Unwatch(watcher)">Stop</button>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
   </div>
 </template>
 
