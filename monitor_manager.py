@@ -100,7 +100,7 @@ class MonitorManager:
                 'name': name,
                 'frames_read': reader.items_read * reader.sample_every_count,
                 'frames_done': reader.items_drained * reader.sample_every_count,
-                'frames_read_seconds': (reader.items_drained * reader.sample_every_count) // reader.fps,
+                'frames_read_seconds':  reader.items_drained * (reader.fps // reader.sample_every_count),
                 'seconds': seconds,
                 'queue_size': qsize,
                 'data': monitor.web_dict

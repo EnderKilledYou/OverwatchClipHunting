@@ -61,7 +61,10 @@ def heartbeat():
 
 @app.errorhandler(404)
 def not_found(e):
-    return app.send_static_file("index.html")
+    if os.path.exists('./static/index.html'):
+        return app.send_static_file("index.html")
+    else:
+        return "The app didn't install error 69420"
 
 
 # if 'OCR_PRODUCTION' in os.environ:
