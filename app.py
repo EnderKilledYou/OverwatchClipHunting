@@ -18,7 +18,7 @@ def config_app() -> Flask:
             username=os.environ['DB_USER'],
             password=os.environ['DB_SECRET'],
             database='word',
-            host='172.19.96.3',
+            host=os.environ['host'] ,
 
         )
 
