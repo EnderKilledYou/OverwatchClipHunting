@@ -2,6 +2,7 @@ import os
 
 import sqlalchemy
 from flask import Flask, jsonify
+from oauthlib.common import generate_token
 
 from config.config import flask_secret_key
 
@@ -17,14 +18,14 @@ def config_app() -> Flask:
             drivername="mysql+pymysql",
             username=os.environ['DB_USER'],
             password=os.environ['DB_SECRET'],
-            database='word',
-            host=os.environ['host'] ,
+            database='DB_NAME',
+            host=os.environ['DB_HOST'] ,
 
         )
 
     else:
         appx.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///twitch.sqlite3'
-    appx.config['SECRET_KEY'] = flask_secret_key
+    appx.config['SECRET_KEY'] = generate_token()
 
     return appx
 
