@@ -19,10 +19,7 @@ def config_app() -> Flask:
             password=os.environ['DB_SECRET'],
             database='word',
             host='172.19.96.3',
-            # query={
-            #     "unix_socket": os.environ['DB_SOCKET'],
-            #
-            # },
+
         )
 
     else:
