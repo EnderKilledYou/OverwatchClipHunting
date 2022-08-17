@@ -3,13 +3,13 @@
     <label for="streamer_name"> Add Streamer
       <input class="text-info" id="streamer_name" type="text" v-model="streamerName">
       <button @click="Watch()" class="btn btn-block">Add</button>
-      <button @click="Twitch()" class="btn btn-block" v-show="twitch_streams_filtered.length ===0">Look at Twitch
+      <button @click="Twitch()" class="btn btn-block" v-show="twitch_streams.length ===0">Look at Twitch
       </button>
-      <button @click="HideTwitch()" class="btn btn-block" v-show="twitch_streams_filtered.length !==0">Hide</button>
+      <button @click="HideTwitch()" class="btn btn-block" v-show="twitch_streams.length !==0">Hide</button>
       <button @click="AutoTwitch()" class="btn btn-block">Auto Twitch</button>
       <button @click="StopAutoTwitch()" class="btn btn-block">Stop Auto Twitch</button>
     </label>
-    <on-twitch-now v-if="twitch_streams_filtered.length >0" :streams="twitch_streams_filtered"
+    <on-twitch-now v-if="twitch_streams.length >0" :streams="twitch_streams_filtered"
                    @updatedmonitored="list_items"/>
     <div class="row row-cols-3 row-cols-md-4 g-4">
       <div class="col" v-for="watcher in items" :key="watcher.name">

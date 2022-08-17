@@ -36,8 +36,8 @@ class MonitorManager:
         while self._farm_twitch_thread and self._farm_twitch_thread.is_alive():
             sleep(10)
         self._farm_twitch_thread = threading.Thread(target=self._heart_beat_thread)
-        self._farm_twitch_thread.start()
         self._active = True
+        self._farm_twitch_thread.start()
 
     def _heart_beat_thread(self):
         twitch_api = get_twitch_api()
@@ -139,28 +139,27 @@ class MonitorManager:
     def get_active_mons(self, twitch_api):
         db_monitors = self.get_monitors_from_db_as_dict()
         live_streams_list = self.get_monitored_streams(twitch_api)
-        for monitor in db_monitors:
+        for monitor in list(db_monitors):
             lower = monitor.lower()
-            found = False
+            streamer_already_monitored = monitor in self._monitors
             db_monitor: Monitor = db_monitors[monitor]
-            for stream in live_streams_list:
-                if lower != stream['user_login']:
-                    continue
-                found = True
-                if self.currently_active_monitors >= self.max_active_monitors:
-                    remove_stream_to_monitor(monitor)  # can't start too many
-                    continue
-                if monitor not in self._monitors:
-                    db_monitor.start()
-                else:
-                    db_monitor = self._monitors[monitor]  # keep the already running monitor
-                db_monitor.web_dict = stream
-
-            if not found:
-                if monitor in self._monitors:
+            stream = next(filter(lambda stream: stream['user_login'] == lower, live_streams_list), None)
+            if stream is None:
+                if streamer_already_monitored:
                     self._monitors[monitor].stop()
+                    self.currently_active_monitors -= 1
                     remove_stream_to_monitor(monitor)
-                del db_monitors[monitor]
+                    del db_monitors[monitor]
+                else:
+                    del db_monitors[monitor]
+                continue
+
+            if streamer_already_monitored:
+                db_monitors[monitor] = self._monitors[monitor]
+            else:
+                db_monitor.start()
+            db_monitors[monitor].web_dict = stream
+
         return db_monitors
 
     def get_monitors_from_db_as_dict(self):
@@ -173,7 +172,7 @@ class MonitorManager:
     def get_monitored_streams(self, twitch_api):
         user_logins = list(self._monitors)
         if len(user_logins) == 0:
-            return
+            return []
         live_streams = twitch_api.get_streams(user_login=user_logins)
         if live_streams and 'data' in live_streams:
             return live_streams['data']
@@ -193,13 +192,12 @@ class MonitorManager:
             if not exists or 'data' not in exists or len(exists['data']) < 1:
                 return
             existing_monitor = get_monitor_by_name(stream_name)
-            if existing_monitor is not None:
-                return
-            monitor = Monitor(stream_name, exists['data'][0])
-            monitor = add_stream_to_monitor(monitor)
-            if monitor:
-                self._monitors[stream_name] = monitor
-                monitor.start()
+            if existing_monitor is None:
+                monitor = Monitor(stream_name, exists['data'][0])
+                monitor = add_stream_to_monitor(monitor)
+            monitor.web_dict = exists
+            self._monitors[stream_name] = monitor
+            monitor.start()
 
         finally:
             self._monitor_lock.release()

@@ -71,20 +71,19 @@ class Monitor(db.Model, SerializerMixin):
 
 
 def add_stream_to_monitor(monitor: Monitor):
-    try:
-        get_monitor_by_id(monitor.id)
-        if not monitor:
-            db.session.add(monitor)
-        monitor.is_active = True
-        db.session.commit()
-        db.session.flush()
-    except:
-        return None
+
+    monitor2 = get_monitor_by_name(monitor.broadcaster)
+    if not monitor2:
+        db.session.add(monitor)
+    monitor.is_active = True
+    db.session.commit()
+    db.session.flush()
+
     return monitor
 
 
 def get_all_monitors() -> List[Monitor]:
-    return list(Monitor.query.filter_by(is_active=False))
+    return list(Monitor.query.filter_by())
 
 
 def get_inactive_monitors() -> List[Monitor]:
