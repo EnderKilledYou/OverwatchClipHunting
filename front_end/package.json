@@ -5,7 +5,9 @@
   "scripts": {
     "serve": "vue-cli-service serve --port 9091",
     "build": "vue-cli-service build",
-    "zip": "vue-cli-service build && zip-build  ../static ../   -f zip -t '%NAME%.%EXT%' && git add ../front_end.zip "
+    "clean": "rimraf ../front_end.zip && rimraf ../static",
+    "zip": "zip-build  ../static ../   -f zip -t '%NAME%.%EXT%' && git add ../front_end.zip ",
+    "deploy": "npm run clean && npm run build && npm run zip"
   },
   "dependencies": {
     "bootstrap": "^5.2.0",
@@ -26,6 +28,7 @@
     "@vue/cli-service": "~5.0.0",
     "mini-css-extract-plugin": "^2.6.1",
     "typescript": "~4.5.5",
-    "zip-build": "^1.7.0"
+    "zip-build": "^1.7.0",
+    "rimraf": "^3.0.2"
   }
 }
