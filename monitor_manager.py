@@ -143,35 +143,35 @@ class MonitorManager:
     def get_active_mons(self, twitch_api):
         db_monitors = self.get_monitors_from_db_as_dict()
         live_streams_list = self.get_monitored_streams(twitch_api, list(db_monitors))
-        for monitor in list(db_monitors):
-            lower = monitor.lower()
-            streamer_already_monitored = monitor in self._monitors
+        for streamer_name in list(db_monitors):
+
+            streamer_already_monitored = streamer_name in self._monitors
+            stream = self.get_stream_from_live_list(live_streams_list, streamer_name)
             if streamer_already_monitored:
-                saved_monitor = self._monitors[monitor]
-            stream = next(filter(lambda stream: stream['user_login'] == lower, live_streams_list), None)
-            if stream is None:
-                if not streamer_already_monitored:
-                    pass
-                else:
-                    self._monitors[monitor].stop()
+                db_monitors[streamer_name] = self._monitors[streamer_name]
+                if stream is None:
+                    self._monitors[streamer_name].stop()
                     self.currently_active_monitors -= 1
-                    remove_stream_to_monitor(monitor)
+                    del db_monitors[streamer_name]
+                    remove_stream_to_monitor(streamer_name)
+                    continue
 
-                del db_monitors[monitor]
+                db_monitors[streamer_name].web_dict = stream
+                continue
+            if not stream or self.currently_active_monitors >= self.max_active_monitors:
+                del db_monitors[streamer_name]
                 continue
 
-            if self.currently_active_monitors >= self.max_active_monitors:
-                del db_monitors[monitor]
-                continue
-
-            if not streamer_already_monitored:
-                saved_monitor = db_monitors[monitor]
-                db_monitors[monitor].start()
-                self.currently_active_monitors += 1
-            saved_monitor.web_dict = stream
-            db_monitors[monitor] = saved_monitor
+            db_monitors[streamer_name].start()
+            self.currently_active_monitors += 1
+            db_monitors[streamer_name].web_dict = stream
 
         return db_monitors
+
+    def get_stream_from_live_list(self, live_streams_list, streamer_name):
+        lower = streamer_name.lower()
+        stream = next(filter(lambda live_stream: live_stream['user_login'] == lower, live_streams_list), None)
+        return stream
 
     def get_monitors_from_db_as_dict(self):
         tmp = get_all_monitors()
