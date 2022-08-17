@@ -10,7 +10,7 @@ def config_app() -> Flask:
     appx = Flask('ocr', static_url_path='',
                  static_folder='static',
                  template_folder='templates')
-    if 'PRODUCTION' in os.environ:
+    if 'OCR_PRODUCTION' in os.environ:
         ssl_args = {'ssl_ca': 'server-ca.pem'}
         app.config[
             'SQLALCHEMY_DATABASE_URI'] = sqlalchemy.engine.url.URL.create(
