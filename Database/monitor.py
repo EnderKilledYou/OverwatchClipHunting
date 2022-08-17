@@ -22,6 +22,8 @@ class Monitor(db.Model, SerializerMixin):
     def __str__(self):
         return f"Monitor {str(self.id)}  {self.broadcaster}"
 
+    def __json__(self):
+        return self.to_dict()
     def __repr__(self):
         try:
             return json.dumps(self.to_dict())

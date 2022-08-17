@@ -38,7 +38,8 @@ if not os.path.exists(tmp_path):
 class ReScanner(ThreadedManager):
     _frame_count: int
     _reader: VideoCapReader
-
+    def __json__(self):
+        return "rescanner"
     # self._instance.thumbnail_url.split("-preview", 1)[0] + ".mp4"
     def __init__(self):
         super(ReScanner, self).__init__(3)

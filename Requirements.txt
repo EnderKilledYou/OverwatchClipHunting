@@ -19,3 +19,4 @@ pytest
 gunicorn
 PyMySQL
 google-cloud-storage
+json-fix

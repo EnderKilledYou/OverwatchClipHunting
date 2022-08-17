@@ -12,12 +12,14 @@ from cloud_logger import cloud_logger
 from twitch_helpers import get_twitch_api
 
 
-class MonitorManager:
+class MonitorManager():
     _farm_twitch_thread: Thread
 
     def __repr__(self):
         return "(Monitor Manager)"
 
+    def __json__(self):
+        return 'Monitor Manager'
     def __str__(self):
         return "Monitor Manager"
 

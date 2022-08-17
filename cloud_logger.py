@@ -1,12 +1,18 @@
+import json_fix # import this before the JSON.dumps gets called
 import json
 import os
 import sys
 
+from twitchAPI import Twitch
+
 should_log = "CLOUD_PRINT" in os.environ
 
+class_checker = lambda obj: isinstance(obj,Twitch )
+
+# then assign it to a function that does the converting
+json.override_table[class_checker] = lambda obj_of_that_class: "Twitch Api"
 def cloud_logger():
-    if not should_log:
-        return
+
     args = '<none>'
     name = '<unknown_function>'
     args_json = '{}'
@@ -21,7 +27,7 @@ def cloud_logger():
             try:
                 getframe.f_locals['__function_name'] = name
                 args = str(getframe.f_locals)
-                args_json = json.dumps(args)
+                args_json = json.dumps(getframe.f_locals)
             except BaseException as b:
                 error_str = "Error: " + str(b)
 
