@@ -157,15 +157,18 @@ class MonitorManager:
                 else:
                     del db_monitors[monitor]
                 continue
-            if streamer_already_monitored:
-                db_monitors[monitor] = self._monitors[monitor]
-            else:
-                if self.currently_active_monitors < self.max_active_monitors:
-                    db_monitor.start()
-                    self.currently_active_monitors += 1
-                else:
-                    del db_monitors[monitor]
-            db_monitors[monitor].web_dict = stream
+
+            if self.currently_active_monitors >= self.max_active_monitors:
+                del db_monitors[monitor]
+                continue
+
+            saved_monitor = self._monitors[monitor]
+            if not streamer_already_monitored:
+                saved_monitor = monitor
+                monitor.start()
+                self.currently_active_monitors += 1
+            saved_monitor.web_dict = stream
+            db_monitors[monitor] = saved_monitor
 
         return db_monitors
 
@@ -174,6 +177,7 @@ class MonitorManager:
         mons = {}
         for a in tmp:
             mons[a.broadcaster] = a
+            a.web_dict = {}
         return mons
 
     def get_monitored_streams(self, twitch_api, user_logins: List[str]):
@@ -186,23 +190,14 @@ class MonitorManager:
         return []
 
     def add_stream_to_monitor(self, stream_name):
-        twitch_api = get_twitch_api()
+
         self._monitor_lock.acquire(True, -1)
         try:
             if stream_name.lower() in self.avoids:
                 print("avoiding " + stream_name)
                 return
-            if stream_name in self._monitors:
-                return
-            exists = twitch_api.get_streams(user_login=[stream_name])
-            if not exists or 'data' not in exists or len(exists['data']) < 1:
-                return
-            existing_monitor = get_monitor_by_name(stream_name)
-            if existing_monitor is None:
-                existing_monitor = add_stream_to_monitor(stream_name)
-            existing_monitor.web_dict = exists
-            self._monitors[stream_name] = existing_monitor
 
+            add_stream_to_monitor(stream_name)
 
         finally:
             self._monitor_lock.release()
