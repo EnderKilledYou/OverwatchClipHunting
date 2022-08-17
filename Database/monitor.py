@@ -1,4 +1,5 @@
 import datetime
+import json
 import threading
 from queue import Queue
 from typing import List
@@ -18,6 +19,16 @@ self_id = generate_token()
 
 
 class Monitor(db.Model, SerializerMixin):
+    def __str__(self):
+        return f"Monitor {str(self.id)}  {self.broadcaster}"
+
+    def __repr__(self):
+        try:
+            return json.dumps(self.to_dict())
+        except:
+            print("Monitor convert to json failed")
+            return str(self.to_dict())
+
     ocr: VideoFrameBuffer
     broadcaster: str
     matcher: ScreenReader
@@ -40,6 +51,7 @@ class Monitor(db.Model, SerializerMixin):
     activated_at = db.Column(db.DATETIME)
     activated_by = db.Column(db.String(30))
     last_check_in = db.Column(db.DATETIME)
+    avoid = db.Column(db.Boolean(), default=False)
     cancel_request = db.Column(db.Boolean, default=True)
     ocr: TwitchEater
 
@@ -94,7 +106,7 @@ def add_stream_to_monitor(broadcaster: str):
 
 def get_all_monitors() -> List[Monitor]:
     cloud_logger()
-    return list(Monitor.query.filter_by())
+    return list(Monitor.query.filter_by(avoid=False))
 
 
 def get_inactive_monitors() -> List[Monitor]:
@@ -149,7 +161,7 @@ def get_monitor_by_name(stream_name: str) -> Monitor:
     return Monitor.query.filter_by(broadcaster=stream_name).first()
 
 
-def cancel_stream_to_monitor(  stream_name):
+def cancel_stream_to_monitor(stream_name):
     cloud_logger()
     monitor = get_monitor_by_name(stream_name)
     if not monitor:
@@ -159,7 +171,16 @@ def cancel_stream_to_monitor(  stream_name):
     db.session.flush()
 
 
-def remove_stream_to_monitor(  stream_name):
+def avoid_monitor(stream_name):
+    monitor = get_monitor_by_name(stream_name)
+    if not monitor:
+        return
+    monitor.avoid = True
+    db.session.commit()
+    db.session.flush()
+
+
+def remove_stream_to_monitor(stream_name):
     monitor = get_monitor_by_name(stream_name)
     if not monitor:
         return
