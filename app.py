@@ -18,7 +18,7 @@ def config_app() -> Flask:
             drivername="mysql+pymysql",
             username=os.environ['DB_USER'],
             password=os.environ['DB_SECRET'],
-            database='DB_NAME',
+            database=os.environ['DB_NAME'],
             host=os.environ['DB_HOST'] ,
 
         )
