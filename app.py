@@ -12,7 +12,7 @@ def config_app() -> Flask:
                  template_folder='templates')
     if 'OCR_PRODUCTION' in os.environ:
         ssl_args = {'ssl_ca': 'server-ca.pem'}
-        app.config[
+        appx.config[
             'SQLALCHEMY_DATABASE_URI'] = sqlalchemy.engine.url.URL.create(
             drivername="mysql+pymysql",
             username=os.environ['DB_USER'],
