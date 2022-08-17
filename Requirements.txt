@@ -17,4 +17,5 @@ Flask-Sharp
 twitch-dl==1.22.0
 pytest
 gunicorn
+PyMySQL
 google-cloud-storage
