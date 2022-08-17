@@ -200,7 +200,7 @@ class MonitorManager:
                 existing_monitor = add_stream_to_monitor(stream_name)
             existing_monitor.web_dict = exists
             self._monitors[stream_name] = existing_monitor
-            existing_monitor.start()
+
 
         finally:
             self._monitor_lock.release()

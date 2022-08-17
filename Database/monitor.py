@@ -51,7 +51,7 @@ class Monitor(db.Model, SerializerMixin):
     def start(self):
         has_started = hasattr(self, 'ocr')
         if has_started:
-            raise Exception("Monitor already started")
+            return
         self.ocr = TwitchEater(self.broadcaster)
         self.matcher = OverwatchScreenReader(self.ocr)
         self.producer_thread = threading.Thread(target=self.ocr.buffer_broadcast, args=[self.matcher])
