@@ -30,7 +30,8 @@ class StreamLinkHelper:
         cloud_logger()
         ocr_stream = streams['best']
         items = []
-
+        if '720p60' in streams:
+            return (streams['720p60'], '720p60')
         for stream_res in streams:
             if not stream_res.endswith('p60'):
                 continue
@@ -38,4 +39,4 @@ class StreamLinkHelper:
         try:
             return items.pop()
         except:
-            return ocr_stream,"best"
+            return ocr_stream, "best"

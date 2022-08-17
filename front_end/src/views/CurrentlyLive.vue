@@ -13,7 +13,7 @@
           {{ watcher.frames_read_seconds }} s)</p>
         <p v-if="RowHasExtraData(watcher)" class="card-text"><span class="text-success">({{
             watcher.stream_resolution
-          }})</span>
+          }}) ({{watcher.fps}}</span>
           {{ watcher.data.viewer_count }} watching since:
           {{ new Date(watcher.data.started_at).toLocaleString() }}</p>
         <p v-if="RowHasExtraData(watcher)" class="card-text"> {{ watcher.data.game_name }} </p>

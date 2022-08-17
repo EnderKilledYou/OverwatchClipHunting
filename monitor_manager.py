@@ -120,6 +120,7 @@ class MonitorManager():
                 'frames_done': frames_finished,
                 'frames_read_seconds': frames_finished // reader.fps,
                 'back_fill_seconds': back_fill_seconds,
+                'fps': reader.fps,
                 'queue_size': qsize,
                 'stream_resolution': monitor.ocr.stream_res,
                 'data': monitor.web_dict

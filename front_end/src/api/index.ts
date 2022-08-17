@@ -91,6 +91,7 @@ export class StreamerMonitorState {
     frames_read = 0
     frames_done = 0
     stream_resolution =""
+    fps=0
     frames_read_seconds = 0
     data: TwitchLiveStreamData
 
