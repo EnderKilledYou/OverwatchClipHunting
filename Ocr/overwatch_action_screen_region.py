@@ -1,15 +1,13 @@
 import os
 
-import cv2
-import numpy
 from PIL import Image
 from pytesseract import image_to_string
 
 from Ocr.frame import Frame
 from Ocr.frame_aggregator import FrameAggregator
 from Ocr.frame_tester import FrameTester
-from Ocr.region_result import RegionResult
 from Ocr.screen_region import ScreenRegion
+from Ocr.wait_for_tess import wait_for_tess
 from config.config import tess_fast_dir
 
 
@@ -17,6 +15,8 @@ class OverwatchActionScreenRegion(ScreenRegion):
     def process(self, pil: Image, frame: Frame, frame_watcher: FrameAggregator, frame_tester: FrameTester,
                 show: bool = False):
         img_crop = self.crop(pil)
+        if not os.path.exists(tess_fast_dir):
+            wait_for_tess()
         text = image_to_string(img_crop,config=f'--tessdata-dir "{tess_fast_dir}"',lang='eng')  # , lang='eng')
         frame.empty = True
         if len(text) < 4:

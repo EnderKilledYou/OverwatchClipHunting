@@ -1,9 +1,12 @@
+import os
+
 from PIL import Image
 from pytesseract import image_to_string
 
 from Ocr.frame import Frame
 from Ocr.frame_aggregator import FrameAggregator
 from Ocr.frame_tester import FrameTester
+from Ocr.wait_for_tess import wait_for_tess
 from Ocr.region_result import RegionResult
 from Ocr.screen_region import ScreenRegion
 from config.config import tess_fast_dir
@@ -14,6 +17,8 @@ class OverwatchSearchingForGameScreenRegion(ScreenRegion):
                 show: bool = False):
 
         top = self.crop(pil)
+        if not os.path.exists(tess_fast_dir):
+            wait_for_tess()
         text = image_to_string(top,config=f'--tessdata-dir "{tess_fast_dir}"',lang='eng')
         text_stripped = text.strip()
         if len(text_stripped) == 0:
