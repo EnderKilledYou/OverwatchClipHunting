@@ -9,13 +9,10 @@ from google.cloud import storage
 
 
 def write_db_tocloud():
-
-
     storage_client = storage.Client()
     bucket = storage_client.bucket('app_storage_state')
     blob = bucket.blob("twitch.sqlite3")
     time_stamp = bucket.blob("timestamp.txt")
-
 
     with open("twitch.sqlite3", "rb") as db:
         data = db.read()
@@ -25,10 +22,9 @@ def write_db_tocloud():
         t.write(str(datetime.now()))
 
 
-
-
 def install():
     if 'INSTALL_SCRIPT' in os.environ:
+        print("--------------Installing Tesseract---------------")
         os.system(os.environ['INSTALL_SCRIPT'])
 
 

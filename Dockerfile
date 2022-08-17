@@ -5,7 +5,7 @@ ENV INSTALL_SCRIPT /app/install_tessy.sh
 #Download Ocr Shit
 ENV OCR_PRODUCTION True
 ENV TESSERACT_DATA_FAST_INSTALL_FOLDER /FAST_DATA
-ENV TESSERACT_DATA_FAST /FAST_DATA/tessdata_fast
+ENV TESSERACT_DATA_FAST /FAST_DATA/tessdata_fast/
 #print extra shit to console
 ENV CLOUD_PRINT True
 ARG DEBIAN_FRONTEND=noninteractive

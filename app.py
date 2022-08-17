@@ -11,6 +11,7 @@ def config_app() -> Flask:
     appx = Flask('ocr', static_url_path='',
                  static_folder='static',
                  template_folder='templates')
+    appx.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
     if 'OCR_PRODUCTION' in os.environ:
         ssl_args = {'ssl_ca': 'server-ca.pem'}
         appx.config['SQLALCHEMY_POOL_SIZE'] = 40
@@ -21,12 +22,13 @@ def config_app() -> Flask:
             username=os.environ['DB_USER'],
             password=os.environ['DB_SECRET'],
             database=os.environ['DB_NAME'],
-            host=os.environ['DB_HOST'] ,
+            host=os.environ['DB_HOST'],
 
         )
 
     else:
         appx.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///twitch.sqlite3'
+
     appx.config['SECRET_KEY'] = generate_token()
 
     return appx

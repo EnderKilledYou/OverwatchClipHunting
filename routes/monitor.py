@@ -12,10 +12,9 @@ from routes.monitor_manager import manager
 from sharp_api import get_sharp
 
 sharp = get_sharp()
-
 tag_clipper = TagClipper()
-
 install()
+
 
 
 @sharp.function()

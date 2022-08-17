@@ -10,5 +10,5 @@ admin_user = ['bestboyfriend4']
 if "TESSERACT_DATA_FAST" in os.environ:
     tess_fast_dir = os.environ["TESSERACT_DATA_FAST"]
 else:
-    tess_fast_dir = r'C:\tmp\tessdata_fast'
+    tess_fast_dir = r'C:\tmp\tessdata_fast\\'
 

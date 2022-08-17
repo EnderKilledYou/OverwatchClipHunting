@@ -6,6 +6,7 @@ from operator import attrgetter
 from os.path import abspath
 from threading import Timer
 from queue import Empty, Queue
+from time import sleep
 
 from twitchdl import twitch
 from twitchdl.commands.download import _clip_target_filename, get_clip_authenticated_url
@@ -22,6 +23,7 @@ from Ocr.twitch_dl_args import Args
 from Ocr.VideoCapReader import VideoCapReader, StreamEndedError, ClipVideoCapReader
 from Ocr.overwatch_clip_reader import OverwatchClipReader
 from cloud_logger import cloud_logger
+from config.config import tess_fast_dir
 from something_manager import ThreadedManager
 
 
@@ -49,6 +51,10 @@ class ReScanner(ThreadedManager):
 
     def _do_work(self, job_id: int):
         cloud_logger()
+        while not os.path.exists(tess_fast_dir + 'eng.traineddata'):
+            print("Waiting for tesseract to install...")
+            sleep(2)
+
         try:
             job: TwitchClipInstanceScanJob = update_scan_job_started(job_id)
             if job is None:
