@@ -146,7 +146,8 @@ class MonitorManager:
         for monitor in list(db_monitors):
             lower = monitor.lower()
             streamer_already_monitored = monitor in self._monitors
-            db_monitor: Monitor = db_monitors[monitor]
+            if streamer_already_monitored:
+                saved_monitor = self._monitors[monitor]
             stream = next(filter(lambda stream: stream['user_login'] == lower, live_streams_list), None)
             if stream is None:
                 if streamer_already_monitored:
@@ -162,10 +163,9 @@ class MonitorManager:
                 del db_monitors[monitor]
                 continue
 
-            saved_monitor = self._monitors[monitor]
             if not streamer_already_monitored:
-                saved_monitor = monitor
-                monitor.start()
+                saved_monitor = db_monitors[monitor]
+                db_monitors[monitor].start()
                 self.currently_active_monitors += 1
             saved_monitor.web_dict = stream
             db_monitors[monitor] = saved_monitor
