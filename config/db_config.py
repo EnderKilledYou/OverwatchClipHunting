@@ -19,11 +19,8 @@ db = config_db()
 
 
 def init_db():
-    from app import app
-    #TwitchClipInstanceScanJob()
-    from Database.Twitch.twitch_clip_instance_scan_job import TwitchClipInstanceScanJob
-    from Database.monitor import get_active_monitors
-    #db.init_app(app)
+
+    db.drop_all( )
     db.create_all()
 
 
