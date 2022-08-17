@@ -86,7 +86,7 @@ export class TwitchLiveStreamData {
 export class StreamerMonitorState {
     name = ""
     size = 0
-    seconds = 0
+    back_fill_seconds = 0
     queue_size = 0
     frames_read = 0
     frames_done = 0

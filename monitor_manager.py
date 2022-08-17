@@ -101,20 +101,22 @@ class MonitorManager:
         if reader:
             qsize = reader.items_read - reader.items_drained
 
-            seconds = qsize * (reader.sample_every_count // reader.fps)
+            frames_pending = qsize * reader.sample_every_count
             frames_finished = reader.items_drained * reader.sample_every_count
+            back_fill_seconds = frames_pending // reader.fps
+
             return {
                 'name': name,
                 'frames_read': reader.items_read * reader.sample_every_count,
                 'frames_done': frames_finished,
                 'frames_read_seconds': frames_finished // reader.fps,
-                'seconds': seconds,
+                'back_fill_seconds': back_fill_seconds,
                 'queue_size': qsize,
                 'data': monitor.web_dict
             }
         return {
             'name': name,
-            'seconds': 0,
+            'back_fill_seconds': 0,
             'queue_size': 0
         }
 
