@@ -8,7 +8,7 @@ class TwitchClipInstanceScanJob(db.Model, SerializerMixin):
     serialize_only = (
         'id', 'clip_id', 'state', 'created_at', 'completed_at', 'percent', 'error')
     id = db.Column(db.Integer, primary_key=True)
-    clip_id = db.Column(db.String, unique=True)
+    clip_id = db.Column(db.String(90), unique=True)
     state = db.Column(db.Integer)
     broadcaster = db.Column(db.String(90))
     created_at = db.Column(db.DateTime)
