@@ -18,7 +18,7 @@
       </div>
       <div class="card-footer">
         <div class="btn-group">
-          <button class="btn btn-danger" @click="Unwatch(watcher)" disabled="true">Stop (soon)</button>
+          <button class="btn btn-danger" @click="Avoid(watcher)">Avoid Watching</button>
           <button class="btn btn-danger" @click="Unwatch(watcher)">Requeue (push to back)</button>
         </div>
         <span class="text-success">({{
@@ -37,7 +37,14 @@ import {Component, Emit, Prop, Vue} from "vue-facing-decorator";
 @Component
 export default class CurrentlyLive extends Vue {
   async Unwatch(watcher: StreamerMonitorState) {
-    this.update_monitor()
+    await API.remove(watcher.name)
+    await this.update_monitor()
+
+  }
+
+  async Avoid(watcher: StreamerMonitorState) {
+    await API.avoid_user(watcher.name)
+    await this.update_monitor()
 
   }
 

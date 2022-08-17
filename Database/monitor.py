@@ -108,12 +108,12 @@ def add_stream_to_monitor(broadcaster: str):
 
 def get_all_monitors() -> List[Monitor]:
     cloud_logger()
-    return list(Monitor.query.filter_by(avoid=False))
+    return list(Monitor.query.filter_by())
 
 
 def get_inactive_monitors() -> List[Monitor]:
     cloud_logger()
-    return list(Monitor.query.filter_by(is_active=False))
+    return list(Monitor.query.filter_by(is_active=False,avoid=False))
 
 
 def get_all_my_monitors() -> List[Monitor]:

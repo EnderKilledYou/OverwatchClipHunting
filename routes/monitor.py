@@ -16,6 +16,8 @@ sharp = get_sharp()
 tag_clipper = TagClipper()
 
 install()
+
+
 @sharp.function()
 def start_farm_twitch():
     manager.set_farm_twitch_mode(True)
@@ -25,6 +27,12 @@ def start_farm_twitch():
 @sharp.function()
 def stop_farm_twitch():
     manager.set_farm_twitch_mode(False)
+    return {"success": True, }
+
+
+@sharp.function()
+def avoid_user(stream_name: str):
+    manager.avoid_streamer(stream_name)
     return {"success": True, }
 
 

@@ -194,7 +194,7 @@ class MonitorManager():
 
     def get_monitors_from_db_as_dict(self):
         cloud_logger()
-        tmp = get_all_monitors()
+        tmp = get_active_monitors()
         mons = {}
         for a in tmp:
             mons[a.broadcaster] = a

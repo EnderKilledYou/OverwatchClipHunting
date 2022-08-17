@@ -28,7 +28,40 @@ export class Core {
 }
 
 export class API {
-    static add (stream_name,) {
+    static start_farm_twitch () {
+
+    return Core.makeRequest("/api/monitor/start_farm_twitch", {
+        });
+}
+
+static stop_farm_twitch () {
+
+    return Core.makeRequest("/api/monitor/stop_farm_twitch", {
+        });
+}
+
+static avoid_user (stream_name,) {
+
+    return Core.makeRequest("/api/monitor/avoid_user", {
+        stream_name: stream_name,
+        });
+}
+
+static get_live_streamers () {
+
+    return Core.makeRequest("/api/monitor/get_live_streamers", {
+        });
+}
+
+static add_tag_clipping (clip_id,tag_id,) {
+
+    return Core.makeRequest("/api/monitor/add_tag_clipping", {
+        clip_id: clip_id,
+        tag_id: tag_id,
+        });
+}
+
+static add (stream_name,) {
 
     return Core.makeRequest("/api/streamer/add", {
         stream_name: stream_name,
@@ -45,32 +78,6 @@ static remove (stream_name,) {
 
     return Core.makeRequest("/api/streamer/remove", {
         stream_name: stream_name,
-        });
-}
-
-static start_farm_twitch () {
-
-    return Core.makeRequest("/api/monitor/start_farm_twitch", {
-        });
-}
-
-static stop_farm_twitch () {
-
-    return Core.makeRequest("/api/monitor/stop_farm_twitch", {
-        });
-}
-
-static get_live_streamers () {
-
-    return Core.makeRequest("/api/monitor/get_live_streamers", {
-        });
-}
-
-static add_tag_clipping (clip_id,tag_id,) {
-
-    return Core.makeRequest("/api/monitor/add_tag_clipping", {
-        clip_id: clip_id,
-        tag_id: tag_id,
         });
 }
 
@@ -150,6 +157,33 @@ static all_clips (clip_type,page,) {
     return Core.makeRequest("/api/clips/all_clips", {
         clip_type: clip_type,
         page: page,
+        });
+}
+
+static zombie_add (name,) {
+
+    return Core.makeRequest("/api/zombie/zombie_add", {
+        name: name,
+        });
+}
+
+static zombie_list (name,) {
+
+    return Core.makeRequest("/api/zombie/zombie_list", {
+        name: name,
+        });
+}
+
+static zombie_task_list () {
+
+    return Core.makeRequest("/api/zombie/zombie_task_list", {
+        });
+}
+
+static zombie_tag (api_key,) {
+
+    return Core.makeRequest("/api/zombie/zombie_tag", {
+        api_key: api_key,
         });
 }
 }
