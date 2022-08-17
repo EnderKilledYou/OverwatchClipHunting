@@ -14,7 +14,7 @@ class TwitchClipInstanceScanJob(db.Model, SerializerMixin):
     created_at = db.Column(db.DateTime)
     completed_at = db.Column(db.DateTime)
     percent = db.Column(db.FLOAT, default=0)
-    error = db.Column(db.String, default='')
+    error = db.Column(db.String(900), default='')
 
 
 from Database.Twitch.twitch_clip_instance import get_twitch_clip_instance_by_id

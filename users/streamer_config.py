@@ -22,7 +22,7 @@ class StreamerConfig(db.Model, SerializerMixin):
     min_blocking_duration = db.Column(db.Integer, default=-1)
     min_defense_duration = db.Column(db.Integer, default=-1)
     min_assist_duration = db.Column(db.Integer, default=-1)
-    stream_prefers_quality = db.Column(db.String, default='720p60')
+    stream_prefers_quality = db.Column(db.String(90), default='720p60')
     clip_deaths = db.Column(db.Boolean, default=False)
 
 

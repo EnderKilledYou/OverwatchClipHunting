@@ -4,7 +4,8 @@ import traceback
 from random import shuffle
 from threading import Thread
 from time import sleep
-from Database.monitor import Monitor, remove_stream_to_monitor, add_stream_to_monitor, get_monitor_by_name, get_monitors
+from Database.monitor import Monitor, remove_stream_to_monitor, add_stream_to_monitor, get_monitor_by_name, \
+    get_active_monitors, get_all_monitors
 from twitch_helpers import get_twitch_api
 
 
@@ -20,6 +21,8 @@ class MonitorManager:
         self.monitor_list = []
         self._active = False
         self._farm_twitch_mode = False
+        self.max_active_monitors = 3
+        self.currently_active_monitors = 0
 
     def set_farm_twitch_mode(self, mode: bool):
         self._farm_twitch_mode = mode
@@ -48,7 +51,6 @@ class MonitorManager:
 
     def _heart_beat(self, twitch_api):
         try:
-
             self.trim_monitored_streams(twitch_api)
         finally:
             pass
@@ -120,18 +122,9 @@ class MonitorManager:
         self._monitor_lock.acquire(True, -1)
 
         try:
-            mons = self.get_monitors_from_db_as_dict()
-            live_streams_list = self.get_monitored_streams(twitch_api)
-
-            for monitor in mons:
-                lower = monitor.lower()
-                for stream in live_streams_list:
-                    if lower != stream['user_login']:
-                        remove_stream_to_monitor(monitor)
-                        del mons[monitor]
-                        continue
-                    mons[monitor].web_dict = stream
-            self._monitors = mons
+            mons = self.get_active_mons(twitch_api)
+            if mons is not None:
+                self._monitors = mons
         except BaseException as e:
             print(e, file=sys.stderr)
             traceback.print_exc()
@@ -143,8 +136,35 @@ class MonitorManager:
 
         self.remove_streams_to_monitor(removes)
 
+    def get_active_mons(self, twitch_api):
+        db_monitors = self.get_monitors_from_db_as_dict()
+        live_streams_list = self.get_monitored_streams(twitch_api)
+        for monitor in db_monitors:
+            lower = monitor.lower()
+            found = False
+            db_monitor: Monitor = db_monitors[monitor]
+            for stream in live_streams_list:
+                if lower != stream['user_login']:
+                    continue
+                found = True
+                if self.currently_active_monitors >= self.max_active_monitors:
+                    remove_stream_to_monitor(monitor)  # can't start too many
+                    continue
+                if monitor not in self._monitors:
+                    db_monitor.start()
+                else:
+                    db_monitor = self._monitors[monitor]  # keep the already running monitor
+                db_monitor.web_dict = stream
+
+            if not found:
+                if monitor in self._monitors:
+                    self._monitors[monitor].stop()
+                    remove_stream_to_monitor(monitor)
+                del db_monitors[monitor]
+        return db_monitors
+
     def get_monitors_from_db_as_dict(self):
-        tmp = get_monitors()
+        tmp = get_all_monitors()
         mons = {}
         for a in tmp:
             mons[a.broadcaster] = a
@@ -179,6 +199,7 @@ class MonitorManager:
             monitor = add_stream_to_monitor(monitor)
             if monitor:
                 self._monitors[stream_name] = monitor
+                monitor.start()
 
         finally:
             self._monitor_lock.release()
