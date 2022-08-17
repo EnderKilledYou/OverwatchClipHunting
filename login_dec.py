@@ -2,7 +2,7 @@ from functools import wraps
 from flask import abort, session, request
 
 import config.config
-from bots.bot_user import get_user_by_token
+
 from Database.Twitch.twitch_user import TwitchUser
 
 
@@ -32,10 +32,8 @@ def requires_bot_user(f):
             abort(401)
 
         user_token = request.args['api_key']
-        user = get_user_by_token(user_token)
-        if not user:
-            abort(401)
-        session['bot'] = user
+
+
 
         return f(*args, **kws)
 
@@ -53,8 +51,7 @@ def requires_logged_in():
             current_ip = request.remote_addr
             if 'ip' in session and session['ip'] != current_ip:
                 abort(401)
-            if token_allowed:
-                check_api_user(current_ip)
+
             elif 'twitch_resp' not in session:
                 abort(401)
 
@@ -65,17 +62,3 @@ def requires_logged_in():
     return requires_logged_in_helper
 
 
-def check_api_user(current_ip):
-    if 'api_user' in session:
-        if get_user_by_token(session['api_user'].token):
-            return
-        session.pop('api_user', None)
-
-    if 'api_key' in request.args:
-        user = get_user_by_token(request.args['api_key'])
-        if user:
-            session['api_user'] = user
-            session['ip'] = current_ip
-            return
-
-    abort(401)

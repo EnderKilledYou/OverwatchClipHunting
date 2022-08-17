@@ -1,7 +1,9 @@
+import datetime
 import threading
 from queue import Queue
 from typing import List
 
+from oauthlib.common import generate_token
 from sqlalchemy_serializer import SerializerMixin
 
 from Ocr.overwatch_screen_reader import OverwatchScreenReader
@@ -10,6 +12,8 @@ from Ocr.twitch_video_frame_buffer import TwitchEater
 from Ocr.video_frame_buffer import VideoFrameBuffer
 
 from config.db_config import db
+
+self_id = generate_token()
 
 
 class Monitor(db.Model, SerializerMixin):
@@ -32,6 +36,10 @@ class Monitor(db.Model, SerializerMixin):
     stream_prefers_quality = db.Column(db.String(90), default='720p60')
     clip_deaths = db.Column(db.Boolean, default=False)
     is_active = db.Column(db.Boolean, default=True)
+    activated_at = db.Column(db.DATETIME)
+    activated_by = db.Column(db.String(30))
+    last_check_in = db.Column(db.DATETIME)
+    cancel_request = db.Column(db.Boolean, default=True)
 
     def __init__(self, broadcaster: str, web_dict={}):
         print("Monitor Starting: " + broadcaster)
@@ -44,6 +52,7 @@ class Monitor(db.Model, SerializerMixin):
     def start(self):
         self.producer_thread = threading.Thread(target=self.ocr.buffer_broadcast, args=[self.matcher])
         self.producer_thread.start()
+
     def dump(self):
         tmp = self.ocr.buffer
         self.ocr.buffer = Queue()
@@ -79,11 +88,38 @@ def get_all_monitors() -> List[Monitor]:
 
 
 def get_inactive_monitors() -> List[Monitor]:
-    return list(Monitor.query.filter_by(is_active=True))
+    return list(Monitor.query.filter_by(is_active=False))
+
+
+def get_all_my_monitors() -> List[Monitor]:
+    return list(Monitor.query.filter_by(activated_by=self_id))
+
+
+def claim_monitor() -> List[Monitor]:
+    now = datetime.datetime.now() - datetime.timedelta(hours=0, minutes=7)
+    monitor = Monitor.query.filter(Monitor.activated_at <= now).first()
+    if not monitor:
+        return
+    monitor.is_active = True
+    monitor.activated_by = self_id
+    db.session.commit()
+    db.session.flush()
+
+
+def assert_monitor_still_claimed(monitor_id: str):
+    return Monitor.query.filter_by(id=monitor_id, activated_by=self_id).first()
+
+
+def get_my_inactive_monitors() -> List[Monitor]:
+    return list(Monitor.query.filter_by(is_active=False, activated_by=self_id))
+
+
+def get_my_active_monitors() -> List[Monitor]:
+    return list(Monitor.query.filter_by(is_active=True, activated_by=self_id))
 
 
 def get_active_monitors() -> List[Monitor]:
-    return list(Monitor.query.filter_by())
+    return list(Monitor.query.filter_by(is_active=True))
 
 
 def get_monitor_by_id(monitor_id: int) -> Monitor:
@@ -92,6 +128,15 @@ def get_monitor_by_id(monitor_id: int) -> Monitor:
 
 def get_monitor_by_name(stream_name: str) -> Monitor:
     return Monitor.query.filter_by(broadcaster=stream_name).first()
+
+
+def cancel_stream_to_monitor(self, stream_name):
+    monitor = get_monitor_by_name(stream_name)
+    if not monitor:
+        return
+    monitor.cancel_request = True
+    db.session.commit()
+    db.session.flush()
 
 
 def remove_stream_to_monitor(self, stream_name):
