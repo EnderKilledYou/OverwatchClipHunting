@@ -1,11 +1,13 @@
 FROM python:3.10-slim as BASE
 ENV PYTHONUNBUFFERED True
 ENV APP_HOME /app
-ENV VUE_HOME /app/front_end
 ENV INSTALL_SCRIPT /app/install_tessy.sh
+#Download Ocr Shit
+ENV OCR_PRODUCTION True
 ENV TESSERACT_DATA_FAST_INSTALL_FOLDER /FAST_DATA
 ENV TESSERACT_DATA_FAST /FAST_DATA/tessdata_fast
-ENV OCR_PRODUCTION True
+#print extra shit to console
+ENV CLOUD_PRINT True
 ARG DEBIAN_FRONTEND=noninteractive
 
 FROM BASE as CERTSANDINSTALLS
@@ -13,7 +15,7 @@ RUN  apt-get update  &&  apt-get -qq -y  --no-install-recommends   install git u
 RUN sed -i '/^mozilla\/DST_Root_CA_X3.crt$/ s/^/!/' /etc/ca-certificates.conf
 RUN update-ca-certificates
 
-FROM CERTSANDINSTALLS
+FROM CERTSANDINSTALLS as RUNNER
 WORKDIR $APP_HOME
 COPY . ./
 RUN chmod +x /app/post_install.sh

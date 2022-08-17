@@ -1,8 +1,12 @@
 import json
+import os
 import sys
 
+should_log = "CLOUD_PRINT" in os.environ
 
 def cloud_logger():
+    if not should_log:
+        return
     args = '<none>'
     name = '<unknown_function>'
     args_json = '{}'
