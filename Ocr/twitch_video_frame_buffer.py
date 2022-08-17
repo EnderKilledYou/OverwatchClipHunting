@@ -27,7 +27,7 @@ class TwitchEater(VideoFrameBuffer):
         self.reader = None
         self.broadcaster = broadcaster
         self.consumer_threads = []
-        self.fps = 60
+
 
         self._active = True
 

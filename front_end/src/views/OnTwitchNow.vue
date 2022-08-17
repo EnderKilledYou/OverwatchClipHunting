@@ -2,7 +2,7 @@
   <div class="col-md-2" v-for="watcher in streams" :key="watcher.name">
     <div class="card">
       <img class="card-img-top"
-           :src="watcher.thumbnail_url.replace('{width}','300').replace('{height}','300')"/>
+           :src="GetThumbnailUrl(watcher)"/>
 
       <div class="card-body">
         <h5 class="card-title"><a target="_blank" :href="`https://twitch.tv/` + watcher.user_name">{{
@@ -23,7 +23,7 @@
 
 </template>
 <script lang="ts">
-import {API, TwitchLiveStreamData} from "@/api";
+import {API, StreamerMonitorState, TwitchLiveStreamData} from "@/api";
 import {Component, Emit, Prop, Vue} from "vue-facing-decorator";
 
 
@@ -31,6 +31,11 @@ import {Component, Emit, Prop, Vue} from "vue-facing-decorator";
 export default class OnTwitchNow extends Vue {
   @Prop
   streams?: TwitchLiveStreamData[]
+  GetThumbnailUrl(watcher: StreamerMonitorState) {
+
+    const base_image = watcher.data.thumbnail_url.replace('{width}', '300').replace('{height}', '300');
+    return base_image + '?cache_burst=' + Math.random()
+  }
 
   async Watch2(streamerName: string) {
     const streamerResponse = await API.add(streamerName)

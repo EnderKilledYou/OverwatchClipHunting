@@ -2,7 +2,7 @@
   <div class="col-md-2" v-for="watcher in items" :key="watcher.name">
     <div class="card">
       <img class="card-img-top" v-if="RowHasExtraData(watcher)"
-           :src="watcher.data.thumbnail_url.replace('{width}','300').replace('{height}','300')"/>
+           :src="GetThumbnailUrl(watcher)"/>
 
       <div class="card-body">
         <h5 class="card-title"><a target="_blank" :href="`https://twitch.tv/` + watcher.name">{{
@@ -11,16 +11,19 @@
         <p class="card-text"> {{ watcher.frames_done }} ( {{ watcher.back_fill_seconds }} s) / {{ watcher.frames_read }}
           (
           {{ watcher.frames_read_seconds }} s)</p>
-        <p v-if="RowHasExtraData(watcher)" class="card-text"><span class="text-success">({{
-            watcher.stream_resolution
-          }}) ({{watcher.fps}}</span>
+        <p v-if="RowHasExtraData(watcher)" class="card-text">
           {{ watcher.data.viewer_count }} watching since:
           {{ new Date(watcher.data.started_at).toLocaleString() }}</p>
         <p v-if="RowHasExtraData(watcher)" class="card-text"> {{ watcher.data.game_name }} </p>
       </div>
       <div class="card-footer">
-
-        <button class="btn btn-danger" @click="Unwatch(watcher)">Stop</button>
+        <div class="btn-group">
+          <button class="btn btn-danger" @click="Unwatch(watcher)" disabled="true">Stop (soon)</button>
+          <button class="btn btn-danger" @click="Unwatch(watcher)">Requeue (push to back)</button>
+        </div>
+        <span class="text-success">({{
+            watcher.stream_resolution
+          }}@{{ watcher.fps }})</span>
       </div>
     </div>
 
@@ -44,6 +47,12 @@ export default class CurrentlyLive extends Vue {
   @Emit('updatedmonitored')
   update_monitor() {
 
+  }
+
+  GetThumbnailUrl(watcher: StreamerMonitorState) {
+
+    const base_image = watcher.data.thumbnail_url.replace('{width}', '300').replace('{height}', '300');
+    return base_image + '?cache_burst=' + Math.random()
   }
 
   RowHasExtraData(watcher: StreamerMonitorState) {

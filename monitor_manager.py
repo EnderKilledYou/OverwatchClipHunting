@@ -28,12 +28,11 @@ class MonitorManager():
         self._farm_twitch_thread = None
         self._monitor_lock = threading.Lock()
         self._monitors = {}
-
-        self.max_monitored = 2
-        self.monitor_list = []
         self._active = False
+
         self._farm_twitch_mode = False
-        self.max_active_monitors = 3
+        self.max_twitch_farms = 4
+        self.max_active_monitors = 10
         self.currently_active_monitors = 0
 
     def set_farm_twitch_mode(self, mode: bool):
@@ -78,7 +77,7 @@ class MonitorManager():
 
     def _farm_twitch(self, twitch_api):
         cloud_logger()
-        count = 2 - len(self._monitors)
+        count = self.max_twitch_farms - len(self._monitors)
         if count < 1:
             return
         streams = twitch_api.get_streams(game_id="488552", language=['en'], first=100)

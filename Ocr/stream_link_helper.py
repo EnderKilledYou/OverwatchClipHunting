@@ -32,6 +32,8 @@ class StreamLinkHelper:
         items = []
         if '720p60' in streams:
             return (streams['720p60'], '720p60')
+        if '480p' in streams:
+            return (streams['480p'], '480p')
         for stream_res in streams:
             if not stream_res.endswith('p60'):
                 continue
