@@ -193,11 +193,11 @@ class MonitorManager:
                 return
             existing_monitor = get_monitor_by_name(stream_name)
             if existing_monitor is None:
-                monitor = Monitor(stream_name, exists['data'][0])
-                monitor = add_stream_to_monitor(monitor)
-            monitor.web_dict = exists
-            self._monitors[stream_name] = monitor
-            monitor.start()
+                existing_monitor = Monitor(stream_name, exists['data'][0])
+                existing_monitor = add_stream_to_monitor(existing_monitor)
+            existing_monitor.web_dict = exists
+            self._monitors[stream_name] = existing_monitor
+            existing_monitor.start()
 
         finally:
             self._monitor_lock.release()
