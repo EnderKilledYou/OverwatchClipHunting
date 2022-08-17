@@ -10,6 +10,7 @@ from Ocr.overwatch_screen_reader import OverwatchScreenReader
 from Ocr.screen_reader import ScreenReader
 from Ocr.twitch_video_frame_buffer import TwitchEater
 from Ocr.video_frame_buffer import VideoFrameBuffer
+from cloud_logger import cloud_logger
 
 from config.db_config import db
 
@@ -43,12 +44,13 @@ class Monitor(db.Model, SerializerMixin):
     ocr: TwitchEater
 
     def __init__(self, broadcaster: str, web_dict={}):
-        print("Monitor Starting: " + broadcaster)
+        cloud_logger()
         self.broadcaster = broadcaster
         self.web_dict = web_dict
         self.ocr = None
 
     def start(self):
+        cloud_logger()
         has_started = hasattr(self, 'ocr')
         if has_started:
             return
@@ -58,6 +60,7 @@ class Monitor(db.Model, SerializerMixin):
         self.producer_thread.start()
 
     def dump(self):
+        cloud_logger()
         tmp = self.ocr.buffer
         self.ocr.buffer = Queue()
         while not tmp.empty():
@@ -67,14 +70,17 @@ class Monitor(db.Model, SerializerMixin):
                 return
 
     def stop(self):
+        cloud_logger()
         self.ocr.stop()
         self.matcher.stop()
 
     def wait_for_stop(self, timeout=None):
+        cloud_logger()
         self.producer_thread.join(timeout)
 
 
 def add_stream_to_monitor(broadcaster: str):
+    cloud_logger()
     monitor2 = get_monitor_by_name(broadcaster)
     if not monitor2:
         monitor2 = Monitor(broadcaster)
@@ -87,18 +93,22 @@ def add_stream_to_monitor(broadcaster: str):
 
 
 def get_all_monitors() -> List[Monitor]:
+    cloud_logger()
     return list(Monitor.query.filter_by())
 
 
 def get_inactive_monitors() -> List[Monitor]:
+    cloud_logger()
     return list(Monitor.query.filter_by(is_active=False))
 
 
 def get_all_my_monitors() -> List[Monitor]:
+    cloud_logger()
     return list(Monitor.query.filter_by(activated_by=self_id))
 
 
 def claim_monitor() -> List[Monitor]:
+    cloud_logger()
     now = datetime.datetime.now() - datetime.timedelta(hours=0, minutes=7)
     monitor = Monitor.query.filter(Monitor.activated_at <= now).first()
     if not monitor:
@@ -110,30 +120,37 @@ def claim_monitor() -> List[Monitor]:
 
 
 def assert_monitor_still_claimed(monitor_id: str):
+    cloud_logger()
     return Monitor.query.filter_by(id=monitor_id, activated_by=self_id).first()
 
 
 def get_my_inactive_monitors() -> List[Monitor]:
+    cloud_logger()
     return list(Monitor.query.filter_by(is_active=False, activated_by=self_id))
 
 
 def get_my_active_monitors() -> List[Monitor]:
+    cloud_logger()
     return list(Monitor.query.filter_by(is_active=True, activated_by=self_id))
 
 
 def get_active_monitors() -> List[Monitor]:
+    cloud_logger()
     return list(Monitor.query.filter_by(is_active=True))
 
 
 def get_monitor_by_id(monitor_id: int) -> Monitor:
+    cloud_logger()
     return Monitor.query.filter_by(id=monitor_id).first()
 
 
 def get_monitor_by_name(stream_name: str) -> Monitor:
+    cloud_logger()
     return Monitor.query.filter_by(broadcaster=stream_name).first()
 
 
-def cancel_stream_to_monitor(self, stream_name):
+def cancel_stream_to_monitor(  stream_name):
+    cloud_logger()
     monitor = get_monitor_by_name(stream_name)
     if not monitor:
         return
@@ -142,7 +159,7 @@ def cancel_stream_to_monitor(self, stream_name):
     db.session.flush()
 
 
-def remove_stream_to_monitor(self, stream_name):
+def remove_stream_to_monitor(  stream_name):
     monitor = get_monitor_by_name(stream_name)
     if not monitor:
         return

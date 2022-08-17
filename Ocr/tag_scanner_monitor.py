@@ -4,6 +4,7 @@ from time import sleep
 
 from Ocr.tag_clipper import TagClipper
 from Ocr.tag_clipper_request import TagClipperRequest
+from cloud_logger import cloud_logger
 from something_manager import ThreadedManager
 from Database.Twitch.twitch_clip_instance import get_twitch_clip_instance_by_id
 from Database.Twitch.tag_clipper_job import update_twitch_clip_job_state
@@ -31,6 +32,7 @@ class ScannerMonitor(ThreadedManager):
         return None
 
     def _do_work(self, job):
+        cloud_logger()
         # reset_twitch_clip_job_state()  # reset the jobs that dies half if server crash
         request = self._make_request_from_job(job)
         self.tag_clipper.add_job(request)

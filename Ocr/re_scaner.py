@@ -21,6 +21,7 @@ from Ocr.twitch_dl_args import Args
 
 from Ocr.VideoCapReader import VideoCapReader, StreamEndedError, ClipVideoCapReader
 from Ocr.overwatch_clip_reader import OverwatchClipReader
+from cloud_logger import cloud_logger
 from something_manager import ThreadedManager
 
 
@@ -46,6 +47,7 @@ class ReScanner(ThreadedManager):
         self.matcher = OverwatchClipReader()
 
     def _do_work(self, job_id: int):
+        cloud_logger()
         try:
             job: TwitchClipInstanceScanJob = update_scan_job_started(job_id)
             if job is None:
