@@ -150,13 +150,14 @@ class MonitorManager:
                 saved_monitor = self._monitors[monitor]
             stream = next(filter(lambda stream: stream['user_login'] == lower, live_streams_list), None)
             if stream is None:
-                if streamer_already_monitored:
+                if not streamer_already_monitored:
+                    pass
+                else:
                     self._monitors[monitor].stop()
                     self.currently_active_monitors -= 1
                     remove_stream_to_monitor(monitor)
-                    del db_monitors[monitor]
-                else:
-                    del db_monitors[monitor]
+
+                del db_monitors[monitor]
                 continue
 
             if self.currently_active_monitors >= self.max_active_monitors:
