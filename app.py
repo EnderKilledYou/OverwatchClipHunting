@@ -19,7 +19,7 @@ def config_app() -> Flask:
             password=os.environ['DB_SECRET'],
             database='word',
             query={
-                "unix_socket": '/cloudsql/inspiring-lore-357817:us-central1:cliphunta',
+                "unix_socket": os.environ['DB_SOCKET'],
                 'ssl_ca': 'server-ca.pem'
             },
         )
