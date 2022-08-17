@@ -10,16 +10,16 @@ class SubClipPreferences(db.Model, SerializerMixin):
     serialize_rules = ()
     serialize_only = ('id', 'name')
     id = db.Column(db.Integer, primary_key=True)
-    name = db.Column(db.String)
-    before_amount= db.Column(db.String)
+    name = db.Column(db.String(900))
+    before_amount= db.Column(db.Integer)
 
 
 class ZombieUser(db.Model, SerializerMixin):
     serialize_rules = ()
     serialize_only = ('id', 'name', 'token =', 'last_check_in_unix_time', 'is_active')
     id = db.Column(db.Integer, primary_key=True)
-    name = db.Column(db.String)
-    token = db.Column(db.String)
+    name = db.Column(db.String(90))
+    token = db.Column(db.String(900))
     last_check_in_unix_time = db.Column(db.Integer)
     is_active = db.Column(db.Boolean, default=True)
 
@@ -27,12 +27,12 @@ class ZombieUser(db.Model, SerializerMixin):
 class ZombieTask(db.Model, SerializerMixin):
     id = db.Column(db.Integer, primary_key=True)
     zombie_id = db.Column(db.Integer)
-    task = db.Column(db.String)
+    task = db.Column(db.String(900))
     state = db.Column(db.Integer)
     last_check_in_unix_time = db.Column(db.Integer)
     is_complete = db.Column(db.Boolean)
     is_started = db.Column(db.Boolean)
-    error_message = db.Column(db.String)
+    error_message = db.Column(db.String(900))
     percent_done = db.Column(db.Float)
     did_error = db.Column(db.Boolean)
 

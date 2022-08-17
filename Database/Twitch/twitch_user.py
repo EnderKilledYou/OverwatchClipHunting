@@ -9,18 +9,18 @@ class TwitchUser(db.Model, SerializerMixin):
     serialize_rules = ()
     serialize_only = ('id','twitch_user_id','display_name','view_count','description' )
     id = db.Column(db.Integer, primary_key=True)
-    broadcaster_type = db.Column(db.String)
+    broadcaster_type = db.Column(db.String(30))
     created_at = db.Column(db.DATETIME)
-    description = db.Column(db.String)
-    display_name = db.Column(db.String)
+    description = db.Column(db.Unicode(900))
+    display_name = db.Column(db.String(90))
 
-    twitch_user_id = db.Column(db.String)
-    login = db.Column(db.String)
-    offline_image_url = db.Column(db.String)
-    profile_image_url = db.Column(db.String)
-    type = db.Column(db.String)
+    twitch_user_id = db.Column(db.String(100))
+    login = db.Column(db.String(90))
+    offline_image_url = db.Column(db.String(900))
+    profile_image_url = db.Column(db.String(900))
+    type = db.Column(db.String(90))
     view_count = db.Column(db.Integer)
-    bot_token = db.Column(db.String)
+    bot_token = db.Column(db.String(900))
 
     def __init__(self, user)  :
         self.broadcaster_type = user['broadcaster_type']

@@ -3,17 +3,10 @@ from sqlalchemy_serializer import SerializerMixin
 
 from OrmHelpers.BasicWithId import BasicWithId
 from config.db_config import db
-from Database.Twitch.twitch_video_marker import TwitchVideoMarker
 
 
 class TwitchVideo(db.Model, SerializerMixin):
-    def AddMarker(self, marker_start, marker_end, kills, deaths, event_name):
-        marker = TwitchVideoMarker(time_start=marker_start, time_end=marker_end, death_count=deaths, kill_count=kills,
-                                   event_name=event_name, video_id=self.video_id, twitch_user_id=self.twitch_user_id)
 
-
-        db.session.commit()
-        db.session.flush()
 
     serialize_rules = ()
     serialize_only = (
@@ -23,24 +16,24 @@ class TwitchVideo(db.Model, SerializerMixin):
     id = db.Column(db.Integer, primary_key=True)
     video_id = db.Column(db.Integer, unique=True)
     stream_id: None
-    twitch_user_id = db.Column(db.String)
-    user_login = db.Column(db.String)
-    user_name = db.Column(db.String)
-    title = db.Column(db.String)
-    description = db.Column(db.String)
+    twitch_user_id = db.Column(db.String(90))
+    user_login = db.Column(db.String(90))
+    user_name = db.Column(db.String(90))
+    title = db.Column(db.Unicode(900))
+    description = db.Column(db.Unicode(900))
     created_at = db.Column(db.DATETIME)
     published_at = db.Column(db.DATETIME)
-    url = db.Column(db.String)
-    thumbnail_url = db.Column(db.String)
-    viewable = db.Column(db.String)
+    url = db.Column(db.String(900))
+    thumbnail_url = db.Column(db.String(900))
+    viewable = db.Column(db.String(900))
     view_count = db.Column(db.Integer)
-    language = db.Column(db.String)
-    type = db.Column(db.String)
-    duration = db.Column(db.String)
+    language = db.Column(db.String(20))
+    type = db.Column(db.String(90))
+    duration = db.Column(db.Integer)
     percent_done = db.Column(db.Integer)
     started_on = db.Column(db.DATETIME)
     finished_on = db.Column(db.DATETIME)
-    errors = db.Column(db.String)
+    errors = db.Column(db.String(900))
 
     def __init__(self, video) -> None:
         self.percent_done = 0

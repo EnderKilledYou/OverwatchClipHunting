@@ -9,8 +9,8 @@ class AllowedUser(db.Model, SerializerMixin):
     serialize_only = ('id', 'twitch_user_id', 'name', 'description')
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String)
-    twitch_user_id = db.Column(db.String)
-    description = db.Column(db.String)
+    twitch_user_id = db.Column(db.String(90))
+    description = db.Column(db.Unicode(900))
     disabled = db.Column(db.Boolean)
 
 

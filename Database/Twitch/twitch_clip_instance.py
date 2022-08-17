@@ -11,16 +11,16 @@ class TwitchClipInstance(db.Model, SerializerMixin):
         'id', 'video_id', 'video_url', 'created_at', 'thumbnail_url',
         'title', 'broadcaster_name', 'type', 'vod_offset', 'duration')
     id = db.Column(db.Integer, primary_key=True)
-    video_id = db.Column(db.String, unique=True)
-    video_url = db.Column(db.String, unique=True)
+    video_id = db.Column(db.String(90), unique=True)
+    video_url = db.Column(db.String(900), unique=True)
     created_at = db.Column(db.DateTime)
-    thumbnail_url = db.Column(db.String)
-    title = db.Column(db.String)
-    broadcaster_name = db.Column(db.String)
-    type = db.Column(db.String)
+    thumbnail_url = db.Column(db.String(900))
+    title = db.Column(db.Unicode(900))
+    broadcaster_name = db.Column(db.String(90))
+    type = db.Column(db.String(90))
     vod_offset = db.Column(db.Integer)
     duration = db.Column(db.Integer)
-    file_path = db.Column(db.String)
+    file_path = db.Column(db.String(900))
 
     def __init__(self, from_api={}):
         if 'id' in from_api:

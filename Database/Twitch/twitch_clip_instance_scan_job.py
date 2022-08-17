@@ -10,7 +10,7 @@ class TwitchClipInstanceScanJob(db.Model, SerializerMixin):
     id = db.Column(db.Integer, primary_key=True)
     clip_id = db.Column(db.String, unique=True)
     state = db.Column(db.Integer)
-    broadcaster = db.Column(db.String)
+    broadcaster = db.Column(db.String(90))
     created_at = db.Column(db.DateTime)
     completed_at = db.Column(db.DateTime)
     percent = db.Column(db.FLOAT, default=0)

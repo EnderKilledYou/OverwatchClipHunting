@@ -18,8 +18,8 @@ class TagClipperJob(db.Model, SerializerMixin):
         'id', 'clip_id', 'tag_id', 'state', 'created_at', 'completed_at')
 
     id = db.Column(db.Integer, primary_key=True)
-    clip_id = db.Column(db.String)
-    tag_id = db.Column(db.String, unique=True)
+    clip_id = db.Column(db.Integer)
+    tag_id = db.Column(db.Integer, unique=True)
     state = db.Column(db.Integer)
     created_at = db.Column(db.DateTime)
     completed_at = db.Column(db.DateTime)

@@ -12,12 +12,12 @@ class TagAndBagRequest(db.Model, SerializerMixin):
         'id', 'clip_id', 'file_path', 'progress')
     id = db.Column(db.Integer, primary_key=True)
     clip_id = db.Column(db.Integer)
-    file_path = db.Column(db.String, default="")
+    file_path = db.Column(db.String(900), default="")
 
     download_progress = db.Column(db.Float, default=0)
     scan_progress = db.Column(db.Float, default=0)
 
-    scan_error_str = db.Column(db.String, default="")
+    scan_error_str = db.Column(db.String(900), default="")
 
     scan_error = db.Column(db.Boolean, default=False)
 

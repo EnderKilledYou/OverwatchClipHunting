@@ -14,11 +14,11 @@ class TwitchResponse(db.Model, SerializerMixin, EncryptedFields):
     serialize_rules = ()
     serialize_only = ('id', 'twitch_user_id', 'access_token', 'expires_in', 'refresh_token', 'token_type')
     id = db.Column(db.Integer, primary_key=True)
-    twitch_user_id = db.Column(db.String)
-    access_token = db.Column(db.String)
+    twitch_user_id = db.Column(db.String(90))
+    access_token = db.Column(db.String(900))
     expires_in = db.Column(db.Integer)
-    refresh_token = db.Column(db.String)
-    token_type = db.Column(db.String)
+    refresh_token = db.Column(db.String(900))
+    token_type = db.Column(db.String(900))
 
     def update_from(self, resp) -> None:
         self.access_token = self.encrypt(resp['access_token'])

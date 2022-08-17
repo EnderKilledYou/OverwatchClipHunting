@@ -12,13 +12,13 @@ class TwitchClipTag(db.Model, SerializerMixin):
     id = db.Column(db.Integer, primary_key=True)
     clip_created_at = db.Column(db.DateTime)
     clip_id = db.Column(db.Integer)
-    tag = db.Column(db.String)
+    tag = db.Column(db.String(90))
     tag_amount = db.Column(db.Integer)
     tag_duration = db.Column(db.Integer)
     tag_start = db.Column(db.Integer)
     clip_start = db.Column(db.Integer)
     clip_end = db.Column(db.Integer)
-    file_name = db.Column(db.String)
+    file_name = db.Column(db.String(900))
     has_file = db.Column(db.Boolean, default=False)
 
 
