@@ -20,7 +20,7 @@ def config_app() -> Flask:
             database='word',
             query={
                 "unix_socket": os.environ['DB_SOCKET'],
-                'ssl_ca': 'server-ca.pem'
+
             },
         )
 
