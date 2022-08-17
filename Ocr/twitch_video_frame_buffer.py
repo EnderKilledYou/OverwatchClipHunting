@@ -2,12 +2,14 @@ import os
 import sys
 import threading
 import traceback
+from time import sleep
 
 from Ocr.VideoCapReader import StreamEndedError, VideoCapReader
 from Ocr.no_stream_error import NoStreamError
 from Ocr.screen_reader import ScreenReader
 from Ocr.stream_link_helper import StreamLinkHelper
 from Ocr.video_frame_buffer import VideoFrameBuffer
+from config.config import tess_fast_dir
 
 
 class TwitchEater(VideoFrameBuffer):
@@ -28,7 +30,6 @@ class TwitchEater(VideoFrameBuffer):
         self.broadcaster = broadcaster
         self.consumer_threads = []
 
-
         self._active = True
 
     def get_one(self):
@@ -43,8 +44,10 @@ class TwitchEater(VideoFrameBuffer):
     def buffer_broadcast(self, matcher: ScreenReader):
         self.matcher = matcher
         self._consumers(matcher)
-
-        (ocr_stream,stream_res) = StreamLinkHelper.get_best_stream(self.broadcaster)
+        while not os.path.exists(tess_fast_dir + 'eng.traineddata'):
+            print("00000000000000000000Waiting for tesseract to install (twitch)...0000000000000000000000000")
+            sleep(2)
+        (ocr_stream, stream_res) = StreamLinkHelper.get_best_stream(self.broadcaster)
         if ocr_stream is None:
             return
         self.stream_res = stream_res

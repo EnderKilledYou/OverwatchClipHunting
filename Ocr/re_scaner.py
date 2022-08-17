@@ -52,7 +52,7 @@ class ReScanner(ThreadedManager):
     def _do_work(self, job_id: int):
         cloud_logger()
         while not os.path.exists(tess_fast_dir + 'eng.traineddata'):
-            print("Waiting for tesseract to install...")
+            print("00000000000000000000Waiting for tesseract to install...0000000000000000000000000")
             sleep(2)
 
         try:
