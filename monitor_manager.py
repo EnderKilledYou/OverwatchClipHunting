@@ -184,7 +184,6 @@ class MonitorManager:
         return db_monitors
 
     def get_stream_from_live_list(self, live_streams_list, streamer_name):
-        cloud_logger()
         lower = streamer_name.lower()
         stream = next(filter(lambda live_stream: live_stream['user_login'] == lower, live_streams_list), None)
         return stream
