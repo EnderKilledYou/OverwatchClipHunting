@@ -40,16 +40,20 @@ class Monitor(db.Model, SerializerMixin):
     activated_by = db.Column(db.String(30))
     last_check_in = db.Column(db.DATETIME)
     cancel_request = db.Column(db.Boolean, default=True)
+    ocr: TwitchEater
 
     def __init__(self, broadcaster: str, web_dict={}):
         print("Monitor Starting: " + broadcaster)
         self.broadcaster = broadcaster
-        self.ocr = TwitchEater(broadcaster)
-        self.matcher = OverwatchScreenReader(self.ocr)
-
         self.web_dict = web_dict
+        self.ocr = None
 
     def start(self):
+        has_started = hasattr(self, 'ocr')
+        if has_started:
+            raise Exception("Monitor already started")
+        self.ocr = TwitchEater(self.broadcaster)
+        self.matcher = OverwatchScreenReader(self.ocr)
         self.producer_thread = threading.Thread(target=self.ocr.buffer_broadcast, args=[self.matcher])
         self.producer_thread.start()
 
@@ -70,16 +74,16 @@ class Monitor(db.Model, SerializerMixin):
         self.producer_thread.join(timeout)
 
 
-def add_stream_to_monitor(monitor: Monitor):
-
-    monitor2 = get_monitor_by_name(monitor.broadcaster)
+def add_stream_to_monitor(broadcaster: str):
+    monitor2 = get_monitor_by_name(broadcaster)
     if not monitor2:
-        db.session.add(monitor)
-    monitor.is_active = True
+        monitor2 = Monitor(broadcaster)
+        db.session.add(monitor2)
+    monitor2.is_active = True
     db.session.commit()
     db.session.flush()
 
-    return monitor
+    return monitor2
 
 
 def get_all_monitors() -> List[Monitor]:

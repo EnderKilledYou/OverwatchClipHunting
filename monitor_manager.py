@@ -4,6 +4,8 @@ import traceback
 from random import shuffle
 from threading import Thread
 from time import sleep
+from typing import List
+
 from Database.monitor import Monitor, remove_stream_to_monitor, add_stream_to_monitor, get_monitor_by_name, \
     get_active_monitors, get_all_monitors
 from twitch_helpers import get_twitch_api
@@ -105,7 +107,7 @@ class MonitorManager:
                 'name': name,
                 'frames_read': reader.items_read * reader.sample_every_count,
                 'frames_done': frames_finished,
-                'frames_read_seconds': reader.items_drained * (reader.sample_every_count // reader.fps),
+                'frames_read_seconds': frames_finished // reader.fps,
                 'seconds': seconds,
                 'queue_size': qsize,
                 'data': monitor.web_dict
@@ -138,7 +140,7 @@ class MonitorManager:
 
     def get_active_mons(self, twitch_api):
         db_monitors = self.get_monitors_from_db_as_dict()
-        live_streams_list = self.get_monitored_streams(twitch_api)
+        live_streams_list = self.get_monitored_streams(twitch_api, list(db_monitors))
         for monitor in list(db_monitors):
             lower = monitor.lower()
             streamer_already_monitored = monitor in self._monitors
@@ -153,11 +155,14 @@ class MonitorManager:
                 else:
                     del db_monitors[monitor]
                 continue
-
             if streamer_already_monitored:
                 db_monitors[monitor] = self._monitors[monitor]
             else:
-                db_monitor.start()
+                if self.currently_active_monitors < self.max_active_monitors:
+                    db_monitor.start()
+                    self.currently_active_monitors += 1
+                else:
+                    del db_monitors[monitor]
             db_monitors[monitor].web_dict = stream
 
         return db_monitors
@@ -169,8 +174,7 @@ class MonitorManager:
             mons[a.broadcaster] = a
         return mons
 
-    def get_monitored_streams(self, twitch_api):
-        user_logins = list(self._monitors)
+    def get_monitored_streams(self, twitch_api, user_logins: List[str]):
         if len(user_logins) == 0:
             return []
         live_streams = twitch_api.get_streams(user_login=user_logins)
@@ -193,8 +197,7 @@ class MonitorManager:
                 return
             existing_monitor = get_monitor_by_name(stream_name)
             if existing_monitor is None:
-                existing_monitor = Monitor(stream_name, exists['data'][0])
-                existing_monitor = add_stream_to_monitor(existing_monitor)
+                existing_monitor = add_stream_to_monitor(stream_name)
             existing_monitor.web_dict = exists
             self._monitors[stream_name] = existing_monitor
             existing_monitor.start()

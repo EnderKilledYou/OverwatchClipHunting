@@ -1,61 +1,63 @@
 <template>
-  <div class="home">
-    <label for="streamer_name"> Add Streamer
-      <input class="text-info" id="streamer_name" type="text" v-model="streamerName">
-      <button @click="Watch()" class="btn btn-block">Add</button>
-      <button @click="Twitch()" class="btn btn-block" v-show="twitch_streams.length ===0">Look at Twitch
-      </button>
-      <button @click="HideTwitch()" class="btn btn-block" v-show="twitch_streams.length !==0">Hide</button>
-      <button @click="AutoTwitch()" class="btn btn-block">Auto Twitch</button>
-      <button @click="StopAutoTwitch()" class="btn btn-block">Stop Auto Twitch</button>
-    </label>
-    <on-twitch-now v-if="twitch_streams.length >0" :streams="twitch_streams_filtered"
-                   @updatedmonitored="list_items"/>
-    <div class="row row-cols-3 row-cols-md-4 g-4">
-      <div class="col" v-for="watcher in items" :key="watcher.name">
-        <div class="card">
-          <img class="card-img-top"
-               :src="watcher.data.thumbnail_url.replace('{width}','300').replace('{height}','300')"/>
 
-          <div class="card-body">
-            <h5 class="card-title"><a target="_blank" :href="`https://twitch.tv/` + watcher.name">{{
-                watcher.name
-              }}</a></h5>
-            <p class="card-text"> {{ watcher.frames_done }} ( {{ watcher.seconds }} s)   / {{ watcher.frames_read }} (
-              {{ watcher.frames_read_seconds }} s)</p>
-            <p class="card-text"> {{ watcher.data.viewer_count }} watching since:
-              {{ new Date(watcher.data.started_at).toLocaleString() }}</p>
-            <p class="card-text"> {{ watcher.data.game_name }} </p>
-          </div>
-          <div class="card-footer">
-
-            <button class="btn btn-danger" @click="Unwatch(watcher)">Stop</button>
-          </div>
-        </div>
-
+  <div>
+    <div class="col-md-12">
+      <div class="col-md-4">
+        <label for="streamer_name"> Add Streamer
+          <input class="text-info" id="streamer_name" type="text" v-model="streamerName">
+          <button @click="Watch()" class="btn btn-block">Add</button>
+        </label>
       </div>
+      <div class="row">
+        <div class="btn-group-justified">
+
+          <button @click="Twitch()" class="btn btn-block" v-show="twitch_streams.length ===0">Look at Twitch
+          </button>
+          <button @click="HideTwitch()" class="btn btn-block" v-show="twitch_streams.length !==0">Hide</button>
+          <button @click="AutoTwitch()" class="btn btn-block">Auto Twitch</button>
+          <button @click="StopAutoTwitch()" class="btn btn-block">Stop Auto Twitch</button>
+        </div>
+      </div>
+    </div>
+    <div class="row">
+      <on-twitch-now v-if="showTwitchers" :streams="twitch_streams_filtered"
+                     @updatedmonitored="list_items"/>
+    </div>
+    <div class="row">
+      <currently-live :items="streamerMonitorStates"
+                      @updatedmonitored="list_items"/>
     </div>
 
   </div>
+
 </template>
 
 <script lang="ts">
-import {Options, Vue} from 'vue-class-component';
-import HelloWorld from '@/components/HelloWorld.vue';
 import {API, StreamerMonitorState} from "@/api";
-import OnTwitchNow from "@/views/OnTwitchNow.vue"; // @ is an alias to /src
+import OnTwitchNow from "@/views/OnTwitchNow.vue";
+import CurrentlyLive from "@/views/CurrentlyLive.vue"; // @ is an alias to /src
 
 let interval: number | null | undefined = null
 
-@Options({
+
+import {Component, Prop, Vue} from "vue-facing-decorator";
+
+@Component({
   components: {
+    CurrentlyLive,
     OnTwitchNow,
-    HelloWorld,
+
   },
 })
 export default class HomeView extends Vue {
-  private items: StreamerMonitorState[] = [];
+  streamerMonitorStates: StreamerMonitorState[] = [];
   streamerName: string = ""
+
+
+  get showTwitchers() {
+    return this.twitch_streams && this.twitch_streams.length > 0
+  }
+
   private interval: number = 0;
   private twitch_streams: any[] = [];
 
@@ -80,7 +82,7 @@ export default class HomeView extends Vue {
   get twitch_streams_filtered() {
     if (!this.twitch_streams) return []
     return this.twitch_streams.filter(a => {
-      return !this.items.find(b => b.name.toLowerCase() === a.user_name.toLowerCase())
+      return !this.streamerMonitorStates.find(b => b.name.toLowerCase() === a.user_name.toLowerCase())
     })
   }
 
@@ -95,24 +97,19 @@ export default class HomeView extends Vue {
 
   async Watch2(streamerName: string) {
     const streamerResponse = await API.add(streamerName)
-    this.items = streamerResponse.items
+    this.list_items()
   }
 
   async Watch() {
     const streamerResponse = await API.add(this.streamerName)
-    this.items = streamerResponse.items
+    this.list_items()
   }
 
-  async Unwatch(watcher: StreamerMonitorState) {
-    const streamerResponse = await API.remove(watcher.name)
-
-    this.items = streamerResponse.items
-  }
 
   async list_items() {
-
+    debugger
     const streamerResponse = await API.list()
-    this.items = streamerResponse.items
+    this.streamerMonitorStates = streamerResponse.items.map((a: any) => new StreamerMonitorState(a))
   }
 
 }

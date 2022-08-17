@@ -27,6 +27,7 @@
     </div>
   </nav>
 
-
-  <router-view/>
+  <div class="container-fluid">
+    <router-view/>
+  </div>
 </template>

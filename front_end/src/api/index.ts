@@ -71,6 +71,18 @@ export class ClipsResponse {
     }
 }
 
+export class TwitchLiveStreamData {
+    viewer_count = 0
+    started_at = 0
+    game_name = ''
+    thumbnail_url = ''
+
+    constructor(part: Partial<TwitchLiveStreamData>) {
+        Object.assign(this, part)
+
+    }
+}
+
 export class StreamerMonitorState {
     name = ""
     size = 0
@@ -78,9 +90,17 @@ export class StreamerMonitorState {
     queue_size = 0
     frames_read = 0
     frames_done = 0
+    frames_read_seconds = 0
+    data: TwitchLiveStreamData
 
     constructor(part: Partial<StreamerMonitorState>) {
+        debugger
         Object.assign(this, part)
+        if (part && part.data) {
+            this.data = new TwitchLiveStreamData(part.data)
+        } else {
+            this.data = new TwitchLiveStreamData({})
+        }
     }
 }
 

@@ -1,55 +1,45 @@
 <template>
-  <table class="table table-striped table-responsive" >
+  <div class="col-md-2" v-for="watcher in streams" :key="watcher.name">
+    <div class="card">
+      <img class="card-img-top"
+           :src="watcher.thumbnail_url.replace('{width}','300').replace('{height}','300')"/>
 
-    <thead>
-    <tr>
-      <th>
-        Started At
-      </th>
-      <th>
+      <div class="card-body">
+        <h5 class="card-title"><a target="_blank" :href="`https://twitch.tv/` + watcher.user_name">{{
+            watcher.user_name
+          }}</a></h5>
+        <p class="card-text"> {{ watcher.viewer_count }} watching since:
+          {{ new Date(watcher.started_at).toLocaleString() }}</p>
+        <p class="card-text"> {{ watcher.game_name }} </p>
+      </div>
+      <div class="card-footer">
 
-      </th>
-
-    </tr>
-    </thead>
-    <tbody>
-    <tr v-for="watcher in streams">
-      <td>
-        <figure class="figure">
-          <a target="_blank" :href="`https://twitch.tv/` +watcher.video_id"> <img
-              :src="watcher.thumbnail_url.replace('{width}','100').replace('{height}','100')"
-              class="  img-responsive"/></a>
-
-          <figcaption> {{ watcher.user_name }}</figcaption>
-          <figcaption> {{ watcher.started_at }}</figcaption>
-        </figure>
-      </td>
-      <td>
         <button class="btn btn-danger" @click="Watch2( watcher.user_name)">Watch</button>
-      </td>
-    </tr>
-    </tbody>
-  </table>
+      </div>
+    </div>
+
+  </div>
+
+
 </template>
 <script lang="ts">
-import {API} from "@/api";
-import {Options, Vue} from "vue-class-component";
+import {API, TwitchLiveStreamData} from "@/api";
+import {Component, Emit, Prop, Vue} from "vue-facing-decorator";
 
 
-@Options({
-  props: ['streams'],
-  emits: ['updatedmonitored'],
-
-
-  components: {},
-})
-export default class HomeView extends Vue {
-
+@Component
+export default class OnTwitchNow extends Vue {
+  @Prop
+  streams?: TwitchLiveStreamData[]
 
   async Watch2(streamerName: string) {
-    debugger
     const streamerResponse = await API.add(streamerName)
-    this.$emit('updatedmonitored')
+    this.update_monitor()
+  }
+
+  @Emit('updatedmonitored')
+  update_monitor() {
+
   }
 }
 </script>
