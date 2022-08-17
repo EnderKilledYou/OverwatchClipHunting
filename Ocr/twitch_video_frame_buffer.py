@@ -9,6 +9,7 @@ from Ocr.no_stream_error import NoStreamError
 from Ocr.screen_reader import ScreenReader
 from Ocr.stream_link_helper import StreamLinkHelper
 from Ocr.video_frame_buffer import VideoFrameBuffer
+from cloud_logger import cloud_error_logger
 from config.config import tess_fast_dir
 
 
@@ -81,7 +82,7 @@ class TwitchEater(VideoFrameBuffer):
             print("Stream was not live")
             return
         except BaseException as e:
-            print(e, file=sys.stderr)
+            cloud_error_logger(e, file=sys.stderr)
             traceback.print_exc()
             return
         finally:

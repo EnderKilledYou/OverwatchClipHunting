@@ -12,6 +12,7 @@ from Ocr.overwatch_action_screen_region import OverwatchActionScreenRegion
 from Ocr.overwatch_searching_for_game_screen_region import OverwatchSearchingForGameScreenRegion
 from Ocr.screen_reader import ScreenReader
 from Ocr.video_frame_buffer import VideoFrameBuffer
+from cloud_logger import cloud_error_logger
 
 
 class OverwatchScreenReader(ScreenReader):
@@ -60,6 +61,6 @@ class OverwatchScreenReader(ScreenReader):
                     self.skip_frames += 2
 
         except Exception as e:
-            print(e, file=sys.stderr)
+            cloud_error_logger(e, file=sys.stderr)
             import traceback
             traceback.print_exc()

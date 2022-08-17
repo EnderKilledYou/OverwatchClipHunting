@@ -11,6 +11,7 @@ from Clipper.clip_timestamp import ClipTimeStamp
 from Clipper.clipper_buffer import ClipBuffer
 from Clipper.clip_file import ClipFile
 from Clipper.get_unix_time import get_unix_time
+from cloud_logger import cloud_error_logger
 
 
 class Clipper:
@@ -107,7 +108,7 @@ class Clipper:
                 if file is not None:
                     self._trim_buffer_and_clip_safe(file)
             except BaseException as e:
-                print(e, file=sys.stderr)
+                cloud_error_logger(e, file=sys.stderr)
                 traceback.print_exc()
 
     def start(self, stream: TwitchHLSStream):

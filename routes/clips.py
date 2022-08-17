@@ -12,6 +12,7 @@ from sqlalchemy.orm.query import BulkUD
 from Database.Twitch.twitch_clip_instance_scan_job import get_twitch_clip_scan_by_clip_id, add_twitch_clip_scan, \
     get_twitch_clip_scan_by_page
 from Database.tag_and_bag import add_tag_and_bag_request
+from cloud_logger import cloud_error_logger
 from login_dec import requires_logged_in
 
 clips = Blueprint('clips', __name__)
@@ -234,5 +235,5 @@ def store_clip(clip_data, type):
         if job is not None:
             rescanner.add_job(job.id)
     except BaseException as e:
-        print(e, file=sys.stderr)
+        cloud_error_logger(e, file=sys.stderr)
         traceback.print_exc()

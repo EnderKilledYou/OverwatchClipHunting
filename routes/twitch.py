@@ -53,7 +53,7 @@ def authorized():
         )
         return jsonify(resp)
     except BaseException as e:
-        print(e, file=sys.stderr)
+        cloud_error_logger(e, file=sys.stderr)
         import traceback
         traceback.print_exc()
         return jsonify({})

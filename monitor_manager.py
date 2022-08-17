@@ -8,7 +8,7 @@ from typing import List
 
 from Database.monitor import Monitor, remove_stream_to_monitor, add_stream_to_monitor, get_monitor_by_name, \
     get_active_monitors, get_all_monitors, avoid_monitor
-from cloud_logger import cloud_logger
+from cloud_logger import cloud_logger, cloud_error_logger
 from twitch_helpers import get_twitch_api
 
 
@@ -141,7 +141,7 @@ class MonitorManager():
         try:
             mons = self.get_active_mons(twitch_api)
         except BaseException as e:
-            print(e, file=sys.stderr)
+            cloud_error_logger(e, file=sys.stderr)
             traceback.print_exc()
             traceback.print_stack()
             return None
@@ -152,7 +152,7 @@ class MonitorManager():
         try:
             self._monitors = mons
         except BaseException as e:
-            print(e, file=sys.stderr)
+            cloud_error_logger(e, file=sys.stderr)
             traceback.print_exc()
             traceback.print_stack()
         finally:

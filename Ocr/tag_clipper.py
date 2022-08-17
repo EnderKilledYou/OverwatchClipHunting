@@ -12,7 +12,7 @@ from Database.Twitch.twitch_clip_instance import get_twitch_clip_instance_by_id,
 from Database.Twitch.get_tag_and_bag import get_tag_and_bag_by_clip_id
 from Database.Twitch.twitch_clip_instance_scan_job import update_scan_job_percent, update_scan_job_error, \
     update_scan_job_in_subclip
-from cloud_logger import cloud_logger
+from cloud_logger import cloud_logger, cloud_error_logger
 
 from something_manager import ThreadedManager
 
@@ -50,7 +50,7 @@ class TagClipper(ThreadedManager):
 
         except BaseException as e:
             update_scan_job_error(scan_job_id, str(e))
-            print(e, file=sys.stderr)
+            cloud_error_logger(e, file=sys.stderr)
 
             return
         finally:

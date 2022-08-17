@@ -17,6 +17,7 @@ from Clipper.clip_file import ClipFile
 from Clipper.convert_video import opencv_video_save_as
 from Clipper.safe_close import safe_close
 from Clipper.get_unix_time import get_unix_time
+from cloud_logger import cloud_error_logger
 
 
 class ClipBuffer:
@@ -50,7 +51,7 @@ class ClipBuffer:
                 return ClipFile(file_path=file_path, time_start=self.dumped_data_seconds,
                                 time_end=self.dumped_data_seconds + duration)
         except BaseException as e:
-            print(e, file=sys.stderr)
+            cloud_error_logger(e, file=sys.stderr)
             traceback.print_exc()
         finally:
             if lock_acquired:
@@ -96,7 +97,7 @@ class ClipBuffer:
 
         except BaseException as e:
             print("Error buffering to file:")
-            print(e, file=sys.stderr)
+            cloud_error_logger(e, file=sys.stderr)
             traceback.print_exc()
         finally:
             safe_close(self.buffer_fd)
@@ -136,7 +137,7 @@ class ClipBuffer:
             self.buffer_fd.write(data)
             self.buffer_lock.release()
         except BaseException as b:
-            print(b)
+            cloud_error_logger(b)
             traceback.print_exc()
         finally:
             self.buffer_lock.release()

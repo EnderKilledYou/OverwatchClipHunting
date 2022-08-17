@@ -50,7 +50,7 @@ class ThreadedManager:
                     return
                 sleep(2)
             except BaseException as b:
-                print(b,file=sys.stderr)
-                pass
+                cloud_error_logger(b,file=sys.stderr)
+
             finally:
                 pass

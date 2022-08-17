@@ -22,7 +22,7 @@ from Ocr.twitch_dl_args import Args
 
 from Ocr.VideoCapReader import VideoCapReader, StreamEndedError, ClipVideoCapReader
 from Ocr.overwatch_clip_reader import OverwatchClipReader
-from cloud_logger import cloud_logger
+from cloud_logger import cloud_logger, cloud_error_logger
 from config.config import tess_fast_dir
 from something_manager import ThreadedManager
 
@@ -63,7 +63,7 @@ class ReScanner(ThreadedManager):
             self._scan_and_bam(job,path)
             Timer(8, clip_tag_to_clip, (job.clip_id, path,job.id)).start()
         except BaseException as e:
-            print(e, file=sys.stderr)
+            cloud_error_logger(e, file=sys.stderr)
             traceback.print_exc()
             if job is not None:
                 update_scan_job_error(job.id, str(e))

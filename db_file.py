@@ -4,6 +4,8 @@ from datetime import datetime
 from os.path import abspath
 from threading import Thread
 
+from config.config import tess_fast_dir
+
 os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = abspath("./inspiring-lore-357817-7dede6026287.json")
 from google.cloud import storage
 
@@ -23,9 +25,10 @@ def write_db_tocloud():
 
 
 def install():
-    if 'INSTALL_SCRIPT' in os.environ:
-        print("--------------Installing Tesseract---------------")
-        os.system(os.environ['INSTALL_SCRIPT'])
+    if not os.path.exists(tess_fast_dir):
+        if 'INSTALL_SCRIPT' in os.environ:
+            print("--------------Installing Tesseract---------------")
+            os.system(os.environ['INSTALL_SCRIPT'])
 
 
 # threading.Thread(target=install).start()
