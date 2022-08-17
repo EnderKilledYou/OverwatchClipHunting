@@ -18,7 +18,10 @@ def config_app() -> Flask:
             username=os.environ['DB_USER'],
             password=os.environ['DB_SECRET'],
             database='word',
-            query={"unix_socket": '/cloudsql/inspiring-lore-357817:us-central1:cliphunta/', 'ssl_ca': 'server-ca.pem'},
+            query={
+                "unix_socket": '/cloudsql/inspiring-lore-357817:us-central1:cliphunta',
+                'ssl_ca': 'server-ca.pem'
+            },
         )
 
     else:
@@ -26,8 +29,6 @@ def config_app() -> Flask:
     appx.config['SECRET_KEY'] = flask_secret_key
 
     return appx
-
-
 
 
 def register_blueprints(app: Flask):

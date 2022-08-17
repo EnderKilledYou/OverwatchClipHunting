@@ -18,5 +18,4 @@ twitch-dl==1.22.0
 pytest
 gunicorn
 PyMySQL
-flask-mysql
 google-cloud-storage
