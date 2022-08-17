@@ -23,6 +23,7 @@ class TwitchEater(VideoFrameBuffer):
         """
         super(TwitchEater, self).__init__()
 
+        self.stream_res = ""
         self.reader = None
         self.broadcaster = broadcaster
         self.consumer_threads = []
@@ -43,9 +44,10 @@ class TwitchEater(VideoFrameBuffer):
         self.matcher = matcher
         self._consumers(matcher)
 
-        ocr_stream = StreamLinkHelper.get_best_stream(self.broadcaster)
+        (ocr_stream,stream_res) = StreamLinkHelper.get_best_stream(self.broadcaster)
         if ocr_stream is None:
             return
+        self.stream_res = stream_res
         self.capture_url_or_file(ocr_stream.url)
 
     def _consumers(self, matcher: ScreenReader):

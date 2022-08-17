@@ -8,9 +8,13 @@
         <h5 class="card-title"><a target="_blank" :href="`https://twitch.tv/` + watcher.name">{{
             watcher.name
           }}</a></h5>
-        <p class="card-text"> {{ watcher.frames_done }} ( {{ watcher.back_fill_seconds }} s) / {{ watcher.frames_read }} (
+        <p class="card-text"> {{ watcher.frames_done }} ( {{ watcher.back_fill_seconds }} s) / {{ watcher.frames_read }}
+          (
           {{ watcher.frames_read_seconds }} s)</p>
-        <p v-if="RowHasExtraData(watcher)" class="card-text"> {{ watcher.data.viewer_count }} watching since:
+        <p v-if="RowHasExtraData(watcher)" class="card-text"><span class="text-success">({{
+            watcher.stream_resolution
+          }})</span>
+          {{ watcher.data.viewer_count }} watching since:
           {{ new Date(watcher.data.started_at).toLocaleString() }}</p>
         <p v-if="RowHasExtraData(watcher)" class="card-text"> {{ watcher.data.game_name }} </p>
       </div>

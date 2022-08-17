@@ -20,6 +20,7 @@ class MonitorManager():
 
     def __json__(self):
         return 'Monitor Manager'
+
     def __str__(self):
         return "Monitor Manager"
 
@@ -120,6 +121,7 @@ class MonitorManager():
                 'frames_read_seconds': frames_finished // reader.fps,
                 'back_fill_seconds': back_fill_seconds,
                 'queue_size': qsize,
+                'stream_resolution': monitor.ocr.stream_res,
                 'data': monitor.web_dict
             }
         return {

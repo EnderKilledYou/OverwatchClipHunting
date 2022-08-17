@@ -90,6 +90,7 @@ export class StreamerMonitorState {
     queue_size = 0
     frames_read = 0
     frames_done = 0
+    stream_resolution =""
     frames_read_seconds = 0
     data: TwitchLiveStreamData
 

@@ -4,6 +4,8 @@ from streamlink import NoPluginError, Streamlink
 from streamlink.plugins.twitch import TwitchHLSStream
 from typing import Dict
 
+from cloud_logger import cloud_logger
+
 
 class StreamLinkHelper:
     sl_session = Streamlink()
@@ -25,13 +27,15 @@ class StreamLinkHelper:
 
     @staticmethod
     def _parse_best_stream(streams: Dict[str, TwitchHLSStream]) -> TwitchHLSStream:
+        cloud_logger()
         ocr_stream = streams['best']
         items = []
+
         for stream_res in streams:
             if not stream_res.endswith('p60'):
                 continue
             items.append((streams[stream_res], stream_res))
         try:
-            return items.pop()[0]
+            return items.pop()
         except:
-            return ocr_stream
+            return ocr_stream,"best"
