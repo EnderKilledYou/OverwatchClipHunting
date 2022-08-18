@@ -13,6 +13,8 @@
 
           <button @click="Twitch()" class="btn btn-block" v-show="twitch_streams.length ===0">Look at Twitch
           </button>
+          <button @click="ToggleInactiveSetting()" class="btn btn-block" v-if="showInactive">Hide Inactive</button>
+          <button @click="ToggleInactiveSetting()" class="btn btn-block" v-if="!showInactive">Show Inactive</button>
           <button @click="HideTwitch()" class="btn btn-block" v-show="twitch_streams.length !==0">Hide</button>
           <button @click="AutoTwitch()" class="btn btn-block">Auto Twitch</button>
           <button @click="StopAutoTwitch()" class="btn btn-block">Stop Auto Twitch</button>
@@ -25,7 +27,7 @@
     </div>
     <div class="row">
       <currently-live :items="streamerMonitorStates"
-                      @updatedmonitored="list_items"/>
+                :show_inactive="showInactive"      @updatedmonitored="list_items"/>
     </div>
 
   </div>
@@ -79,11 +81,26 @@ export default class HomeView extends Vue {
 
   }
 
+  showInactive = false
+
+  ToggleInactiveSetting() {
+    this.showInactive = !this.showInactive
+  }
+
   get twitch_streams_filtered() {
     if (!this.twitch_streams) return []
-    return this.twitch_streams.filter(a => {
+    let filter = this.twitch_streams.filter(a => {
       return !this.streamerMonitorStates.find(b => b.name.toLowerCase() === a.user_name.toLowerCase())
-    })
+    });
+    if (!this.showInactive) {
+      return filter.filter(this.RowHasExtraData.bind(this))
+    }
+    return filter
+  }
+
+  RowHasExtraData(watcher: StreamerMonitorState) {
+
+    return (watcher.data && watcher.data.thumbnail_url.length > 0)
   }
 
   created() {
@@ -107,7 +124,7 @@ export default class HomeView extends Vue {
 
 
   async list_items() {
-    debugger
+
     const streamerResponse = await API.list()
     this.streamerMonitorStates = streamerResponse.items.map((a: any) => new StreamerMonitorState(a))
   }

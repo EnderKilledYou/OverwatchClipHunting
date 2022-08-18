@@ -96,7 +96,7 @@ export class StreamerMonitorState {
     data: TwitchLiveStreamData
 
     constructor(part: Partial<StreamerMonitorState>) {
-        debugger
+
         Object.assign(this, part)
         if (part && part.data) {
             this.data = new TwitchLiveStreamData(part.data)

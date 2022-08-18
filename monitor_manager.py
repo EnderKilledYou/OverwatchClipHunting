@@ -173,18 +173,21 @@ class MonitorManager():
 
     def get_stream_monitors_for_web(self):
 
-        monitors = get_my_active_monitors()
+        monitors = get_all_monitors()
         if len(monitors) == 0:
             return []
         twitch_api = get_twitch_api()
         streams = self.get_monitored_streams(twitch_api, list(map(lambda x: x.broadcaster, monitors)))
         found = []
         for a in monitors:
+            c = None
             for b in streams:
                 if a.broadcaster == b['user_login']:
-                    a.web_dict = b
-                    found.append(self.map_for_web(a))
-        return found
+                    c = b
+                    break
+            found.append((a, c))
+
+        return  list(map(lambda a:self.map_for_web(a[0],a[1]), found))
 
     def check_need_restart(self, monitor: Monitor):
         reader = monitor.ocr.reader
@@ -199,30 +202,30 @@ class MonitorManager():
         monitor.stop()
         remove_stream_to_monitor(monitor.broadcaster)
 
-    def map_for_web(self, monitor):
+    def map_for_web(self, monitor,data):
 
         name = monitor.broadcaster
         if name in self._monitors:
             monitor = self._monitors[name]
-        reader = monitor.ocr.reader
-        if reader:
-            qsize = reader.items_read - reader.items_drained
+            reader = monitor.ocr.reader
+            if reader:
+                qsize = reader.items_read - reader.items_drained
 
-            frames_pending = qsize * reader.sample_every_count
-            frames_finished = reader.items_drained * reader.sample_every_count
-            back_fill_seconds = frames_pending // reader.fps
+                frames_pending = qsize * reader.sample_every_count
+                frames_finished = reader.items_drained * reader.sample_every_count
+                back_fill_seconds = frames_pending // reader.fps
 
-            return {
-                'name': name,
-                'frames_read': reader.items_read * reader.sample_every_count,
-                'frames_done': frames_finished,
-                'frames_read_seconds': frames_finished // reader.fps,
-                'back_fill_seconds': back_fill_seconds,
-                'fps': reader.fps,
-                'queue_size': qsize,
-                'stream_resolution': monitor.ocr.stream_res,
-                'data': monitor.web_dict
-            }
+                return {
+                    'name': name,
+                    'frames_read': reader.items_read * reader.sample_every_count,
+                    'frames_done': frames_finished,
+                    'frames_read_seconds': frames_finished // reader.fps,
+                    'back_fill_seconds': back_fill_seconds,
+                    'fps': reader.fps,
+                    'queue_size': qsize,
+                    'stream_resolution': monitor.ocr.stream_res,
+                    'data': data
+                }
         return {
             'name': name,
             'frames_read': 0,
@@ -232,7 +235,7 @@ class MonitorManager():
             'fps': 0,
             'queue_size': '',
             'stream_resolution': '',
-            'data': monitor.web_dict
+            'data': data
         }
 
     def trim_monitored_streams(self, twitch_api):

@@ -25,15 +25,15 @@ class TagClipper(ThreadedManager):
         return f"TagClipper "
 
     def __json__(self):
-        to_dict = self.to_dict()
+        to_dict = {'name':'TagClipper'}
         return to_dict
 
     def __repr__(self):
         try:
-            return json.dumps(self.to_dict())
+            return json.dumps({})
         except:
             print("TagClipper convert to json failed")
-            return str(self.to_dict())
+            return json.dumps(['TagClipper'])
 
     def _do_work(self, job):
         cloud_logger()
