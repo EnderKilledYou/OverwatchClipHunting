@@ -22,6 +22,7 @@ from Ocr.twitch_dl_args import Args
 
 from Ocr.VideoCapReader import VideoCapReader, StreamEndedError, ClipVideoCapReader
 from Ocr.overwatch_clip_reader import OverwatchClipReader
+from Ocr.wait_for_tessy import wait_for_tesseract
 from cloud_logger import cloud_logger, cloud_error_logger
 from config.config import tess_fast_dir
 from something_manager import ThreadedManager
@@ -51,9 +52,7 @@ class ReScanner(ThreadedManager):
 
     def _do_work(self, job_id: int):
         cloud_logger()
-        while not os.path.exists(tess_fast_dir + 'eng.traineddata'):
-            print("00000000000000000000Waiting for tesseract to install...0000000000000000000000000")
-            sleep(2)
+        wait_for_tesseract()
 
         try:
             job: TwitchClipInstanceScanJob = update_scan_job_started(job_id)

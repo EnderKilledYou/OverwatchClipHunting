@@ -16,7 +16,7 @@ def get_twitch_api():
         twitch.auto_refresh_auth = True
         twitch.set_user_authentication(access_token, [AuthScope.CLIPS_EDIT], refresh_token,validate=False)
         twitch.refresh_used_token()
-        me = twitch.get_users()
+
 
         # print(me)
         twitch_api= twitch

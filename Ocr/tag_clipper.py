@@ -1,3 +1,4 @@
+import json
 import os
 import sys
 import tempfile
@@ -20,6 +21,19 @@ from something_manager import ThreadedManager
 class TagClipper(ThreadedManager):
     def __init__(self):
         super(TagClipper, self).__init__(1, False)
+    def __str__(self):
+        return f"TagClipper "
+
+    def __json__(self):
+        to_dict = self.to_dict()
+        return to_dict
+
+    def __repr__(self):
+        try:
+            return json.dumps(self.to_dict())
+        except:
+            print("TagClipper convert to json failed")
+            return str(self.to_dict())
 
     def _do_work(self, job):
         cloud_logger()

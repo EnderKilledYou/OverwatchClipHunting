@@ -17,7 +17,7 @@ def cloud_error_logger(e,file=sys.stderr):
     args = '<none>'
     name = '<unknown_function>'
     args_json = '{}'
-    error_str = str(e)
+    error_str = str(e).encode("ascii", "ignore")
     try:
         getframe = sys._getframe(1)
 
@@ -27,8 +27,8 @@ def cloud_error_logger(e,file=sys.stderr):
         if hasattr(getframe, 'f_locals') and len(getframe.f_locals) > 0:
             try:
                 getframe.f_locals['__function_name'] = name
-                args = str(getframe.f_locals)
-                args_json = json.dumps(getframe.f_locals)
+                args = str(getframe.f_locals).encode("ascii", "ignore")
+                args_json = json.dumps(getframe.f_locals).encode("ascii", "ignore")
             except BaseException as b:
                 error_str += "also while parsing this error, Error: " + str(b)
 
@@ -36,8 +36,8 @@ def cloud_error_logger(e,file=sys.stderr):
             try:
                 fake = {}
                 fake['__function_name'] = name
-                args = str(fake)
-                args_json = json.dumps(fake)
+                args = str(fake).encode("ascii", "ignore")
+                args_json = json.dumps(fake).encode("ascii", "ignore")
             except BaseException as b:
                 error_str += "also while parsing this error, Error: " + str(b)
 
@@ -48,6 +48,43 @@ def cloud_error_logger(e,file=sys.stderr):
 
     print(sys.exc_info()[2], file=file)
     print(args_json, file=file)
+
+
+def cloud_message(message):
+    args = '<none>'
+    name = '<unknown_function>'.encode("ascii", "ignore")
+    args_json = '{}'
+    message = message.encode("ascii", "ignore")
+    error_str = ''
+    try:
+        getframe = sys._getframe(1)
+
+        if hasattr(getframe, 'f_code') and hasattr(getframe.f_code, 'co_name'):
+            name = getframe.f_code.co_name
+
+        if hasattr(getframe, 'f_locals') and len(getframe.f_locals) > 0:
+            try:
+                getframe.f_locals['__function_name'] = name
+                args = str(getframe.f_locals).encode("ascii", "ignore")
+                args_json = json.dumps(getframe.f_locals).encode("ascii", "ignore")
+            except BaseException as b:
+                error_str = "Error: " + str(b)
+
+        else:
+            try:
+                fake = {}
+                fake['__function_name'] = name
+                args = str(fake).encode("ascii", "ignore")
+                args_json = json.dumps(fake).encode("ascii", "ignore")
+            except BaseException as b:
+                error_str = "Error: " + str(b)
+
+        print(f'|CLOUD MESSAGE: |{name} ({args}) MESSAGE IS: {message} | ({error_str})')
+
+    except BaseException as e:
+        print(f'|CLOUD MESSAGE: |{name} ({args})  MESSAGE IS: {message} |  Error printing function' + str(e))
+        print(sys.exc_info()[2])
+    print(args_json)
 
 
 def cloud_logger():
@@ -64,8 +101,8 @@ def cloud_logger():
         if hasattr(getframe, 'f_locals') and len(getframe.f_locals) > 0:
             try:
                 getframe.f_locals['__function_name'] = name
-                args = str(getframe.f_locals)
-                args_json = json.dumps(getframe.f_locals)
+                args = str(getframe.f_locals).encode("ascii", "ignore")
+                args_json = json.dumps(getframe.f_locals).encode("ascii", "ignore")
             except BaseException as b:
                 error_str = "Error: " + str(b)
 

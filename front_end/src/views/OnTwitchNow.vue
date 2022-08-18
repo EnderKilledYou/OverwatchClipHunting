@@ -31,9 +31,9 @@ import {Component, Emit, Prop, Vue} from "vue-facing-decorator";
 export default class OnTwitchNow extends Vue {
   @Prop
   streams?: TwitchLiveStreamData[]
-  GetThumbnailUrl(watcher: StreamerMonitorState) {
+  GetThumbnailUrl(watcher: TwitchLiveStreamData) {
 
-    const base_image = watcher.data.thumbnail_url.replace('{width}', '300').replace('{height}', '300');
+    const base_image = watcher.thumbnail_url.replace('{width}', '300').replace('{height}', '300');
     return base_image + '?cache_burst=' + Math.random()
   }
 

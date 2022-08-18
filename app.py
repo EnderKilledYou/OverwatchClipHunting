@@ -3,10 +3,6 @@ import os
 import sqlalchemy
 from flask import Flask, jsonify
 from oauthlib.common import generate_token
-
-from config.config import flask_secret_key
-
-
 def config_app() -> Flask:
     appx = Flask('ocr', static_url_path='',
                  static_folder='static',
@@ -27,16 +23,14 @@ def config_app() -> Flask:
         )
 
     else:
-        appx.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///twitch.sqlite3'
+        appx.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///twitch.sqlite3?check_same_thread=False'
 
     appx.config['SECRET_KEY'] = generate_token()
 
     return appx
 
-
+app = config_app()
 def register_blueprints(app: Flask):
-    from config.db_config import init_db
-    init_db()
     from routes.twitch import twitch as twitch_blueprint
     from routes.monitor import monitor as monitor_blueprint
     from routes.clips import clips as clips_blueprint
@@ -53,7 +47,7 @@ def register_blueprints(app: Flask):
     app.register_blueprint(video_blueprint)
 
 
-app = config_app()
+
 app.url_map.strict_slashes = False
 register_blueprints(app)
 
@@ -68,7 +62,7 @@ def not_found(e):
     if os.path.exists('./static/index.html'):
         return app.send_static_file("index.html")
     else:
-        return "The app didn't install error 69420"
+        return "The app didn't install error"
 
 
 # if 'OCR_PRODUCTION' in os.environ:

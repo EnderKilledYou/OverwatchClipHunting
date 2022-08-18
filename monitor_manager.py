@@ -7,8 +7,9 @@ from time import sleep
 from typing import List
 
 from Database.monitor import Monitor, remove_stream_to_monitor, add_stream_to_monitor, get_monitor_by_name, \
-    get_active_monitors, get_all_monitors, avoid_monitor
-from cloud_logger import cloud_logger, cloud_error_logger
+    get_active_monitors, get_all_monitors, avoid_monitor, claim_monitor, get_all_my_monitors, unclaim_monitor, \
+    get_active_monitors_names, self_id, get_my_active_monitors
+from cloud_logger import cloud_logger, cloud_error_logger, cloud_message
 from twitch_helpers import get_twitch_api
 
 
@@ -44,7 +45,7 @@ class MonitorManager():
         self._active = False
         self._farm_twitch_thread.stop()
 
-    def start_monitor(self):
+    def start_manager(self):
         cloud_logger()
         self._active = False
         while self._farm_twitch_thread and self._farm_twitch_thread.is_alive():
@@ -57,23 +58,65 @@ class MonitorManager():
         twitch_api = get_twitch_api()
         sleeps = 0
         while self._active:
-
-            if sleeps % 6 == 0:
-                self._heart_beat(twitch_api)
+            self._heart_beat(twitch_api)
             sleep(10)
-            sleeps = sleeps + 1
+
+    def unclaim_dead_streams(self, monitors, live_streams_list):
+
+        stopped = filter(lambda x: x in self._monitors and not self._monitors[x].ocr._active, monitors)
+        for streamer_name in stopped:
+            del self._monitors[streamer_name]
+            remove_stream_to_monitor(streamer_name)
+            self.currently_active_monitors -= 1
+            unclaim_monitor(streamer_name)
+
+        currently_monitored = map(lambda x: x['user_login'],
+                                  filter(lambda x: x['user_login'] in monitors, live_streams_list))
+        expired = list(filter(lambda x: x not in currently_monitored, self._monitors))
+
+        for streamer_name in expired:
+            self._monitors[streamer_name].stop()
+            del self._monitors[streamer_name]
+            remove_stream_to_monitor(streamer_name)
+            self.currently_active_monitors -= 1
+            unclaim_monitor(streamer_name)
 
     def _heart_beat(self, twitch_api):
         cloud_logger()
         try:
-            self.trim_monitored_streams(twitch_api)
-        finally:
-            pass
+            monitors, streams = self.get_state(twitch_api)
+
+        except BaseException as b:
+
+            cloud_error_logger(b)
+            return
+        self._monitor_lock.acquire()
         try:
-            if self._farm_twitch_mode:
-                self._farm_twitch(twitch_api)
+            self.unclaim_dead_streams(monitors, streams)
+            self.claim_one_monitor(monitors, streams)
+            self.start_unstarted_monitors(streams)
+            self.update_web_dicts(streams)
+            self.update_monitor_healths()
+        except BaseException as b:
+
+            cloud_error_logger(b)
         finally:
-            pass
+            self._monitor_lock.release()
+
+    def update_monitor_healths(self):
+        for a in self._monitors:
+            self.check_need_restart(self._monitors[a])
+
+    def update_web_dicts(self, streams):
+        for st in streams:
+            if st['user_login'] in self._monitors:
+                self._monitors[st['user_login']].web_dict = st
+
+    def get_state(self, twitch_api):
+        monitors = self.get_monitors_from_db_as_dict()
+
+        streams = self.get_monitored_streams(twitch_api, list(monitors))
+        return monitors, streams
 
     def _farm_twitch(self, twitch_api):
         cloud_logger()
@@ -88,23 +131,79 @@ class MonitorManager():
             stream = streams['data'].pop()
             self.add_stream_to_monitor(stream['user_login'])
 
+    def claim_one_monitor(self, twitch_api, streams):
+        cloud_logger()
+        if self.currently_active_monitors >= self.max_active_monitors:
+            cloud_message("No space to start new streamers")
+            return
+
+        for stream in streams:
+            claimed = claim_monitor(stream['user_login'])
+            if claimed:
+                self.currently_active_monitors += 1
+                return
+
+    def start_unstarted_monitors(self, live_streams_list):
+        monitors = get_all_my_monitors()
+        monitors_dict = {}
+        for monitor in monitors:
+            monitors_dict[monitor.broadcaster] = monitor
+
+        db_monitors = list(filter(lambda x: x.activated_by == self_id, monitors))
+        currently_monitored = list(self._monitors)
+        unstarted = list(filter(lambda x: x not in currently_monitored, db_monitors))
+        unstarted_names = list(map(lambda x: x.broadcaster, unstarted))
+        live_streamers = filter(lambda x: x['user_login'] in unstarted_names, live_streams_list)
+        for streamer in live_streamers:
+            user_login = streamer['user_login']
+            self._monitors[user_login] = monitors_dict[user_login]
+            monitors_dict[user_login].start()
+
     def avoid_streamer(self, streamer: str):
         cloud_logger()
         avoid_monitor(streamer)
         self.remove_stream_to_monitor(streamer)
 
     def get_monitors(self):
-        self._monitor_lock.acquire(True)
+        self._monitor_lock.acquire()
         try:
             return list(self._monitors.values())
         finally:
             self._monitor_lock.release()
 
     def get_stream_monitors_for_web(self):
-        return list(map(self.map_for_web, self.get_monitors()))
 
-    def map_for_web(self, monitor: Monitor):
+        monitors = get_my_active_monitors()
+        if len(monitors) == 0:
+            return []
+        twitch_api = get_twitch_api()
+        streams = self.get_monitored_streams(twitch_api, list(map(lambda x: x.broadcaster, monitors)))
+        found = []
+        for a in monitors:
+            for b in streams:
+                if a.broadcaster == b['user_login']:
+                    a.web_dict = b
+                    found.append(self.map_for_web(a))
+        return found
+
+    def check_need_restart(self, monitor: Monitor):
+        reader = monitor.ocr.reader
+        if not reader:
+            return
+        qsize = reader.items_read - reader.items_drained
+        frames_pending = qsize * reader.sample_every_count
+        back_fill_seconds = frames_pending // reader.fps
+        if back_fill_seconds <= 180:
+            return
+        cloud_message("Restarting " + monitor.broadcaster + " with backqueue of " + back_fill_seconds)
+        monitor.stop()
+        remove_stream_to_monitor(monitor.broadcaster)
+
+    def map_for_web(self, monitor):
+
         name = monitor.broadcaster
+        if name in self._monitors:
+            monitor = self._monitors[name]
         reader = monitor.ocr.reader
         if reader:
             qsize = reader.items_read - reader.items_drained
@@ -126,8 +225,14 @@ class MonitorManager():
             }
         return {
             'name': name,
+            'frames_read': 0,
+            'frames_done': 0,
+            'frames_read_seconds': 0,
             'back_fill_seconds': 0,
-            'queue_size': 0
+            'fps': 0,
+            'queue_size': '',
+            'stream_resolution': '',
+            'data': monitor.web_dict
         }
 
     def trim_monitored_streams(self, twitch_api):
@@ -148,7 +253,7 @@ class MonitorManager():
         return mons
 
     def swap_in_new_monitor(self, mons):
-        self._monitor_lock.acquire(True, -1)
+        self._monitor_lock.acquire()
         try:
             self._monitors = mons
         except BaseException as e:
@@ -158,43 +263,41 @@ class MonitorManager():
         finally:
             self._monitor_lock.release()
 
-    def get_active_mons(self, twitch_api):
-        cloud_logger()
-        db_monitors = self.get_monitors_from_db_as_dict()
-        live_streams_list = self.get_monitored_streams(twitch_api, list(db_monitors))
-        for streamer_name in list(db_monitors):
+    # def get_active_mons(self, twitch_api):
+    #     cloud_logger()
+    #     db_monitors = self.get_monitors_from_db_as_dict()
+    #     live_streams_list = self.get_monitored_streams(twitch_api, list(db_monitors))
+    #     for streamer_name in list(db_monitors):
+    #
+    #         streamer_already_monitored = streamer_name in self._monitors
+    #         stream = self.get_stream_from_live_list(live_streams_list, streamer_name)
+    #         if streamer_already_monitored:
+    #             db_monitors[streamer_name] = self._monitors[streamer_name]
+    #             if stream is None:
+    #                 self._monitors[streamer_name].stop()
+    #                 self.currently_active_monitors -= 1
+    #                 del db_monitors[streamer_name]
+    #                 remove_stream_to_monitor(streamer_name)
+    #                 continue
+    #
+    #             continue
+    #         if not stream or self.currently_active_monitors >= self.max_active_monitors:
+    #             del db_monitors[streamer_name]
+    #             continue
+    #
+    #         db_monitors[streamer_name].start()
+    #         self.currently_active_monitors += 1
+    #
+    #     return db_monitors
 
-            streamer_already_monitored = streamer_name in self._monitors
-            stream = self.get_stream_from_live_list(live_streams_list, streamer_name)
-            if streamer_already_monitored:
-                db_monitors[streamer_name] = self._monitors[streamer_name]
-                if stream is None:
-                    self._monitors[streamer_name].stop()
-                    self.currently_active_monitors -= 1
-                    del db_monitors[streamer_name]
-                    remove_stream_to_monitor(streamer_name)
-                    continue
-
-                db_monitors[streamer_name].web_dict = stream
-                continue
-            if not stream or self.currently_active_monitors >= self.max_active_monitors:
-                del db_monitors[streamer_name]
-                continue
-
-            db_monitors[streamer_name].start()
-            self.currently_active_monitors += 1
-            db_monitors[streamer_name].web_dict = stream
-
-        return db_monitors
-
-    def get_stream_from_live_list(self, live_streams_list, streamer_name):
-        lower = streamer_name.lower()
-        stream = next(filter(lambda live_stream: live_stream['user_login'] == lower, live_streams_list), None)
-        return stream
+    # def get_stream_from_live_list(self, live_streams_list, streamer_name):
+    #     lower = streamer_name.lower()
+    #     stream = next(filter(lambda live_stream: live_stream['user_login'] == lower, live_streams_list), None)
+    #     return stream
 
     def get_monitors_from_db_as_dict(self):
         cloud_logger()
-        tmp = get_active_monitors()
+        tmp = get_all_monitors()
         mons = {}
         for a in tmp:
             mons[a.broadcaster] = a
@@ -213,40 +316,28 @@ class MonitorManager():
 
     def add_stream_to_monitor(self, stream_name):
         cloud_logger()
-        self._monitor_lock.acquire(True, -1)
-        try:
-            add_stream_to_monitor(stream_name)
-        finally:
-            self._monitor_lock.release()
 
-    def is_stream_monitored(self, stream_name):
-        cloud_logger()
-        self._monitor_lock.acquire(True, -1)
-        try:
-            return stream_name in self._monitors
-        finally:
-            self._monitor_lock.release()
+        add_stream_to_monitor(stream_name)
+
+    # def is_stream_monitored(self, stream_name):
+    #     cloud_logger()
+    #     self._monitor_lock.acquire(True, -1)
+    #     try:
+    #         return stream_name in self._monitors
+    #     finally:
+    #         self._monitor_lock.release()
 
     def remove_streams_to_monitor(self, streams_name):
         cloud_logger()
-        self._monitor_lock.acquire(True, -1)
-        try:
-            for stream_name in streams_name:
-                if stream_name not in self._monitors:
-                    continue
-                self._monitors[stream_name].stop()
-                del self._monitors[stream_name]
-        finally:
-            self._monitor_lock.release()
+
+        for stream_name in streams_name:
+            if stream_name not in self._monitors:
+                continue
+            self._monitors[stream_name].stop()
+            del self._monitors[stream_name]
 
     def remove_stream_to_monitor(self, stream_name):
         cloud_logger()
-        self._monitor_lock.acquire(True, -1)
-        try:
-            if stream_name not in self._monitors:
-                return
-            self._monitors[stream_name].stop()
-            del self._monitors[stream_name]
-            remove_stream_to_monitor(stream_name)
-        finally:
-            self._monitor_lock.release()
+        if stream_name not in self._monitors:
+            return
+        self._monitors[stream_name].stop()

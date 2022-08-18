@@ -11,8 +11,7 @@ sharp = get_sharp()
 
 @sharp.function()
 def add(stream_name: str):
-    if not manager.is_stream_monitored(stream_name):
-        manager.add_stream_to_monitor(stream_name)
+    manager.add_stream_to_monitor(stream_name)
     for_web = manager.get_stream_monitors_for_web()
     return {"success": True, 'items': for_web}
 
@@ -25,8 +24,6 @@ def list():
 
 @sharp.function()
 def remove(stream_name: str):
-    if manager.is_stream_monitored(stream_name):
-        remove_stream_to_monitor(stream_name)
-
+    manager.remove_stream_to_monitor(stream_name)
     for_web = manager.get_stream_monitors_for_web()
     return {"success": True, 'items': for_web}

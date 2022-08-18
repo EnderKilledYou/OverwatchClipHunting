@@ -91,7 +91,7 @@ export default class HomeView extends Vue {
     this.list_items()
     if (interval)
       clearInterval(interval)
-    interval = setInterval(this.list_items.bind(this), 5000)
+    interval = setInterval(this.list_items.bind(this), 35000)
   }
 
 

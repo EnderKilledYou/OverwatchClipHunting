@@ -11,7 +11,7 @@ from Ocr.overwatch_screen_reader import OverwatchScreenReader
 from Ocr.screen_reader import ScreenReader
 from Ocr.twitch_video_frame_buffer import TwitchEater
 from Ocr.video_frame_buffer import VideoFrameBuffer
-from cloud_logger import cloud_logger
+from cloud_logger import cloud_logger, cloud_message
 
 from config.db_config import db
 
@@ -23,7 +23,9 @@ class Monitor(db.Model, SerializerMixin):
         return f"Monitor {str(self.id)}  {self.broadcaster}"
 
     def __json__(self):
-        return self.to_dict()
+        to_dict = self.to_dict()
+        return to_dict
+
     def __repr__(self):
         try:
             return json.dumps(self.to_dict())
@@ -35,7 +37,7 @@ class Monitor(db.Model, SerializerMixin):
     broadcaster: str
     matcher: ScreenReader
     serialize_rules = ()
-    serialize_only = ('id', 'broadcaster', 'make_clips'
+    serialize_only = ('id', 'activated_by', 'broadcaster', 'make_clips'
                       , 'min_healing_duration', 'min_elims', 'min_blocking_duration'
                       , 'min_defense_duration', 'min_assist_duration', 'stream_prefers_quality'
                       , 'clip_deaths')
@@ -50,7 +52,7 @@ class Monitor(db.Model, SerializerMixin):
     stream_prefers_quality = db.Column(db.String(90), default='720p60')
     clip_deaths = db.Column(db.Boolean, default=False)
     is_active = db.Column(db.Boolean, default=True)
-    activated_at = db.Column(db.DATETIME)
+    activated_at = db.Column(db.DATETIME, default=datetime.datetime(1999, 12, 11, 0, 0))
     activated_by = db.Column(db.String(30))
     last_check_in = db.Column(db.DATETIME)
     avoid = db.Column(db.Boolean(), default=False)
@@ -95,9 +97,10 @@ class Monitor(db.Model, SerializerMixin):
 
 def add_stream_to_monitor(broadcaster: str):
     cloud_logger()
-    monitor2 = get_monitor_by_name(broadcaster)
+    lower = broadcaster.lower().strip()
+    monitor2 = get_monitor_by_name(lower)
     if not monitor2:
-        monitor2 = Monitor(broadcaster)
+        monitor2 = Monitor(lower)
         db.session.add(monitor2)
     monitor2.is_active = True
     db.session.commit()
@@ -113,7 +116,7 @@ def get_all_monitors() -> List[Monitor]:
 
 def get_inactive_monitors() -> List[Monitor]:
     cloud_logger()
-    return list(Monitor.query.filter_by(is_active=False,avoid=False))
+    return list(Monitor.query.filter_by(is_active=False, avoid=False))
 
 
 def get_all_my_monitors() -> List[Monitor]:
@@ -121,16 +124,38 @@ def get_all_my_monitors() -> List[Monitor]:
     return list(Monitor.query.filter_by(activated_by=self_id))
 
 
-def claim_monitor() -> List[Monitor]:
-    cloud_logger()
-    now = datetime.datetime.now() - datetime.timedelta(hours=0, minutes=7)
-    monitor = Monitor.query.filter(Monitor.activated_at <= now).first()
-    if not monitor:
+def unclaim_monitor(stream_name) -> Monitor:
+    monitor = get_monitor_by_name(stream_name)
+    if monitor is None:
         return
-    monitor.is_active = True
-    monitor.activated_by = self_id
+    monitor.activated_by = ""
+    monitor.activated_at = datetime.datetime(1999, 12, 11, 0, 0)
     db.session.commit()
     db.session.flush()
+
+
+def claim_monitor(stream_name) -> bool:
+    cloud_logger()
+    current_time = datetime.datetime.now()
+    seven_minutes_ago = current_time - datetime.timedelta(hours=0, minutes=7)
+    monitor = get_monitor_by_name(stream_name)
+    if monitor is None:
+        cloud_message("Could not import " + stream_name + " when looking at streamers")
+        return
+    time_delta = current_time - datetime.datetime(1999, 12, 11, 0, 0)
+    if monitor.activated_at is not None:
+        time_delta = current_time - monitor.activated_at
+    if monitor.activated_at is None or (time_delta.seconds > 60 * 1 or not monitor.is_active):
+        query = Monitor.query.filter_by(
+            activated_by=monitor.activated_by, broadcaster=stream_name)
+        update_values = {
+            Monitor.activated_by: self_id,
+            Monitor.activated_at: current_time}
+        result = query.update(update_values
+                              , synchronize_session=False)
+        db.session.commit()
+        db.session.flush()
+        return result == 1
 
 
 def assert_monitor_still_claimed(monitor_id: str):
@@ -151,6 +176,13 @@ def get_my_active_monitors() -> List[Monitor]:
 def get_active_monitors() -> List[Monitor]:
     cloud_logger()
     return list(Monitor.query.filter_by(is_active=True))
+
+
+def get_active_monitors_names() -> List[Monitor]:
+    cloud_logger()
+    filter_by = db.session.query(Monitor.broadcaster).filter_by(is_active=True).all()
+
+    return list(map(lambda x: x[0], filter_by))
 
 
 def get_monitor_by_id(monitor_id: int) -> Monitor:
