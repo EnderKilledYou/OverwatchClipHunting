@@ -35,12 +35,8 @@ from twitch_helpers import get_twitch_api, twitch_api
 sharp = get_sharp()
 
 rescanner = ReScanner()
-rescanner.start()
 
-reset_twitch_clip_job_state()
-requeue_twitch_clip_jobs(rescanner)
 
-atexit.register(rescanner.stop)
 
 
 @sharp.function()

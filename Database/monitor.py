@@ -5,6 +5,8 @@ from queue import Queue
 from typing import List
 
 from oauthlib.common import generate_token
+from sqlalchemy import func
+from sqlalchemy.orm import validates
 from sqlalchemy_serializer import SerializerMixin
 
 from Ocr.overwatch_screen_reader import OverwatchScreenReader
@@ -26,12 +28,34 @@ class Monitor(db.Model, SerializerMixin):
         to_dict = self.to_dict()
         return to_dict
 
+    @validates('broadcaster')
+    def name_to_lower(self, key, value):
+        return value.lower()
+
+    @property
+    def Broadcaster(self):
+        return self.broadcaster.lower()
+
     def __repr__(self):
         try:
             return json.dumps(self.to_dict())
         except:
             print("Monitor convert to json failed")
             return str(self.to_dict())
+
+    def check_need_restart(self):
+        if not self.ocr:
+            return
+        reader = self.ocr.reader
+        if not reader:
+            return
+        qsize = reader.items_read - reader.items_drained
+        frames_pending = qsize * reader.sample_every_count
+        back_fill_seconds = frames_pending // reader.fps
+        if back_fill_seconds <= 180:
+            return
+        cloud_message("Restarting " + self.broadcaster + " with backqueue of " + back_fill_seconds)
+        self.stop()
 
     ocr: VideoFrameBuffer
     broadcaster: str
@@ -122,6 +146,24 @@ def get_inactive_monitors() -> List[Monitor]:
 def get_all_my_monitors() -> List[Monitor]:
     cloud_logger()
     return list(Monitor.query.filter_by(activated_by=self_id))
+
+
+class NotOursAnymoreError:
+    pass
+
+
+def update_claim_on_monitor(stream_name) -> Monitor:
+    monitor = get_monitor_by_name(stream_name)
+    if monitor is None or monitor.activated_by != self_id:
+        return False
+
+    monitor.activated_at = datetime.datetime.now()
+    db.session.commit()
+    db.session.flush()
+    return True
+
+def get_claimed_count() -> Monitor:
+    return db.session.query(func.count(Monitor.id)).filter_by(activated_by=self_id).scalar()
 
 
 def unclaim_monitor(stream_name) -> Monitor:

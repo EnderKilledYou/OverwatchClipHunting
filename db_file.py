@@ -24,7 +24,7 @@ def write_db_tocloud():
         t.write(str(datetime.now()))
 
 
-def install():
+def install(a: str):
     if not os.path.exists(tess_fast_dir):
         if 'INSTALL_SCRIPT' in os.environ:
             print("--------------Installing Tesseract---------------")

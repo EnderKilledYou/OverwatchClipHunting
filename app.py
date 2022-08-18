@@ -1,35 +1,25 @@
 import os
+import threading
 
-import sqlalchemy
 from flask import Flask, jsonify
 from oauthlib.common import generate_token
+
+from db_file import install
+
+
 def config_app() -> Flask:
     appx = Flask('ocr', static_url_path='',
                  static_folder='static',
                  template_folder='templates')
-    appx.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
-    if 'OCR_PRODUCTION' in os.environ:
-        ssl_args = {'ssl_ca': 'server-ca.pem'}
-        appx.config['SQLALCHEMY_POOL_SIZE'] = 40
-
-        appx.config[
-            'SQLALCHEMY_DATABASE_URI'] = sqlalchemy.engine.url.URL.create(
-            drivername="mysql+pymysql",
-            username=os.environ['DB_USER'],
-            password=os.environ['DB_SECRET'],
-            database=os.environ['DB_NAME'],
-            host=os.environ['DB_HOST'],
-
-        )
-
-    else:
-        appx.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///twitch.sqlite3?check_same_thread=False'
 
     appx.config['SECRET_KEY'] = generate_token()
 
     return appx
 
+
 app = config_app()
+
+
 def register_blueprints(app: Flask):
     from routes.twitch import twitch as twitch_blueprint
     from routes.monitor import monitor as monitor_blueprint
@@ -45,7 +35,6 @@ def register_blueprints(app: Flask):
     app.register_blueprint(twitch_blueprint)
     app.register_blueprint(monitor_blueprint)
     app.register_blueprint(video_blueprint)
-
 
 
 app.url_map.strict_slashes = False
@@ -71,3 +60,7 @@ def not_found(e):
 # thread.start()
 if __name__ == '__main__':
     app.run(threaded=True)
+
+from start_up_flask import nothing
+
+threading.Timer(1, install, [nothing])
