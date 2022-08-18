@@ -13,11 +13,10 @@
 
           <button @click="Twitch()" class="btn btn-block" v-show="twitch_streams.length ===0">Look at Twitch
           </button>
+          <button @click="HideTwitch()" class="btn btn-block" v-show="twitch_streams.length !==0">Hide</button>
           <button @click="ToggleInactiveSetting()" class="btn btn-block" v-if="showInactive">Hide Inactive</button>
           <button @click="ToggleInactiveSetting()" class="btn btn-block" v-if="!showInactive">Show Inactive</button>
-          <button @click="HideTwitch()" class="btn btn-block" v-show="twitch_streams.length !==0">Hide</button>
-          <button @click="AutoTwitch()" class="btn btn-block">Auto Twitch</button>
-          <button @click="StopAutoTwitch()" class="btn btn-block">Stop Auto Twitch</button>
+
         </div>
       </div>
     </div>
@@ -27,7 +26,7 @@
     </div>
     <div class="row">
       <currently-live :items="streamerMonitorStates"
-                :show_inactive="showInactive"      @updatedmonitored="list_items"/>
+                      :show_inactive="showInactive" @updatedmonitored="list_items"/>
     </div>
 
   </div>
@@ -56,19 +55,19 @@ export default class HomeView extends Vue {
   streamerName: string = ""
 
 
-  get showTwitchers() {
-    return this.twitch_streams && this.twitch_streams.length > 0
-  }
+  showTwitchers: boolean = false
 
   private interval: number = 0;
   private twitch_streams: any[] = [];
 
   async HideTwitch() {
     this.twitch_streams = []
+    this.showTwitchers = false
   }
 
   async Twitch() {
     this.twitch_streams = await API.get_live_streamers()
+    this.showTwitchers = true
   }
 
   async AutoTwitch() {
