@@ -1,3 +1,4 @@
+import json_fix
 import datetime
 import json
 import threading
@@ -96,7 +97,6 @@ class Monitor(db.Model, SerializerMixin):
     ocr: TwitchEater
 
     def __init__(self, broadcaster: str, web_dict={}):
-        cloud_logger()
         self.broadcaster = broadcaster
         self.web_dict = web_dict
         self.ocr = None

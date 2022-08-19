@@ -1,15 +1,11 @@
+import json_fix
 from flask import Blueprint
-
 from Database.monitor import remove_stream_to_monitor, add_stream_to_monitor, get_all_my_monitors, get_all_monitors
-
 from cloud_logger import cloud_error_logger
-from routes.route_cache import cache
 from twitch_helpers.get_monitored_streams import get_monitored_streams
 from twitch_helpers.twitch_helpers import get_twitch_api
-
 streamer = Blueprint('streamer', __name__)
 from app import api_generator
-
 sharp = api_generator
 
 
