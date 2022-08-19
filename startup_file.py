@@ -1,6 +1,7 @@
 import os
 from os.path import abspath
 
+from google.cloud import storage
 from google.cloud.storage import Blob
 
 
