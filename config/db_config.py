@@ -3,7 +3,6 @@ import os
 import sqlalchemy
 from flask_sqlalchemy import SQLAlchemy
 
-from flask_marshmallow import Marshmallow
 def config_db() -> SQLAlchemy:
     """
 
@@ -13,8 +12,8 @@ def config_db() -> SQLAlchemy:
     from app import app
     config_app_db_settings(app)
     dbx = SQLAlchemy(app)
-    ma = Marshmallow(app)
-    return dbx,ma
+
+    return dbx
 
 
 def config_app_db_settings(app):
@@ -36,7 +35,7 @@ def config_app_db_settings(app):
         app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///twitch.sqlite3?check_same_thread=False'
 
 
-db,ma = config_db()
+db = config_db()
 
 
 def init_db():
