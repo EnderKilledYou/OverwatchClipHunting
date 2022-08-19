@@ -29,15 +29,15 @@ def list_streamers():
         if streams is None:
             streams = get_monitored_streams(twitch_api, user_list)
             # cache.set('get_monitored_streams', 30)
-        dictsm = list_object_to_dicts(my_monitors)
-        dictss = list_object_to_dicts(streams)
+        dictsm = list_obj_to_list_dicts(my_monitors)
+        dictss = list_obj_to_list_dicts(streams)
         return {"success": True, 'items': [dictsm, dictss]}
     except BaseException as b:
         cloud_error_logger(b)
         return {"error": str(b)}
 
 
-def list_object_to_dicts(my_monitors):
+def list_obj_to_list_dicts(my_monitors):
     list_obj_to_dict = list(map(lambda x: x.to_dict(), my_monitors))
     return list_obj_to_dict
 
