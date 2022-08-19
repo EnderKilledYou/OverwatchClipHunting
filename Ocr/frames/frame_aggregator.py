@@ -240,4 +240,4 @@ def thread_function(func, *args):  # the events can slow down processing
 
 
 def print_scanner(data):
-    print_scanner(f'|CLOUD Frame LOG: {data}|')
+    print(f'|CLOUD Frame LOG: {data}|')
