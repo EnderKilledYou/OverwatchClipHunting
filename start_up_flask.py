@@ -21,4 +21,4 @@ def start_up():
 atexit.register(rescanner.stop)
 atexit.register(alli.stop)
 
-threading.Thread(target=start_up)
+threading.Thread(target=start_up).start()
