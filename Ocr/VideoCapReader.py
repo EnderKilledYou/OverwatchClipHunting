@@ -5,6 +5,7 @@ import cv2 as cv
 
 from Ocr.frames.frame import Frame
 from Ocr.no_stream_error import NoStreamError
+from config.config import sample_frame_rate
 
 
 class StreamEndedError(BaseException):
@@ -51,7 +52,7 @@ class VideoCapReader:
         if fps < 10:
             fps = 60
         self.fps = fps
-        self.sample_every_count = fps // 16
+        self.sample_every_count = fps // sample_frame_rate
         for frame in self._yield_frames(fps):
             buffer.put(frame)
 

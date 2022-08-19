@@ -20,9 +20,14 @@
       </div>
       <span v-if="watcher.is_active" class="text-success">({{
           watcher.stream_resolution
-        }}@{{ watcher.fps }})</span>
+        }}@{{ watcher.fps }})</span> <span v-if="WatcherClaimed(watcher)"
+                                           class="text-success"> Managed by: {{
+        watcher.activated_by
+      }} last seen :(  <span class="small text-muted">{{ watcher.activated_at }}</span> </span>
+
       <button class="btn btn-danger btn-block btn-outline-dark" @click="Avoid(watcher)">Avoid Watching</button>
 
+      <button class="btn btn-success btn-block btn-outline-dark" @click="Requeue(watcher)">Requeue</button>
 
     </div>
 
@@ -44,9 +49,13 @@ export default class CurrentlyLive extends Vue {
 
   }
 
+  WatcherClaimed(watcher: Monitor) {
+    return watcher.activated_by && watcher.activated_by.length > 0
+  }
 
-
-
+  Requeue(monitor: Monitor) {
+    API.remove(monitor.broadcaster)
+  }
 
   GetLiveStream(monitor: Monitor) {
     return this.LiveStreams.find(a => a.user_login === monitor.broadcaster)

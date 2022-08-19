@@ -193,7 +193,7 @@ def get_claimed_count() -> Monitor:
 
 def unclaim_monitor(stream_name) -> Monitor:
     with db.session.begin():
-        monitor = get_monitor_by_name(stream_name)
+        monitor =  Monitor.query.filter_by(broadcaster=stream_name).first()
         if monitor is None:
             return
         monitor.activated_by = ""

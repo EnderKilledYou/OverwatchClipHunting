@@ -2,6 +2,7 @@ import json_fix
 from flask import Blueprint
 from Database.monitor import remove_stream_to_monitor, add_stream_to_monitor, get_all_my_monitors, get_all_monitors
 from cloud_logger import cloud_error_logger
+from start_up_flask import alli
 from twitch_helpers.get_monitored_streams import get_monitored_streams
 from twitch_helpers.twitch_helpers import get_twitch_api
 
@@ -44,5 +45,6 @@ def list_obj_to_list_dicts(my_monitors):
 
 @sharp.function()
 def remove(stream_name: str):
-    remove_stream_to_monitor(stream_name)
+    alli.stop_streamer(stream_name)
+
     return {"success": True, 'items': []}

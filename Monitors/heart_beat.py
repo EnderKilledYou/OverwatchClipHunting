@@ -46,6 +46,14 @@ class HeartBeat:
         self._thread_timer = threading.Thread(target=self._heart_beat_thread, )
         self._thread_timer.start()
 
+    def stop_streamer(self, streamer_name):
+        streamer_names = list(self._active_monitors)
+        for active_stream in streamer_names:
+            if active_stream.broadcaster == streamer_name:
+                self._remove_monitor_from_list(active_stream.broadcaster)
+                unclaim_monitor(streamer_name)
+                break
+
     def reassert_claim(self, monitors: List[Monitor]):
         cloud_logger()
         for monitor in monitors:
