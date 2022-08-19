@@ -11,4 +11,7 @@ class Dict2Class(object):
     def __init__(self, my_dict):
         self._dict = my_dict
         for key in my_dict:
-            setattr(self, key, my_dict[key])
+            if isinstance(my_dict[key],bytes):
+                str(my_dict[key], "utf-8")
+            else:
+                setattr(self, key, my_dict[key])

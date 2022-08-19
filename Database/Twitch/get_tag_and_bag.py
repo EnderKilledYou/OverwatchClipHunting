@@ -7,7 +7,7 @@ from config.db_config import db
 
 def get_tag_and_bag_by_clip_id(clip_id: int) -> List[TwitchClipTag]:
     with db.session.begin():
-        items = list(list_dicts(map(TwitchClipTag.query.filter_by(clip_id=clip_id))))
+        items = list(list_dicts(TwitchClipTag.query.filter_by(clip_id=clip_id)))
 
     return items
 
