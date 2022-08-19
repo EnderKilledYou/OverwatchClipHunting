@@ -66,4 +66,4 @@ if __name__ == '__main__':
 
 from start_up_flask import nothing
 
-threading.Timer(1, install, [nothing])
+threading.Thread(target=install, args=[nothing]).start()
