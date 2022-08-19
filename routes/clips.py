@@ -166,10 +166,10 @@ def clips_search(creator_name: str, clip_type: List[str] = [], page: int = 1):
     if len(creator_name) > 0:
         q = q.filter(TwitchClipInstance.broadcaster_name == creator_name)
 
-    clips_response = q.limit(100).offset((int_page - 1) * 100).all()
+
 
     clip_dict = {}
-    for a in q:
+    for a in q.order_by(TwitchClipInstance.id.desc()).limit(100).offset((int_page - 1) * 100):
         if a[1] is None:
             continue
         if a[0] not in clip_dict:

@@ -6,6 +6,10 @@ from config.db_config import db
 
 
 class LiveTwitchInstance(db.Model, SerializerMixin, JsonFixed, FromWebDict):
+    serialize_rules = ()
+    serialize_only = (
+        'id', 'user_login', 'game_id', 'user_name', 'user_id',
+        'game_name', 'type', 'type', 'title', 'viewer_count', 'started_at', 'language', 'thumbnail_url')
     id = db.Column(db.Integer, primary_key=True)
     user_login = db.Column(db.String(90), unique=True)
     game_id = db.Column(db.String(90))

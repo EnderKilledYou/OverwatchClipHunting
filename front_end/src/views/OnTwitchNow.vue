@@ -12,10 +12,7 @@
           {{ new Date(watcher.started_at).toLocaleString() }}</p>
         <p class="card-text"> {{ watcher.game_name }} </p>
       </div>
-      <div class="card-footer">
-
-        <button class="btn btn-danger" @click="Watch2( watcher.user_name)">Watch</button>
-      </div>
+      <button class="btn btn-danger" @click="Watch2( watcher.user_name)">Watch</button>
     </div>
 
   </div>
@@ -31,6 +28,7 @@ import {Component, Emit, Prop, Vue} from "vue-facing-decorator";
 export default class OnTwitchNow extends Vue {
   @Prop
   streams?: TwitchLiveStreamData[]
+
   GetThumbnailUrl(watcher: TwitchLiveStreamData) {
 
     const base_image = watcher.thumbnail_url.replace('{width}', '300').replace('{height}', '300');

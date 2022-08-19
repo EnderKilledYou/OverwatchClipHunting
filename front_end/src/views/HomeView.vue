@@ -93,9 +93,7 @@ export default class HomeView extends Vue {
       if (!this.items) return []
       return !this.items[0].find(b => b.broadcaster.toLowerCase() === a.user_name.toLowerCase())
     });
-    if (!this.showInactive) {
-      return filter.filter(this.RowHasExtraData.bind(this))
-    }
+
     return filter
   }
 

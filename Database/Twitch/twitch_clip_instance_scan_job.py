@@ -36,7 +36,8 @@ def get_twitch_clip_scan_by_clip_id(clip_id: int) -> TwitchClipInstanceScanJob:
 
 def get_twitch_clip_scan_by_page(page: int, page_count: int = 25):
     try:
-        resp = TwitchClipInstanceScanJob.query.filter_by().paginate(page=page, per_page=page_count).items
+        resp = TwitchClipInstanceScanJob.query.filter_by().order_by(TwitchClipInstanceScanJob.id.desc()).paginate(
+            page=page, per_page=page_count).items
         output = []
         for a in resp:
             by_id = get_twitch_clip_instance_by_id(a.clip_id)
@@ -93,6 +94,7 @@ def update_scan_job_percent(scan_job_id: int, percent: float, is_complete: bool 
     db.session.commit()
     db.session.flush()
 
+
 def update_scan_job_in_scanning(scan_job_id: int):
     item: TwitchClipInstanceScanJob = TwitchClipInstanceScanJob.query.filter_by(id=scan_job_id).first()
     if item is None:
@@ -101,6 +103,7 @@ def update_scan_job_in_scanning(scan_job_id: int):
     db.session.commit()
     db.session.flush()
 
+
 def update_scan_job_in_subclip(scan_job_id: int):
     item: TwitchClipInstanceScanJob = TwitchClipInstanceScanJob.query.filter_by(id=scan_job_id).first()
     if item is None:
@@ -108,6 +111,7 @@ def update_scan_job_in_subclip(scan_job_id: int):
     item.state = 7
     db.session.commit()
     db.session.flush()
+
 
 def update_scan_job_in_queue(scan_job_id: int):
     item: TwitchClipInstanceScanJob = TwitchClipInstanceScanJob.query.filter_by(id=scan_job_id).first()

@@ -1,5 +1,5 @@
 <template>
-  <div class="col-md-2" v-for="watcher in ShowableItems" :key="watcher.name">
+  <div class="col-md-3" v-for="watcher in ShowableItems" :key="watcher.name">
     <div class="card">
       <img class="card-img-top" v-if="GetLiveStream(watcher)"
            :src="GetThumbnailUrl(watcher)"/>
@@ -15,20 +15,15 @@
           {{ watcher.frames_read_seconds }} s)</p>
         <p v-if="GetLiveStream(watcher)" class="card-text">
           {{ watcher.viewer_count }} watching since:
-          {{ new Date(watcher.started_at).toLocaleString() }}</p>
+          {{ watcher.started_at }}</p>
         <p v-if="GetLiveStream(watcher)" class="card-text"> {{ watcher.game_name }} </p>
       </div>
-      <div class="card-footer">
-        <div class="btn-group">
-          <button class="btn btn-danger" @click="Avoid(watcher)">Avoid Watching</button>
-          <button class="btn btn-danger" v-if="GetLiveStream(watcher)" @click="Unwatch(watcher)">Requeue (push to
-            back)
-          </button>
-        </div>
-        <span class="text-success">({{
-            watcher.stream_resolution
-          }}@{{ watcher.fps }})</span>
-      </div>
+      <span class="text-success">({{
+          watcher.stream_resolution
+        }}@{{ watcher.fps }})</span>
+      <button class="btn btn-danger btn-block btn-outline-dark" @click="Avoid(watcher)">Avoid Watching</button>
+
+
     </div>
 
   </div>
