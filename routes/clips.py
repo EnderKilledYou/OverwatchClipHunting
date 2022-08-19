@@ -79,10 +79,11 @@ def add_clip_scan(clip_id: str):
 
 @sharp.function()
 def deleteclips(clip_id: str):
-    clip = TwitchClipInstance.query.filter_by(id=int(clip_id)).first()
-    if clip:
-        db.session.delete(clip)
-        db.session.commit()
+    with db.session.begin():
+        clip = TwitchClipInstance.query.filter_by(id=int(clip_id)).first()
+        if clip:
+            db.session.delete(clip)
+
         db.session.flush()
 
     return {"success": True}

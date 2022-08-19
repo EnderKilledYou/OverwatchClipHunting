@@ -133,13 +133,14 @@ class Monitor(db.Model, SerializerMixin):
 
 def add_stream_to_monitor(broadcaster: str):
     cloud_logger()
-    lower = broadcaster.lower().strip()
-    if not get_monitor_exists(lower):
-        monitor2 = Monitor(lower)
-        monitor2.is_active = True
-        db.session.add(monitor2)
-        db.session.commit()
-        db.session.flush()
+    with db.session.begin():
+        lower = broadcaster.lower().strip()
+        if not get_monitor_exists(lower):
+            monitor2 = Monitor(lower)
+            monitor2.is_active = True
+            db.session.add(monitor2)
+
+    db.session.flush()
     return monitor2
 
 
@@ -163,14 +164,15 @@ class NotOursAnymoreError:
 
 
 def update_claim_on_monitor(stream_name, fields: Dict[str, any] = {}) -> Monitor:
-    monitor = get_monitor_by_name(stream_name)
-    if monitor is None or monitor.activated_by != self_id:
-        return False
+    with db.session.begin():
+        monitor = get_monitor_by_name(stream_name)
+        if monitor is None or monitor.activated_by != self_id:
+            return False
 
-    monitor.activated_at = datetime.datetime.now()
-    for field_name in fields:
-        setattr(monitor, field_name, fields[field_name])
-    db.session.commit()
+        monitor.activated_at = datetime.datetime.now()
+        for field_name in fields:
+            setattr(monitor, field_name, fields[field_name])
+
     db.session.flush()
     return True
 
@@ -180,66 +182,68 @@ def get_claimed_count() -> Monitor:
 
 
 def unclaim_monitor(stream_name) -> Monitor:
-    monitor = get_monitor_by_name(stream_name)
-    if monitor is None:
-        return
-    monitor.activated_by = ""
-    monitor.activated_at = datetime.datetime(1999, 12, 11, 0, 0)
-    monitor.is_active = False
-    db.session.commit()
+    with db.session.begin():
+        monitor = get_monitor_by_name(stream_name)
+        if monitor is None:
+            return
+        monitor.activated_by = ""
+        monitor.activated_at = datetime.datetime(1999, 12, 11, 0, 0)
+        monitor.is_active = False
     db.session.flush()
 
 
 def reset_for_claim(stream_name):
-    monitor = get_monitor_by_name(stream_name)
-    if monitor is None:
-        return
-    monitor.frames_read = 0
-    monitor.frames_done = 0
-    monitor.frames_read_seconds = 0
-    monitor.back_fill_seconds = 0
-    monitor.fps = 0
-    monitor.queue_size = 0
-    monitor.stream_resolution = ''
-    db.session.commit()
+    with db.session.begin():
+        monitor = get_monitor_by_name(stream_name)
+        if monitor is None:
+            return
+        monitor.frames_read = 0
+        monitor.frames_done = 0
+        monitor.frames_read_seconds = 0
+        monitor.back_fill_seconds = 0
+        monitor.fps = 0
+        monitor.queue_size = 0
+        monitor.stream_resolution = ''
     db.session.flush()
 
 
 def release_monitors() -> bool:
     cloud_logger()
-    minutes_in_past = datetime.datetime.now() - datetime.timedelta(minutes=5)
-    query = Monitor.query.filter(
-        Monitor.activated_at < minutes_in_past)
-    update_values = {
-        Monitor.activated_by: '',
-        Monitor.is_active: False
-    }
-    return query.update(update_values
-                        )
+    with db.session.begin():
+        minutes_in_past = datetime.datetime.now() - datetime.timedelta(minutes=5)
+        query = Monitor.query.filter(
+            Monitor.activated_at < minutes_in_past)
+        update_values = {
+            Monitor.activated_by: '',
+            Monitor.is_active: False
+        }
+        return query.update(update_values
+                            )
 
 
 def claim_monitor(stream_name) -> bool:
     cloud_logger()
-    current_time = datetime.datetime.now()
-    monitor = get_monitor_by_name(stream_name)
-    if monitor is None:
-        cloud_message("Could not import " + stream_name + " when looking at streamers")
-        return
-    time_delta = current_time - datetime.datetime(1999, 12, 11, 0, 0)
-    if monitor.activated_at is not None:
-        time_delta = current_time - monitor.activated_at
-    last_claim_expy = time_delta.seconds > 60 * 1
-    if last_claim_expy or not monitor.is_active:
-        query = Monitor.query.filter_by(
-            activated_by=monitor.activated_by, broadcaster=stream_name)
-        update_values = {
-            Monitor.activated_by: self_id,
-            Monitor.activated_at: current_time,
-            Monitor.is_active: True}
-        result = query.update(update_values
-                              , synchronize_session=False)
-        db.session.commit()
-        db.session.flush()
+    with db.session.begin():
+        current_time = datetime.datetime.now()
+        monitor = get_monitor_by_name(stream_name)
+        if monitor is None:
+            cloud_message("Could not import " + stream_name + " when looking at streamers")
+            return
+        time_delta = current_time - datetime.datetime(1999, 12, 11, 0, 0)
+        if monitor.activated_at is not None:
+            time_delta = current_time - monitor.activated_at
+        last_claim_expy = time_delta.seconds > 60 * 1
+        if last_claim_expy or not monitor.is_active:
+            query = Monitor.query.filter_by(
+                activated_by=monitor.activated_by, broadcaster=stream_name)
+            update_values = {
+                Monitor.activated_by: self_id,
+                Monitor.activated_at: current_time,
+                Monitor.is_active: True}
+            result = query.update(update_values
+                                  , synchronize_session=False)
+
+
         return result == 1
 
 
@@ -279,35 +283,40 @@ def get_monitor_by_name(stream_name: str) -> Monitor:
     cloud_logger()
     return Monitor.query.filter_by(broadcaster=stream_name).first()
 
+
 def get_monitor_exists(stream_name: str) -> Monitor:
     cloud_logger()
     return Monitor.query.filter_by(broadcaster=stream_name).count()
 
+
 def cancel_stream_to_monitor(stream_name):
     cloud_logger()
-    monitor = get_monitor_by_name(stream_name)
-    if not monitor:
-        return
-    monitor.cancel_request = True
-    db.session.commit()
+    with db.session.begin():
+        monitor = get_monitor_by_name(stream_name)
+        if not monitor:
+            return
+        monitor.cancel_request = True
+
     db.session.flush()
 
 
 def avoid_monitor(stream_name):
-    monitor = get_monitor_by_name(stream_name)
-    if not monitor:
-        return
-    monitor.avoid = True
-    db.session.commit()
+    cloud_logger()
+    with db.session.begin():
+        monitor = get_monitor_by_name(stream_name)
+        if not monitor:
+            return
+        monitor.avoid = True
+
     db.session.flush()
 
 
 def remove_stream_to_monitor(stream_name):
-    monitor = get_monitor_by_name(stream_name)
-    if not monitor:
-        return
-    monitor.is_active = False
-    db.session.commit()
+    with db.session.begin():
+        monitor = get_monitor_by_name(stream_name)
+        if not monitor:
+            return
+        monitor.is_active = False
     db.session.flush()
 
 

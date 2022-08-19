@@ -29,12 +29,13 @@ tag_clipper_job_request_helper = BasicWithId(TagClipperJob)
 
 
 def get_twitch_clip_job() -> TagClipperJob:
-    first = TwitchClipInstanceScanJob.query.filter_by(state=0).first()
-    if not first:
-        return None
-    first.state = 1
-    db.session.commit()
-    db.session.flush()
+    with db.session.begin():
+        first = TwitchClipInstanceScanJob.query.filter_by(state=0).first()
+        if not first:
+            return None
+        first.state = 1
+
+    db.ssession.flush()
     return first
 
 
@@ -46,27 +47,29 @@ def requeue_twitch_clip_jobs(rescanner):
 
 
 def reset_twitch_clip_job_state():
-    items = TwitchClipInstanceScanJob.query.filter_by(state=1)
-    for item in items:
-        item.state = 0
-    items = TwitchClipInstanceScanJob.query.filter_by(state=5)
-    for item in items:
-        item.state = 0
-    db.session.commit()
+    with db.session.begin():
+        items = TwitchClipInstanceScanJob.query.filter_by(state=1)
+        for item in items:
+            item.state = 0
+        items = TwitchClipInstanceScanJob.query.filter_by(state=5)
+        for item in items:
+            item.state = 0
+
     db.session.flush()
 
 
 def update_twitch_clip_job_state(job_id: int, state: int, error: str = '') -> List[TagClipperJob]:
-    item = TwitchClipInstanceScanJob.query.filter_by(id=job_id).first()
-    if not item:
-        raise MissingRecordError("can't update a job i can't see")
+    with db.session.begin():
+        item = TwitchClipInstanceScanJob.query.filter_by(id=job_id).first()
+        if not item:
+            raise MissingRecordError("can't update a job i can't see")
 
-    item.state = state
+        item.state = state
 
-    if state == 3:
-        item.error = error
+        if state == 3:
+            item.error = error
 
-    db.session.commit()
+
     db.session.flush()
 
 
@@ -75,11 +78,11 @@ def get_twitch_clip_job_by_clip_id(clip_id: int, tag_id: int) -> TagClipperJob:
 
 
 def add_twitch_clip_job(clip_id: int, tag_id: int) -> TagClipperJob:
-    exists = TagClipperJob.query.filter_by(clip_id=clip_id, tag_id=tag_id).first()
-    if exists:
-        raise RecordExistsError('already exists')
-    log = TagClipperJob(state=0, created_at=datetime.datetime.now(), clip_id=clip_id, tag_id=tag_id)
-    db.session.add(log)
-    db.session.commit()
+    with db.session.begin():
+        exists = TagClipperJob.query.filter_by(clip_id=clip_id, tag_id=tag_id).first()
+        if exists:
+            raise RecordExistsError('already exists')
+        log = TagClipperJob(state=0, created_at=datetime.datetime.now(), clip_id=clip_id, tag_id=tag_id)
+        db.session.add(log)
     db.session.flush()
     return log

@@ -49,85 +49,86 @@ def get_twitch_clip_scan_by_page(page: int, page_count: int = 25):
 
 
 def add_twitch_clip_scan(clip_id: str, broadcaster: str) -> TwitchClipInstanceScanJob:
-    log = get_twitch_clip_scan_by_clip_id(clip_id)
-    if log:
-        if log.state == 1 or log.state == 5:
-            return None
-        log.state = 0
-        log.error = ""
-        log.percent = 0
-        clips_found = get_tag_and_bag_by_clip_id(clip_id)
-        for a in clips_found:
-            db.session.delete(a)
-        db.session.commit()
-        db.session.flush()
+    with db.session.begin():
+        log = get_twitch_clip_scan_by_clip_id(clip_id)
+        if log:
+            if log.state == 1 or log.state == 5:
+                return None
+            log.state = 0
+            log.error = ""
+            log.percent = 0
+            clips_found = get_tag_and_bag_by_clip_id(clip_id)
+            for a in clips_found:
+                db.session.delete(a)
 
-        return log
-    log = TwitchClipInstanceScanJob(state=0, created_at=datetime.now(), clip_id=clip_id, broadcaster=broadcaster)
-    db.session.add(log)
-    db.session.commit()
+            return log
+        log = TwitchClipInstanceScanJob(state=0, created_at=datetime.now(), clip_id=clip_id, broadcaster=broadcaster)
+        db.session.add(log)
+
     db.session.flush()
     return log
 
 
 def update_scan_job_error(scan_job_id: int, error_str: str):
-    item: TwitchClipInstanceScanJob = TwitchClipInstanceScanJob.query.filter_by(id=scan_job_id).first()
-    if item is None:
-        return
-    item.state = 3
-    item.error = error_str
-    item.completed_at = datetime.now()
-    db.session.commit()
+    with db.session.begin():
+        item: TwitchClipInstanceScanJob = TwitchClipInstanceScanJob.query.filter_by(id=scan_job_id).first()
+        if item is None:
+            return
+        item.state = 3
+        item.error = error_str
+        item.completed_at = datetime.now()
     db.session.flush()
 
 
 def update_scan_job_percent(scan_job_id: int, percent: float, is_complete: bool = False):
-    item: TwitchClipInstanceScanJob = TwitchClipInstanceScanJob.query.filter_by(id=scan_job_id).first()
-    if item is None:
-        return
-    item.percent = percent
-    if item.state == 0:
-        item.state = 1
-    if is_complete:
-        item.state = 2
-        item.completed_at = datetime.now()
-    db.session.commit()
+    with db.session.begin():
+        item: TwitchClipInstanceScanJob = TwitchClipInstanceScanJob.query.filter_by(id=scan_job_id).first()
+        if item is None:
+            return
+        item.percent = percent
+        if item.state == 0:
+            item.state = 1
+        if is_complete:
+            item.state = 2
+            item.completed_at = datetime.now()
+
     db.session.flush()
 
 
 def update_scan_job_in_scanning(scan_job_id: int):
-    item: TwitchClipInstanceScanJob = TwitchClipInstanceScanJob.query.filter_by(id=scan_job_id).first()
-    if item is None:
-        return
-    item.state = 6
-    db.session.commit()
+    with db.session.begin():
+        item: TwitchClipInstanceScanJob = TwitchClipInstanceScanJob.query.filter_by(id=scan_job_id).first()
+        if item is None:
+            return
+        item.state = 6
     db.session.flush()
 
 
 def update_scan_job_in_subclip(scan_job_id: int):
-    item: TwitchClipInstanceScanJob = TwitchClipInstanceScanJob.query.filter_by(id=scan_job_id).first()
-    if item is None:
-        return
-    item.state = 7
-    db.session.commit()
+    with db.session.begin():
+        item: TwitchClipInstanceScanJob = TwitchClipInstanceScanJob.query.filter_by(id=scan_job_id).first()
+        if item is None:
+            return
+        item.state = 7
     db.session.flush()
 
 
 def update_scan_job_in_queue(scan_job_id: int):
-    item: TwitchClipInstanceScanJob = TwitchClipInstanceScanJob.query.filter_by(id=scan_job_id).first()
-    if item is None:
-        return
-    item.state = 5
-    db.session.commit()
+    with db.session.begin():
+        item: TwitchClipInstanceScanJob = TwitchClipInstanceScanJob.query.filter_by(id=scan_job_id).first()
+        if item is None:
+            return
+        item.state = 5
     db.session.flush()
 
 
 def update_scan_job_started(scan_job_id: int):
-    item: TwitchClipInstanceScanJob = TwitchClipInstanceScanJob.query.filter_by(id=scan_job_id).first()
-    if item is None:
-        return
-    item.state = 1
-    item.percent = 0
-    db.session.commit()
+    with db.session.begin():
+        item: TwitchClipInstanceScanJob = TwitchClipInstanceScanJob.query.filter_by(id=scan_job_id).first()
+        if item is None:
+            return
+        item.state = 1
+        item.percent = 0
+
     db.session.flush()
     return item

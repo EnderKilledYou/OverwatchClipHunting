@@ -40,31 +40,34 @@ def if_tag_cancel_request_exists(clip_id: int) -> bool:
 
 
 def update_tag_and_bag_scan_scan_error(id: int, error: str):
-    bag: TagAndBagRequest = TagAndBagRequest.query.filter_by(id=id).first()
-    if bag is None:
-        raise MissingRecordError("Can't update non-existant bag")
-        return
-    bag.scan_error_str = error
-    bag.scan_error = True
-    bag.is_error = True
-    db.session.commit()
+    with db.session.begin():
+        bag: TagAndBagRequest = TagAndBagRequest.query.filter_by(id=id).first()
+        if bag is None:
+            raise MissingRecordError("Can't update non-existant bag")
+            return
+        bag.scan_error_str = error
+        bag.scan_error = True
+        bag.is_error = True
+
     db.session.flush()
 
 
 def update_tag_and_bag_scan_progress(id: int, progress_value: float):
-    bag: TagAndBagRequest = TagAndBagRequest.query.filter_by(id=id).first()
-    if bag is None:
-        raise MissingRecordError("Can't update non-existant bag")
-        return
-    bag.scan_progress = round(progress_value, 2)
-    db.session.commit()
+    with db.session.begin():
+        bag: TagAndBagRequest = TagAndBagRequest.query.filter_by(id=id).first()
+        if bag is None:
+            raise MissingRecordError("Can't update non-existant bag")
+            return
+        bag.scan_progress = round(progress_value, 2)
+
     db.session.flush()
 
 
 def add_tag_and_bag_request(clip_id: int) -> TagAndBagRequest:
-    request: TagAndBagRequest = TagAndBagRequest(clip_id=clip_id)
-    db.session.add(request)
-    db.session.commit()
+    with db.session.begin():
+        request: TagAndBagRequest = TagAndBagRequest(clip_id=clip_id)
+        db.session.add(request)
+
     db.session.flush()
     return request
 

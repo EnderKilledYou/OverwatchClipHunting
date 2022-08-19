@@ -40,5 +40,5 @@ class BasicWithId:
     def add(self, value_dict: Dict[str, any] = {}):
         item = self.class_type(value_dict)
         db.session.add(item)
-        db.session.commit()
+
         db.session.flush()

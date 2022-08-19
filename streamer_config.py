@@ -46,9 +46,9 @@ def get_configs_name(name_contains:str, int_page: int,order_by):
     return get_query_by_page(by.order_by(StreamerConfig.twitch_user_name.desc()), int_page)
 
 def update_config(config: StreamerConfig, **kwargs):
-    for key in kwargs:
-        setattr(config, key, kwargs[key])
-    db.session.commit()
+    with db.session.begin():
+        for key in kwargs:
+            setattr(config, key, kwargs[key])
     db.session.flush()
 
 

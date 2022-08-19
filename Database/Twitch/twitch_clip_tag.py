@@ -33,15 +33,15 @@ def if_tag_and_bag_exists(id: int) -> bool:
 
 def add_twitch_clip_tag_request(clip_id: int, tag: str, tag_amount: int, tag_duration: int,
                                 tag_start: int) -> Tuple[TwitchClipTag, TwitchClipInstance]:
-    clip: TwitchClipInstance = get_twitch_clip_instance_by_id(clip_id)
-    if not clip:
-        raise MissingRecordError("can add a clip tag for a clip that doesn't exist")
+    with db.session.begin():
+        clip: TwitchClipInstance = get_twitch_clip_instance_by_id(clip_id)
+        if not clip:
+            raise MissingRecordError("can add a clip tag for a clip that doesn't exist")
 
-    request: TwitchClipTag = TwitchClipTag(clip_id=clip_id, tag=tag, tag_amount=tag_amount, tag_duration=tag_duration,
-                                           tag_start=tag_start, clip_created_at=clip.created_at, clip_start=tag_start,
-                                           clip_end=tag_start + tag_duration)
-    db.session.add(request)
-    db.session.commit()
+        request: TwitchClipTag = TwitchClipTag(clip_id=clip_id, tag=tag, tag_amount=tag_amount, tag_duration=tag_duration,
+                                               tag_start=tag_start, clip_created_at=clip.created_at, clip_start=tag_start,
+                                               clip_end=tag_start + tag_duration)
+        db.session.add(request)
     db.session.flush()
 
     report_zombie_tag(request, clip)
