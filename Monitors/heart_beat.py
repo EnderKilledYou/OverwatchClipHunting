@@ -92,10 +92,9 @@ class HeartBeat:
         cloud_logger()
         release_monitors()
 
-
         streams = get_monitored_streams(twitch_api)
 
-        monitor = claim_one_monitor(streams)
+        monitor = claim_one_monitor(streams, len(self._active_monitors))
         if monitor is not None:
             self._add_to_monitor_list(monitor)
-        #self.update_monitor_healths(monitors)
+        # self.update_monitor_healths(monitors)

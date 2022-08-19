@@ -6,9 +6,9 @@ from Database.monitor import get_claimed_count, claim_monitor, get_monitor_by_na
 from cloud_logger import cloud_logger, cloud_message
 
 
-def claim_one_monitor( streams: List[LiveTwitchInstance]):
+def claim_one_monitor( streams: List[LiveTwitchInstance],claimed_count:int):
     cloud_logger()
-    claimed_count = get_claimed_count()
+
     if claimed_count >= max_active_monitors:
         cloud_message("No space to start new streamers")
         return
