@@ -45,7 +45,7 @@ class ReScanner(ThreadedManager):
 
     # self._instance.thumbnail_url.split("-preview", 1)[0] + ".mp4"
     def __init__(self):
-        super(ReScanner, self).__init__(3)
+        super(ReScanner, self).__init__(1)
 
         self._frame_count = 0
         self.matcher = OverwatchClipReader()

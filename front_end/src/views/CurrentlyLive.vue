@@ -23,7 +23,7 @@
         }}@{{ watcher.fps }})</span> <span v-if="WatcherClaimed(watcher)"
                                            class="text-success"> Managed by: {{
         watcher.activated_by
-      }} last seen :(  <span class="small text-muted">{{ watcher.activated_at }}</span> </span>
+      }} last seen :(  <span class="small text-muted">{{ watcher.activated_at }} )</span> </span>
 
       <button class="btn btn-danger btn-block btn-outline-dark" @click="Avoid(watcher)">Avoid Watching</button>
 

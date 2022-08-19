@@ -22,7 +22,7 @@ from generic_helpers.something_manager import ThreadedManager
 
 class TagClipper(ThreadedManager):
     def __init__(self):
-        super(TagClipper, self).__init__(1, False)
+        super(TagClipper, self).__init__(3, False)
 
     def __str__(self):
         return f"TagClipper "
