@@ -5,6 +5,7 @@ from flask import Flask, jsonify
 from oauthlib.common import generate_token
 from sharp import Sharp, naming
 
+
 from google_cloud_helpers.tesseract_install_helper import install
 
 
@@ -23,6 +24,7 @@ api_generator = Sharp(app, prefix="/api", naming=naming.file_based)
 
 
 def register_blueprints(app: Flask):
+    from config.db_config import init_db
     from routes.twitch import twitch as twitch_blueprint
     from routes.monitor import monitor as monitor_blueprint
     from routes.clips import clips as clips_blueprint
@@ -37,6 +39,7 @@ def register_blueprints(app: Flask):
     app.register_blueprint(twitch_blueprint)
     app.register_blueprint(monitor_blueprint)
     app.register_blueprint(video_blueprint)
+    init_db()
 
 
 app.url_map.strict_slashes = False

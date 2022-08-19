@@ -37,8 +37,7 @@ def config_app_db_settings(app):
 
 
 db = config_db()
-db.drop_all()
-db.create_all()
+
 
 def init_db():
     db.drop_all()
