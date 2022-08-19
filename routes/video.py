@@ -1,11 +1,10 @@
-import os
 import re
 
 from flask import request, Response, Blueprint
 
 from Database.MissingRecordError import MissingRecordError
 from Database.Twitch.twitch_clip_tag import TwitchClipTag, get_tag_and_bag_by_id
-from startup_file import get_blob_by_path
+from google_cloud_helpers.google_cloud_helper import get_blob_by_path
 
 video = Blueprint('video', __name__)
 

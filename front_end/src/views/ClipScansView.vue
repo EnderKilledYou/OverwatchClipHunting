@@ -64,20 +64,17 @@
 
 <script lang="ts">
 import {Options, Vue} from 'vue-class-component';
-import HelloWorld from '@/components/HelloWorld.vue';
+
 import {
-  add_streamer, API, delete_clip,
-  list_all_clips,
-  list_clips,
-  list_streamer,
-  remove_streamer,
+   API,
+
   StreamerMonitorState,
   TwitchClipLog, TwitchClipTag
 } from "@/api"; // @ is an alias to /src
 
 @Options({
   components: {
-    HelloWorld,
+
   },
 })
 export default class ClipView extends Vue {

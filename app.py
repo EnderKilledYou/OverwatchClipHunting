@@ -1,10 +1,11 @@
+import json_fix
 import os
 import threading
-
 from flask import Flask, jsonify
 from oauthlib.common import generate_token
+from sharp import Sharp, naming
 
-from db_file import install
+from google_cloud_helpers.tesseract_install_helper import install
 
 
 def config_app() -> Flask:
@@ -18,6 +19,7 @@ def config_app() -> Flask:
 
 
 app = config_app()
+api_generator = Sharp(app, prefix="/api", naming=naming.file_based)
 
 
 def register_blueprints(app: Flask):

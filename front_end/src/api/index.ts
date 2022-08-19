@@ -1,53 +1,6 @@
-export const baseUrl = ''
-export const add_streamer_path = '/add_streamer/'
-export const remove_streamer_path = '/remove_streamer/'
-export const list_streamer_path = '/list_streamer'
-export const list_clips_path = '/clips/'
-export const all_list_clips_path = '/all_clips/'
-export const delete_clips_path = '/delete_clips/'
 const api = require('./api.js')
 export const API = api.API
 
-export async function add_streamer(streamer: string): Promise<StreamerResponse> {
-    const result = await fetch(baseUrl + add_streamer_path + streamer, {})
-    let response = await result.json();
-    return new StreamerResponse(response)
-
-}
-
-export async function remove_streamer(streamer: string) {
-    const result = await fetch(baseUrl + remove_streamer_path + streamer, {})
-    let response = await result.json();
-    return new StreamerResponse(response)
-}
-
-export async function list_streamer(): Promise<StreamerResponse> {
-    const result = await fetch(baseUrl + list_streamer_path, {})
-    let response = await result.json();
-    return new StreamerResponse(response)
-
-}
-
-export async function delete_clip(clip_id: number): Promise<ClipsResponse> {
-    const result = await fetch(baseUrl + delete_clips_path + encodeURIComponent(clip_id), {})
-    let response = await result.json();
-    return new ClipsResponse(response)
-
-}
-
-export async function list_clips(streamer: string, type: string, page: number = 1): Promise<ClipsResponse> {
-    const result = await fetch(baseUrl + list_clips_path + encodeURIComponent(streamer) + "/" + encodeURIComponent(page), {})
-    let response = await result.json();
-    return new ClipsResponse(response)
-
-}
-
-export async function list_all_clips(type: string, page: number = 1): Promise<ClipsResponse> {
-    const result = await fetch(baseUrl + all_list_clips_path + encodeURIComponent(type) + '/' + encodeURIComponent(page), {})
-    let response = await result.json();
-    return new ClipsResponse(response)
-
-}
 
 export class StreamerResponse {
     success = false
@@ -72,37 +25,75 @@ export class ClipsResponse {
 }
 
 export class TwitchLiveStreamData {
-    viewer_count = 0
-    started_at = 0
-    game_name = ''
-    thumbnail_url = ''
+    id: number = 0
+    user_login: string = ''
+    game_id: string = ''
+    user_name: string = ''
+    user_id: string = ''
+    game_name: string = ''
+    type: string = ''
+    _title: string = ''
+    viewer_count: number = 0
+    started_at: string = ''
+    language: string = ''
+    thumbnail_url: string = ''
 
     constructor(part: Partial<TwitchLiveStreamData>) {
+        debugger;
         Object.assign(this, part)
 
     }
 }
 
+export default class Monitor {
+    constructor(part: Partial<Monitor>) {
+        debugger
+        Object.assign(this, part)
+    }
+
+    id: string = '';
+    broadcaster: string = '';
+    make_clips: string = '';
+    min_healing_duration: string = '';
+    min_elims: string = '';
+    min_blocking_duration: string = '';
+    min_defense_duration: string = '';
+    min_assist_duration: string = '';
+    stream_prefers_quality: string = '';
+    clip_deaths: string = '';
+    is_active: string = '';
+    activated_at: string = '';
+    activated_by: string = '';
+    last_check_in: string = '';
+    avoid: string = '';
+    cancel_request: string = '';
+    frames_read: string = '';
+    frames_done: string = '';
+    frames_read_seconds: string = '';
+    back_fill_seconds: string = '';
+    fps: string = '';
+    queue_size: string = '';
+    stream_resolution: string = '';
+}
+
+
+
 export class StreamerMonitorState {
-    name = ""
+    broadcaster = ""
     size = 0
     back_fill_seconds = 0
     queue_size = 0
     frames_read = 0
     frames_done = 0
-    stream_resolution =""
-    fps=0
+    stream_resolution = ""
+    fps = 0
     frames_read_seconds = 0
-    data: TwitchLiveStreamData
+
 
     constructor(part: Partial<StreamerMonitorState>) {
 
         Object.assign(this, part)
-        if (part && part.data) {
-            this.data = new TwitchLiveStreamData(part.data)
-        } else {
-            this.data = new TwitchLiveStreamData({})
-        }
+
     }
 }
 

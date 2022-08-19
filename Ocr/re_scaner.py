@@ -6,26 +6,23 @@ from operator import attrgetter
 from os.path import abspath
 from threading import Timer
 from queue import Empty, Queue
-from time import sleep
 
 from twitchdl import twitch
-from twitchdl.commands.download import _clip_target_filename, get_clip_authenticated_url
+from twitchdl.commands.download import get_clip_authenticated_url
 from twitchdl.download import download_file
 
 from Database.Twitch.twitch_clip_instance import get_twitch_clip_instance_by_id, update_twitch_clip_instance_filename
 from Database.Twitch.twitch_clip_instance_scan_job import TwitchClipInstanceScanJob, update_scan_job_error, \
-    update_scan_job_percent, update_scan_job_started, update_scan_job_in_queue, update_scan_job_in_scanning
+    update_scan_job_percent, update_scan_job_started, update_scan_job_in_scanning
 from Ocr.clip_to_tag import clip_tag_to_clip
 
 from Ocr.twitch_dl_args import Args
 
-
-from Ocr.VideoCapReader import VideoCapReader, StreamEndedError, ClipVideoCapReader
-from Ocr.overwatch_clip_reader import OverwatchClipReader
+from Ocr.VideoCapReader import VideoCapReader, ClipVideoCapReader
+from Ocr.overwatch_readers.overwatch_clip_reader import OverwatchClipReader
 from Ocr.wait_for_tessy import wait_for_tesseract
 from cloud_logger import cloud_logger, cloud_error_logger
-from config.config import tess_fast_dir
-from something_manager import ThreadedManager
+from generic_helpers.something_manager import ThreadedManager
 
 
 class InvalidFpsError(BaseException):
@@ -41,8 +38,10 @@ if not os.path.exists(tmp_path):
 class ReScanner(ThreadedManager):
     _frame_count: int
     _reader: VideoCapReader
+
     def __json__(self):
         return "rescanner"
+
     # self._instance.thumbnail_url.split("-preview", 1)[0] + ".mp4"
     def __init__(self):
         super(ReScanner, self).__init__(3)
@@ -59,15 +58,15 @@ class ReScanner(ThreadedManager):
             if job is None:
                 return
             path = tmp_path + os.sep + next(tempfile._get_candidate_names()) + '.mp4'
-            self._scan_and_bam(job,path)
-            Timer(8, clip_tag_to_clip, (job.clip_id, path,job.id)).start()
+            self._scan_and_bam(job, path)
+            Timer(8, clip_tag_to_clip, (job.clip_id, path, job.id)).start()
         except BaseException as e:
             cloud_error_logger(e, file=sys.stderr)
             traceback.print_exc()
             if job is not None:
                 update_scan_job_error(job.id, str(e))
 
-    def _scan_and_bam(self, job: TwitchClipInstanceScanJob,path:str):
+    def _scan_and_bam(self, job: TwitchClipInstanceScanJob, path: str):
         reader_buffer = Queue()
 
         url = self._get_url(job)

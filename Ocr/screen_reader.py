@@ -1,8 +1,6 @@
 from time import sleep
 
-import pytesseract
-
-from Ocr.frame import Frame
+from Ocr.frames.frame import Frame
 
 from Ocr.video_frame_buffer import VideoFrameBuffer
 
@@ -21,10 +19,10 @@ class ScreenReader:
 
     def consume_twitch_broadcast(self):
 
-        while self.Active and self.framebuffer._active:
+        while self.Active and self.framebuffer.active:
             frame = self.wait_next_frame()
             if frame is None:
-                sleep(1)
+                sleep(2)
                 continue
 
             self.ocr(frame)
@@ -32,5 +30,5 @@ class ScreenReader:
     def wait_next_frame(self):
         try:
             return self.framebuffer.get_one()
-        except BaseException as e:
+        except:
             return None

@@ -13,6 +13,7 @@ from cloud_logger import cloud_error_logger
 
 
 class TwitchEater(VideoFrameBuffer):
+    matcher: ScreenReader
     reader: VideoCapReader
     broadcaster: str = ''
 
@@ -25,6 +26,7 @@ class TwitchEater(VideoFrameBuffer):
         """
         super(TwitchEater, self).__init__()
 
+        self.matcher = None
         self.stream_res = ""
         self.reader = None
         self.broadcaster = broadcaster
@@ -88,5 +90,3 @@ class TwitchEater(VideoFrameBuffer):
             self.reader.stop()
 
         print("Capture thread stopping")
-
-

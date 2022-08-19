@@ -5,6 +5,7 @@ class StreamerConfig:
     min_blocking_duration = 2
     min_defense_duration = 2
     min_assist_duration = 2
+    min_contested_duration = 2
     stream_prefers_quality = '720p60'
     wait_for_mode = True
     buffer_prefers_quality = 'best'
@@ -14,5 +15,6 @@ class StreamerConfig:
     clip_deaths = False
 
     def __init__(self,defaults = {}):
+
         for key in defaults:
             setattr(self, key, defaults[key])

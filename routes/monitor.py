@@ -1,11 +1,12 @@
 from flask import Blueprint
 from Database.monitor import avoid_monitor
-from Ocr.tag_clipper import TagClipper
-from db_file import install
-from twitch_helpers import get_twitch_api
+from Monitors.tag_clipper import TagClipper
+
+from twitch_helpers.twitch_helpers import get_twitch_api
+
 monitor = Blueprint('monitor', __name__)
-from sharp_api import get_sharp
-sharp = get_sharp()
+from app import api_generator
+sharp = api_generator
 tag_clipper = TagClipper()
 
 
@@ -30,5 +31,3 @@ def get_live_streamers():
     twitch_api = get_twitch_api()
     streams = twitch_api.get_streams(game_id="488552", language=['en'])
     return streams['data']
-
-

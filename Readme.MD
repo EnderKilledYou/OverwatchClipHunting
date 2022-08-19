@@ -103,17 +103,17 @@ You can just start the beasty and overwrite the config's broadcaster by running 
 
 ## Customization
 
-Check out [overwatch_events.py](overwatch_events.py) to customize events
+Check out [overwatch_events.py](Events/overwatch_events.py) to customize events
 
 ## Add Other games
 
-Implement a [ScreenRegion](Ocr/screen_region.py) like  [OverwatchActionScreenRegion](Ocr/overwatch_action_screen_region.py)
+Implement a [ScreenRegion](Ocr/screen_region.py) like  [OverwatchActionScreenRegion](Ocr/overwatch_readers/overwatch_action_screen_region.py)
 
-and a [ScreenReader](Ocr/screen_reader.py) like  [OverewatchScreenReader](Ocr/overwatch_screen_reader.py)
+and a [ScreenReader](Ocr/screen_reader.py) like  [OverewatchScreenReader](Ocr/overwatch_readers/overwatch_screen_reader.py)
 
-and a [FrameTester](Ocr/frame_tester.py)  
+and a [FrameTester](Ocr/frames/frame_tester.py)  
 
-another example of [ScreenRegion](Ocr/screen_region.py) is [OverwatchActionScreenRegion](Ocr/overwatch_searching_for_game_screen_region.py)
+another example of [ScreenRegion](Ocr/screen_region.py) is [OverwatchActionScreenRegion](Ocr/overwatch_readers/overwatch_searching_for_game_screen_region.py)
 
 Screen regions are the part of the iamge you want to look at.
 

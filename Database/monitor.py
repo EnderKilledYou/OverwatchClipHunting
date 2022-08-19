@@ -2,14 +2,14 @@ import datetime
 import json
 import threading
 from queue import Queue
-from typing import List
+from typing import List, Dict
 
 from oauthlib.common import generate_token
 from sqlalchemy import func
 from sqlalchemy.orm import validates
 from sqlalchemy_serializer import SerializerMixin
 
-from Ocr.overwatch_screen_reader import OverwatchScreenReader
+from Ocr.overwatch_readers.overwatch_screen_reader import OverwatchScreenReader
 from Ocr.screen_reader import ScreenReader
 from Ocr.twitch_video_frame_buffer import TwitchEater
 from Ocr.video_frame_buffer import VideoFrameBuffer
@@ -44,7 +44,7 @@ class Monitor(db.Model, SerializerMixin):
             return str(self.to_dict())
 
     def check_need_restart(self):
-        if not self.ocr:
+        if not hasattr(self, 'ocr') or self.ocr is None:
             return
         reader = self.ocr.reader
         if not reader:
@@ -64,7 +64,11 @@ class Monitor(db.Model, SerializerMixin):
     serialize_only = ('id', 'activated_by', 'broadcaster', 'make_clips'
                       , 'min_healing_duration', 'min_elims', 'min_blocking_duration'
                       , 'min_defense_duration', 'min_assist_duration', 'stream_prefers_quality'
-                      , 'clip_deaths')
+                      , 'clip_deaths', 'is_active', 'activated_at', 'activated_by',
+                      'last_check_in', 'avoid', 'cancel_request',
+                      'frames_read', 'frames_done', 'frames_read_seconds',
+                      'back_fill_seconds', 'fps', 'queue_size',
+                      'stream_resolution')
     id = db.Column(db.Integer, primary_key=True)
     broadcaster = db.Column(db.String(90), unique=True)
     make_clips = db.Column(db.Boolean, default=True)
@@ -81,6 +85,14 @@ class Monitor(db.Model, SerializerMixin):
     last_check_in = db.Column(db.DATETIME)
     avoid = db.Column(db.Boolean(), default=False)
     cancel_request = db.Column(db.Boolean, default=True)
+    frames_read = db.Column(db.Integer, default=-1)
+    frames_done = db.Column(db.Integer, default=-1)
+    frames_read_seconds = db.Column(db.Integer, default=-1)
+    back_fill_seconds = db.Column(db.Integer, default=-1)
+    fps = db.Column(db.Integer, default=-1)
+    queue_size = db.Column(db.Integer, default=-1)
+    stream_resolution = db.Column(db.String(30))
+
     ocr: TwitchEater
 
     def __init__(self, broadcaster: str, web_dict={}):
@@ -125,11 +137,10 @@ def add_stream_to_monitor(broadcaster: str):
     monitor2 = get_monitor_by_name(lower)
     if not monitor2:
         monitor2 = Monitor(lower)
+        monitor2.is_active = True
         db.session.add(monitor2)
-    monitor2.is_active = True
-    db.session.commit()
-    db.session.flush()
-
+        db.session.commit()
+        db.session.flush()
     return monitor2
 
 
@@ -152,15 +163,18 @@ class NotOursAnymoreError:
     pass
 
 
-def update_claim_on_monitor(stream_name) -> Monitor:
+def update_claim_on_monitor(stream_name, fields: Dict[str, any] = {}) -> Monitor:
     monitor = get_monitor_by_name(stream_name)
     if monitor is None or monitor.activated_by != self_id:
         return False
 
     monitor.activated_at = datetime.datetime.now()
+    for field_name in fields:
+        setattr(monitor, field_name, fields[field_name])
     db.session.commit()
     db.session.flush()
     return True
+
 
 def get_claimed_count() -> Monitor:
     return db.session.query(func.count(Monitor.id)).filter_by(activated_by=self_id).scalar()
@@ -172,14 +186,42 @@ def unclaim_monitor(stream_name) -> Monitor:
         return
     monitor.activated_by = ""
     monitor.activated_at = datetime.datetime(1999, 12, 11, 0, 0)
+    monitor.is_active = False
     db.session.commit()
     db.session.flush()
+
+
+def reset_for_claim(stream_name):
+    monitor = get_monitor_by_name(stream_name)
+    if monitor is None:
+        return
+    monitor.frames_read = 0
+    monitor.frames_done = 0
+    monitor.frames_read_seconds = 0
+    monitor.back_fill_seconds = 0
+    monitor.fps = 0
+    monitor.queue_size = 0
+    monitor.stream_resolution = ''
+    db.session.commit()
+    db.session.flush()
+
+
+def release_monitors() -> bool:
+    cloud_logger()
+    minutes_in_past = datetime.datetime.now() - datetime.timedelta(minutes=5)
+    query = Monitor.query.filter(
+        Monitor.activated_at < minutes_in_past)
+    update_values = {
+        Monitor.activated_by: '',
+        Monitor.is_active: False
+    }
+    return query.update(update_values
+                        )
 
 
 def claim_monitor(stream_name) -> bool:
     cloud_logger()
     current_time = datetime.datetime.now()
-    seven_minutes_ago = current_time - datetime.timedelta(hours=0, minutes=7)
     monitor = get_monitor_by_name(stream_name)
     if monitor is None:
         cloud_message("Could not import " + stream_name + " when looking at streamers")
@@ -187,12 +229,14 @@ def claim_monitor(stream_name) -> bool:
     time_delta = current_time - datetime.datetime(1999, 12, 11, 0, 0)
     if monitor.activated_at is not None:
         time_delta = current_time - monitor.activated_at
-    if monitor.activated_at is None or (time_delta.seconds > 60 * 1 or not monitor.is_active):
+    last_claim_expy = time_delta.seconds > 60 * 1
+    if last_claim_expy or not monitor.is_active:
         query = Monitor.query.filter_by(
             activated_by=monitor.activated_by, broadcaster=stream_name)
         update_values = {
             Monitor.activated_by: self_id,
-            Monitor.activated_at: current_time}
+            Monitor.activated_at: current_time,
+            Monitor.is_active: True}
         result = query.update(update_values
                               , synchronize_session=False)
         db.session.commit()
@@ -263,3 +307,37 @@ def remove_stream_to_monitor(stream_name):
     monitor.is_active = False
     db.session.commit()
     db.session.flush()
+
+
+default = {
+
+    'frames_read': 0,
+    'frames_done': 0,
+    'frames_read_seconds': 0,
+    'back_fill_seconds': 0,
+    'fps': 0,
+    'queue_size': '',
+    'stream_resolution': '',
+
+}
+
+
+def get_monitor_stats(monitor: Monitor) -> Dict[str, str]:
+    if monitor.ocr is None or monitor.ocr.reader is None:
+        return default
+    reader = monitor.ocr.reader
+    qsize = reader.items_read - reader.items_drained
+    frames_pending = qsize * reader.sample_every_count
+    frames_finished = reader.items_drained * reader.sample_every_count
+    back_fill_seconds = frames_pending // reader.fps
+
+    return {
+        'frames_read': reader.items_read * reader.sample_every_count,
+        'frames_done': frames_finished,
+        'frames_read_seconds': frames_finished // reader.fps,
+        'back_fill_seconds': back_fill_seconds,
+        'fps': reader.fps,
+        'queue_size': qsize,
+        'stream_resolution': monitor.ocr.stream_res,
+
+    }

@@ -1,20 +1,46 @@
 from typing import List
 
+from dateutil.parser import isoparse
 from oauthlib.common import generate_token
 from sqlalchemy_serializer import SerializerMixin
 
-from Clipper.get_unix_time import get_unix_time
+from generic_helpers.get_unix_time import get_unix_time
 from config.db_config import db
 
-class SubClipPreferences(db.Model, SerializerMixin):
+
+class JsonFixed:
+    def __json__(self):
+        return self.to_dict()
+
+
+class FromWebDict:
+    def from_web(self, items):
+        for item in items:
+            if hasattr(self, item):
+                if item == 'started_at':
+                    setattr(self, item, isoparse(items[item]))
+                else:
+                    setattr(self, item, items[item])
+        return self
+
+
+class SubClipPreferences(db.Model, SerializerMixin, JsonFixed):
+
+    def __str__(self):
+        return 'SubClipPreferences: ' + str(self.zombie_id)
+
     serialize_rules = ()
     serialize_only = ('id', 'name')
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(900))
-    before_amount= db.Column(db.Integer)
+    before_amount = db.Column(db.Integer)
 
 
-class ZombieUser(db.Model, SerializerMixin):
+class ZombieUser(db.Model, SerializerMixin, JsonFixed):
+
+    def __str__(self):
+        return 'ZombieUser: ' + str(self.zombie_id)
+
     serialize_rules = ()
     serialize_only = ('id', 'name', 'token =', 'last_check_in_unix_time', 'is_active')
     id = db.Column(db.Integer, primary_key=True)
@@ -24,7 +50,11 @@ class ZombieUser(db.Model, SerializerMixin):
     is_active = db.Column(db.Boolean, default=True)
 
 
-class ZombieTask(db.Model, SerializerMixin):
+class ZombieTask(db.Model, SerializerMixin, JsonFixed):
+
+    def __str__(self):
+        return 'Zombie: ' + str(self.zombie_id)
+
     id = db.Column(db.Integer, primary_key=True)
     zombie_id = db.Column(db.Integer)
     task = db.Column(db.String(900))
@@ -115,8 +145,11 @@ def get_zombie_unstarted_tasks(zombie_id: int) -> List[ZombieTask]:
 def get_zombie_tasks(zombie_id: int) -> List[ZombieTask]:
     return list(ZombieTask.query.filter_by(id=zombie_id))
 
+
 def get_zombies() -> List[ZombieUser]:
     return list(ZombieUser.query.filter_by())
+
+
 def get_zombie_task_by_id(zombie_id: int) -> ZombieTask:
     return ZombieTask.query.filter_by(id=zombie_id).first()
 

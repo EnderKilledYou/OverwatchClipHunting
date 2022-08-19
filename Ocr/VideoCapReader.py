@@ -1,10 +1,9 @@
-import traceback
 from queue import Queue
 
 import cv2
 import cv2 as cv
 
-from Ocr.frame import Frame
+from Ocr.frames.frame import Frame
 from Ocr.no_stream_error import NoStreamError
 
 
@@ -31,11 +30,11 @@ class VideoCapReader:
             raise StreamEndedError("Could not read frame")
         return Frame(frame_number, frame, frame_number // fps, self.streamer_name)
 
-    def read(self, url, buffer, max: int = -1):
+    def read(self, url, buffer):
         self.Active = True
         self._acquire(url)
         try:
-            self._read(buffer, max)
+            self._read(buffer)
         except StreamEndedError:
             pass
         self._release()
@@ -43,7 +42,7 @@ class VideoCapReader:
     def stop(self):
         self.Active = False
 
-    def _read(self, buffer: Queue, max: int = -1):
+    def _read(self, buffer: Queue):
         video_capture = self.video_capture
 
         fps = int(video_capture.get(cv.CAP_PROP_FPS))
@@ -53,10 +52,10 @@ class VideoCapReader:
             fps = 60
         self.fps = fps
         self.sample_every_count = fps // 4
-        for frame in self._yield_frames(fps, max):
+        for frame in self._yield_frames(fps):
             buffer.put(frame)
 
-    def _yield_frames(self, fps, max: int = -1):
+    def _yield_frames(self, fps):
         frame_number = 0
         while self.Active:
             item = self._read_one(frame_number, fps)
@@ -67,8 +66,6 @@ class VideoCapReader:
                 yield item
                 self.items_read = self.items_read + 1
             frame_number = frame_number + 1
-            if 0 < max <= frame_number:
-                return
 
     def _acquire(self, url: str):
         self.video_capture = cv2.VideoCapture(url)

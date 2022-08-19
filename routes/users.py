@@ -1,13 +1,13 @@
 from flask import Blueprint, jsonify, session
 
 from Database.Twitch.twitch_user import TwitchUser
-from users.streamer_config import update_config, get_config_by_id, get_configs, get_configs_name
+from streamer_config import update_config, get_config_by_id, get_configs, get_configs_name
 
 streamer_config = Blueprint('streamer_config', __name__)
-from login_dec import requires_logged_in, requires_admin_user
-from sharp_api import get_sharp
+from routes.login_dec import requires_logged_in, requires_admin_user
 
-sharp = get_sharp()
+from app import api_generator
+sharp = api_generator
 
 
 @requires_logged_in()

@@ -1,4 +1,5 @@
 flask_sqlalchemy
+Flask-Caching
 flask_oauthlib
 sqlalchemy_serializer
 Flask

@@ -2,12 +2,11 @@ from flask import session, redirect, request, url_for, jsonify, Blueprint
 
 twitch = Blueprint('twitch', __name__)
 
-
 from config.db_config import db
 from config.twitch_oauth_config import twitch_oauth
 from Database.Twitch.twitch_user import TwitchUser
 from Database.Twitch.twitch_response import TwitchResponse
-from twitch.vod import get_current_user
+from twitch_helpers.vod import get_current_user
 
 
 @twitch_oauth.tokengetter
@@ -31,14 +30,12 @@ def authorized():
             )
         session['twitch_resp'] = resp
 
-        print(resp)
         me: TwitchUser = get_current_user(TwitchResponse(resp))
         session['me'] = me
         twitch_response = get_twitch_user_by_twitch_id(me)
 
         if twitch_response is None:
             twitch_response = TwitchResponse(resp)
-
 
             db.session.commit()
             db.session.flush()

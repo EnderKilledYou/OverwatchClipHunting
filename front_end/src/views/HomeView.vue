@@ -21,11 +21,11 @@
       </div>
     </div>
     <div class="row">
-      <on-twitch-now v-if="showTwitchers" :streams="twitch_streams_filtered"
+      <on-twitch-now :streams="twitch_streams_filtered"
                      @updatedmonitored="list_items"/>
     </div>
     <div class="row">
-      <currently-live :items="streamerMonitorStates"
+      <currently-live :items="items"
                       :show_inactive="showInactive" @updatedmonitored="list_items"/>
     </div>
 
@@ -34,7 +34,7 @@
 </template>
 
 <script lang="ts">
-import {API, StreamerMonitorState} from "@/api";
+import Monitor, {API, StreamerMonitorState, TwitchLiveStreamData} from "@/api";
 import OnTwitchNow from "@/views/OnTwitchNow.vue";
 import CurrentlyLive from "@/views/CurrentlyLive.vue"; // @ is an alias to /src
 
@@ -51,7 +51,7 @@ import {Component, Prop, Vue} from "vue-facing-decorator";
   },
 })
 export default class HomeView extends Vue {
-  streamerMonitorStates: StreamerMonitorState[] = [];
+
   streamerName: string = ""
 
 
@@ -59,6 +59,7 @@ export default class HomeView extends Vue {
 
   private interval: number = 0;
   private twitch_streams: any[] = [];
+
 
   async HideTwitch() {
     this.twitch_streams = []
@@ -89,7 +90,8 @@ export default class HomeView extends Vue {
   get twitch_streams_filtered() {
     if (!this.twitch_streams) return []
     let filter = this.twitch_streams.filter(a => {
-      return !this.streamerMonitorStates.find(b => b.name.toLowerCase() === a.user_name.toLowerCase())
+      if (!this.items) return []
+      return !this.items[0].find(b => b.broadcaster.toLowerCase() === a.user_name.toLowerCase())
     });
     if (!this.showInactive) {
       return filter.filter(this.RowHasExtraData.bind(this))
@@ -97,9 +99,8 @@ export default class HomeView extends Vue {
     return filter
   }
 
-  RowHasExtraData(watcher: StreamerMonitorState) {
+  RowHasExtraData(watcher: Monitor) {
 
-    return (watcher.data && watcher.data.thumbnail_url.length > 0)
   }
 
   created() {
@@ -121,11 +122,13 @@ export default class HomeView extends Vue {
     this.list_items()
   }
 
+  items?: [Monitor[], TwitchLiveStreamData[]]
 
   async list_items() {
 
-    const streamerResponse = await API.list()
-    this.streamerMonitorStates = streamerResponse.items.map((a: any) => new StreamerMonitorState(a))
+    const streamerResponse = await API.list_streamers()
+    this.items = streamerResponse.items
+
   }
 
 }

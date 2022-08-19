@@ -13,6 +13,7 @@ def config_db() -> SQLAlchemy:
     from app import app
     config_app_db_settings(app)
     dbx = SQLAlchemy(app)
+
     return dbx
 
 
@@ -36,7 +37,8 @@ def config_app_db_settings(app):
 
 
 db = config_db()
-
+db.drop_all()
+db.create_all()
 
 def init_db():
     db.drop_all()

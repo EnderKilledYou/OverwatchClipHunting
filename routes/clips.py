@@ -1,4 +1,3 @@
-import atexit
 import sys
 import traceback
 from time import sleep
@@ -6,14 +5,11 @@ from typing import Optional, List
 
 from dateutil.parser import isoparse
 from flask import Blueprint
-from sqlalchemy.orm import aliased
-from sqlalchemy.orm.query import BulkUD
 
 from Database.Twitch.twitch_clip_instance_scan_job import get_twitch_clip_scan_by_clip_id, add_twitch_clip_scan, \
     get_twitch_clip_scan_by_page
-from Database.tag_and_bag import add_tag_and_bag_request
 from cloud_logger import cloud_error_logger
-from login_dec import requires_logged_in
+from twitch_helpers.twitch_helpers import get_twitch_api
 
 clips = Blueprint('clips', __name__)
 from Ocr.re_scaner import ReScanner
@@ -22,21 +18,18 @@ from Database.Twitch.twitch_clip_tag import TwitchClipTag
 from Database.Twitch.get_tag_and_bag import get_tag_and_bag_by_clip_id
 
 from config.db_config import db
-from flask_events import flask_event
+from Events.flask_events import flask_event
 from routes.utils import query_to_list
 
 from routes.query_helper import get_query_by_page
-from sharp_api import get_sharp
-from Database.Twitch.twitch_clip_instance import TwitchClipInstance, \
-    get_twitch_clip_instance_by_video_id, add_twitch_clip_instance_from_api, get_twitch_clip_instance_by_id
-from Database.Twitch.tag_clipper_job import add_twitch_clip_job, reset_twitch_clip_job_state, requeue_twitch_clip_jobs
-from twitch_helpers import get_twitch_api, twitch_api
 
-sharp = get_sharp()
+from Database.Twitch.twitch_clip_instance import TwitchClipInstance, \
+    get_twitch_clip_instance_by_video_id, add_twitch_clip_instance_from_api
+from Database.Twitch.tag_clipper_job import add_twitch_clip_job
+from app import api_generator
+sharp = api_generator
 
 rescanner = ReScanner()
-
-
 
 
 @sharp.function()
@@ -67,7 +60,7 @@ def get_game_ids():
 def get_clip_scan_jobs(page: int = 1):
     try:
 
-        by_page = get_twitch_clip_scan_by_page(page,10)
+        by_page = get_twitch_clip_scan_by_page(page, 10)
         return {"success": True,
                 'items': list(map(lambda x: (x[0].to_dict(), x[1].to_dict()), by_page))}
     except BaseException as be:
@@ -95,12 +88,6 @@ def deleteclips(clip_id: str):
     return {"success": True}
 
 
-# clip_queue = get_tag_and_bag_by_clip_id(clip.id)
-# for a in clip_queue:
-#     clip_scan = add_twitch_clip_job(a.clip_id, a.id)
-#
-# add_twitch_clip_scan(clip.id)
-# job = get_twitch_clip_job()
 
 @sharp.function()
 def clip_tags(clip_id: int, tag_id: int):
@@ -137,9 +124,6 @@ def search_twitch_clips(broadcaster: Optional[str] = None,
     if not result:
         return {"success": False, "error": "something fucky no result maybe twitch ded?"}
     return {"success": True, 'api_result': result}
-
-
-
 
 
 def parse_broadcaster_id(broadcaster, twitch_api):

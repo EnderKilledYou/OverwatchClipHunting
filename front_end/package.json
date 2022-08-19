@@ -7,7 +7,7 @@
     "build": "vue-cli-service build",
     "clean": "rimraf ../front_end.zip && rimraf ../static",
     "zip": "zip-build  ../static ../   -f zip -t '%NAME%.%EXT%' && git add ../front_end.zip ",
-    "deploy": "npm run clean && npm run build && npm run zip"
+    "deploy_prep": "npm run clean && npm run build && npm run zip"
   },
   "dependencies": {
     "bootstrap": "^5.2.0",

@@ -1,7 +1,8 @@
+
 from app import app
 from Database.Twitch.twitch_clip_instance_scan_job import TwitchClipInstanceScanJob
 
-
+from Database.monitor import Monitor
 def get_columns(alchemy_class):
     columns = []
     for c in alchemy_class.__table__.columns:
@@ -27,8 +28,8 @@ def type_to_field(type_name):
     return "text"
 
 
-columns = get_columns(TwitchClipInstanceScanJob)
-class_name = 'TwitchClipInstanceScanJob'
+columns = get_columns(Monitor)
+class_name = 'Monitor'
 
 
 def format_table_header(columns):

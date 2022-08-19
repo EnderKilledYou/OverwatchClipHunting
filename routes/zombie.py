@@ -1,17 +1,16 @@
 from flask import Blueprint, request
-
 from Database.api_user import add_zombie, get_zombies
+from twitch_helpers.twitch_helpers import get_twitch_api
 
 zombie_route = Blueprint('zombie', __name__)
 from os import abort
 from time import sleep
 from Database.Twitch.twitch_clip_instance import get_twitch_clip_instance_by_video_id, add_twitch_clip_instance_from_api
 from Database.Twitch.twitch_clip_tag import add_twitch_clip_tag_request
-from sharp_api import get_sharp
-from something_manager import ThreadedManager
-from twitch_helpers import get_twitch_api
 
-sharp = get_sharp()
+from generic_helpers.something_manager import ThreadedManager
+from app import api_generator
+sharp = api_generator
 
 
 class ZombieKey:
@@ -41,7 +40,7 @@ def zombie_list(name: str):
     try:
         zombies = get_zombies()
         zombie_data = list(map(lambda x: x.to_dict(), zombies))
-        return {'success': True, 'zombie': zombie_data.to_dict()}
+        return {'success': True, 'zombie': zombie_data}
     except BaseException as e:
         return {'success': False, 'error': str(e)}
 
@@ -51,7 +50,7 @@ def zombie_task_list():
     try:
         zombies = get_zombies()
         zombie_data = list(map(lambda x: x.to_dict(), zombies))
-        return {'success': True, 'zombie': zombie_data.to_dict()}
+        return {'success': True, 'zombie': zombie_data}
     except BaseException as e:
         return {'success': False, 'error': str(e)}
 

@@ -1,5 +1,0 @@
-*/5 * * * * python3.8 db_file.py
-## 0 * * * * python db_file.py
-
-
-
