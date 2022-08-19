@@ -14,6 +14,8 @@ def claim_one_monitor(streams: List[LiveTwitchInstance], claimed_count: int):
         return
 
     for stream in streams:
+        if not stream.game_name.lower().startswith("overwatch"):
+            continue
         user_login = stream.user_login
         claimed = claim_monitor(user_login)
         if not claimed:
