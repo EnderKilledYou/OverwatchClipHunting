@@ -134,8 +134,7 @@ class Monitor(db.Model, SerializerMixin):
 def add_stream_to_monitor(broadcaster: str):
     cloud_logger()
     lower = broadcaster.lower().strip()
-    monitor2 = get_monitor_by_name(lower)
-    if not monitor2:
+    if not get_monitor_exists(lower):
         monitor2 = Monitor(lower)
         monitor2.is_active = True
         db.session.add(monitor2)
@@ -280,6 +279,9 @@ def get_monitor_by_name(stream_name: str) -> Monitor:
     cloud_logger()
     return Monitor.query.filter_by(broadcaster=stream_name).first()
 
+def get_monitor_exists(stream_name: str) -> Monitor:
+    cloud_logger()
+    return Monitor.query.filter_by(broadcaster=stream_name).count()
 
 def cancel_stream_to_monitor(stream_name):
     cloud_logger()
