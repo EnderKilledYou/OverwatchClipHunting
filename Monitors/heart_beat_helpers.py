@@ -20,6 +20,7 @@ def claim_one_monitor( streams: List[LiveTwitchInstance]):
             continue
         monitor = get_monitor_by_name(user_login)
         reset_for_claim(user_login)
+
         return monitor
 
 

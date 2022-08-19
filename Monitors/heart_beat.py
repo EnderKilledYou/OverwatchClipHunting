@@ -91,11 +91,11 @@ class HeartBeat:
     def _heart_beat(self, twitch_api):
         cloud_logger()
         release_monitors()
-        monitors = get_all_monitors()
-        user_list = list(map(lambda x: x.Broadcaster, monitors))
-        streams = get_monitored_streams(twitch_api, user_list)
+
+
+        streams = get_monitored_streams(twitch_api)
 
         monitor = claim_one_monitor(streams)
         if monitor is not None:
             self._add_to_monitor_list(monitor)
-        self.update_monitor_healths(monitors)
+        #self.update_monitor_healths(monitors)

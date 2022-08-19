@@ -144,8 +144,15 @@ def add_stream_to_monitor(broadcaster: str):
 
 
 def get_all_monitors() -> List[Monitor]:
-    cloud_logger()
-    return list(Monitor.query.filter_by())
+    # cloud_logger()
+    with db.session.begin():
+        return list(Monitor.query.filter_by())
+
+
+def get_all_logins() -> List[str]:
+    # cloud_logger()
+    with db.session.begin():
+        return list(map(lambda a: a[0], db.session.query(Monitor.broadcaster).filter_by()))
 
 
 def get_inactive_monitors() -> List[Monitor]:
@@ -164,7 +171,7 @@ class NotOursAnymoreError:
 
 def update_claim_on_monitor(stream_name, fields: Dict[str, any] = {}) -> Monitor:
     with db.session.begin():
-        monitor = get_monitor_by_name(stream_name)
+        monitor =  Monitor.query.filter_by(broadcaster=stream_name).first()
         if monitor is None or monitor.activated_by != self_id:
             return False
 
@@ -177,7 +184,8 @@ def update_claim_on_monitor(stream_name, fields: Dict[str, any] = {}) -> Monitor
 
 
 def get_claimed_count() -> Monitor:
-    return db.session.query(func.count(Monitor.id)).filter_by(activated_by=self_id).scalar()
+    with db.session.begin():
+        return db.session.query(func.count(Monitor.id)).filter_by(activated_by=self_id).scalar()
 
 
 def unclaim_monitor(stream_name) -> Monitor:
@@ -193,7 +201,7 @@ def unclaim_monitor(stream_name) -> Monitor:
 
 def reset_for_claim(stream_name):
     with db.session.begin():
-        monitor = get_monitor_by_name(stream_name)
+        monitor =   Monitor.query.filter_by(broadcaster=stream_name).first()
         if monitor is None:
             return
         monitor.frames_read = 0
@@ -224,7 +232,7 @@ def claim_monitor(stream_name) -> bool:
     cloud_logger()
     with db.session.begin():
         current_time = datetime.datetime.now()
-        monitor = get_monitor_by_name(stream_name)
+        monitor = Monitor.query.filter_by(broadcaster=stream_name).first()
         if monitor is None:
             cloud_message("Could not import " + stream_name + " when looking at streamers")
             return
@@ -242,8 +250,8 @@ def claim_monitor(stream_name) -> bool:
             result = query.update(update_values
                                   , synchronize_session=False)
 
-
-        return result == 1
+            return result == 1
+        return False
 
 
 def assert_monitor_still_claimed(monitor_id: str):
@@ -280,7 +288,10 @@ def get_monitor_by_id(monitor_id: int) -> Monitor:
 
 def get_monitor_by_name(stream_name: str) -> Monitor:
     cloud_logger()
-    return Monitor.query.filter_by(broadcaster=stream_name).first()
+    with db.session.begin():
+        first = Monitor.query.filter_by(broadcaster=stream_name).first()
+        db.session.expunge(first)
+        return first
 
 
 def get_monitor_exists(stream_name: str) -> Monitor:

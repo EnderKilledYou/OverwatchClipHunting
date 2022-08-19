@@ -3,19 +3,24 @@ from typing import List
 from twitchAPI import Twitch
 
 from Database.live_twitch_instance import LiveTwitchInstance
+from Database.monitor import get_all_monitors, get_all_logins
 from cloud_logger import cloud_logger
+from config.db_config import db
 
 
-def get_monitored_streams(twitch_api: Twitch, user_logins: List[str]):
+def get_monitored_streams(twitch_api: Twitch ):
     cloud_logger()
+    user_logins = get_all_logins( )
     if len(user_logins) == 0:
         return []
     live_streams = twitch_api.get_streams(user_login=user_logins)
     if live_streams and 'data' in live_streams:
-
-        return list(map(lambda x: LiveTwitchInstance().from_web(x), live_streams['data']))
+        return list(map(lambda x: LiveTwitchInstance(x), live_streams['data']))
     print("live streams didn't return a valid response")
     return []
+
+
+
 
 
 def filterTheDict(dictObj, callback):
