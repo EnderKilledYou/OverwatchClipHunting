@@ -41,11 +41,13 @@ def add_clip(clip_id: str):
         return {"success": False, "error": "clip doesn't on twitch"}
     clip = get_twitch_clip_instance_by_video_id(clip_id)
     if not clip:
-        clip = add_twitch_clip_instance_from_api(clip_resp['data'][0], 'elim')
-    job = add_twitch_clip_scan(clip.id, clip.broadcaster_name)
-    if job is not None:
-        rescanner.add_job(job.id)
-        return {"success": True, "clip": clip.to_dict()}
+        (clip_id, clip_broadcaster) = add_twitch_clip_instance_from_api(clip_resp['data'][0], 'elim')
+    else:
+        (clip_id, clip_broadcaster) = clip.id,clip.broadcaster_name
+    job_id = add_twitch_clip_scan(clip_id, clip_broadcaster)
+    if job_id is not None:
+        rescanner.add_job(job_id)
+        return {"success": True, "clip": clip}
     return {"success": False, "error": "Clip is alread being processed"}
 
 
@@ -63,7 +65,7 @@ def get_clip_scan_jobs(page: int = 1):
 
         by_page = get_twitch_clip_scan_by_page(page, 10)
         return {"success": True,
-                'items': list(map(lambda x: (x[0].to_dict(), x[1].to_dict()), by_page))}
+                'items': by_page}
     except BaseException as be:
 
         return {"success": False, 'error': str(be)}
@@ -207,14 +209,12 @@ def store_clip(clip_data, type):
             if len(clip["data"]) == 0:
                 print("couldn't get clip")
                 return
-        with db.session.begin():
-            clip = add_twitch_clip_instance_from_api(clip['data'][0], type)
 
-            job = add_twitch_clip_scan(clip.id, clip.broadcaster_name)
-        db.session.expunge(job)
-        db.session.expunge(clip)
-        if job is not None:
-            rescanner.add_job(job.id)
+        (clip_id, clip_broadcaster) = add_twitch_clip_instance_from_api(clip['data'][0], type)
+        job_id = add_twitch_clip_scan(clip_id, clip_broadcaster)
+
+        if job_id is not None:
+            rescanner.add_job(job_id)
     except BaseException as e:
         cloud_error_logger(e, file=sys.stderr)
         traceback.print_exc()

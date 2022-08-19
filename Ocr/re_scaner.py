@@ -11,7 +11,8 @@ from twitchdl import twitch
 from twitchdl.commands.download import get_clip_authenticated_url
 from twitchdl.download import download_file
 
-from Database.Twitch.twitch_clip_instance import get_twitch_clip_instance_by_id, update_twitch_clip_instance_filename
+from Database.Twitch.twitch_clip_instance import get_twitch_clip_instance_by_id, update_twitch_clip_instance_filename, \
+    get_twitch_clip_video_id_by_id
 from Database.Twitch.twitch_clip_instance_scan_job import TwitchClipInstanceScanJob, update_scan_job_error, \
     update_scan_job_percent, update_scan_job_started, update_scan_job_in_scanning
 from Ocr.clip_to_tag import clip_tag_to_clip
@@ -54,6 +55,7 @@ class ReScanner(ThreadedManager):
         wait_for_tesseract()
 
         try:
+
             job: TwitchClipInstanceScanJob = update_scan_job_started(job_id)
             if job is None:
                 return
@@ -88,10 +90,10 @@ class ReScanner(ThreadedManager):
         reader.stop()
 
     def _get_url(self, job: TwitchClipInstanceScanJob):
-        clip = get_twitch_clip_instance_by_id(job.clip_id)
-        if clip is None:
+        video_id = get_twitch_clip_video_id_by_id(job.clip_id)
+        if video_id is None:
             return None
-        return clip.video_id
+        return video_id
 
     def _stop(self):
         self._reader.stop()

@@ -76,7 +76,7 @@ def zombie_tag(api_key: str):
         return {"success": False, "error": "clip doesn't on twitch"}
     clip = get_twitch_clip_instance_by_video_id(clip['video_id'])
     if not clip:
-        clip = add_twitch_clip_instance_from_api(clip_resp['data'][0], 'elim')
+        (clip_id,clip_broadcaster) = add_twitch_clip_instance_from_api(clip_resp['data'][0], 'elim')
     add_twitch_clip_tag_request(clip_id=clip['video_id'], tag=tag['tag'], tag_amount=tag['tag_amount'],
                                 tag_duration=tag['tag_duration'], tag_start=tag['tag_start'], )
 

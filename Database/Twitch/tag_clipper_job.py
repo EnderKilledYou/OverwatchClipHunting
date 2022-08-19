@@ -40,10 +40,13 @@ def get_twitch_clip_job() -> TagClipperJob:
 
 
 def requeue_twitch_clip_jobs(rescanner):
-    items = TwitchClipInstanceScanJob.query.filter_by(state=0)
-    for item in items:
-        add_twitch_clip_scan(item.clip_id, item.broadcaster)
-        rescanner.add_job(item.id)
+    with db.session.begin():
+        items = TwitchClipInstanceScanJob.query.filter_by(state=0)
+        items_tuple = list(map(lambda x: (int(x.clip_id), x.broadcaster), items))
+    for item in items_tuple:
+        id =add_twitch_clip_scan(item[0], item[1])
+        if id is not None:
+            rescanner.add_job(id)
 
 
 def reset_twitch_clip_job_state():

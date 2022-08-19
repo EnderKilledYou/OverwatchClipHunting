@@ -1,12 +1,16 @@
 from datetime import datetime
+
 from sqlalchemy_serializer import SerializerMixin
+
+from Database.Twitch.dict_to_class import Dict2Class
+from Database.Twitch.twitch_clip_tag import TwitchClipTag
 from config.db_config import db
 
 
 class TwitchClipInstanceScanJob(db.Model, SerializerMixin):
     serialize_rules = ()
     serialize_only = (
-        'id', 'clip_id', 'state', 'created_at', 'completed_at', 'percent', 'error')
+        'id', 'clip_id', 'state', 'created_at', 'completed_at', 'percent', 'error','broadcaster')
     id = db.Column(db.Integer, primary_key=True)
     clip_id = db.Column(db.String(90), unique=True)
     state = db.Column(db.Integer)
@@ -23,7 +27,6 @@ from OrmHelpers.BasicWithId import BasicWithId
 
 twitch_clip_instance_scan_job_helper = BasicWithId(TwitchClipInstanceScanJob)
 
-from Database.Twitch.get_tag_and_bag import get_tag_and_bag_by_clip_id
 
 
 def get_twitch_clip_scan_by_id(id: int) -> TwitchClipInstanceScanJob:
@@ -46,37 +49,30 @@ def get_twitch_clip_scan_by_page(page: int, page_count: int = 25):
         resp = TwitchClipInstanceScanJob.query.filter_by().order_by(TwitchClipInstanceScanJob.id.desc()).paginate(
             page=page, per_page=page_count).items
     for a in resp:
-        by_id = get_twitch_clip_instance_by_id(a.clip_id)
-        db.session.expunge(a)
+        by_id = TwitchClipInstance.query.filter_by(id=a.clip_id).first()
         if by_id is not None:
-            db.session.expunge(by_id)
-            db.session.expunge(a)
-            output.append((a, by_id))
+            output.append((a.to_dict(), by_id.to_dict()))
 
     return output
 
 
 def add_twitch_clip_scan(clip_id: str, broadcaster: str) -> TwitchClipInstanceScanJob:
     with db.session.begin():
-        log = get_twitch_clip_scan_by_clip_id(clip_id)
-    if log:
-        db.session.expunge(log)
-        if log.state == 1 or log.state == 5:
-            return None
-        log.state = 0
-        log.error = ""
-        log.percent = 0
-        clips_found = get_tag_and_bag_by_clip_id(clip_id)
-        with db.session.begin():
-            for a in clips_found:
-                db.session.delete(a)
-            return log
-    with db.session.begin():
+        log = TwitchClipInstanceScanJob.query.filter_by(clip_id=clip_id).first()
+        if log:
+            if log.state == 1 or log.state == 5:
+                return None
+            db.session.delete(log)
+        clips_found = list(TwitchClipTag.query.filter_by(clip_id=clip_id))
+        for a in clips_found:
+            db.session.delete(a)
         log = TwitchClipInstanceScanJob(state=0, created_at=datetime.now(), clip_id=clip_id, broadcaster=broadcaster)
         db.session.add(log)
-    db.session.flush()
+        db.session.flush()
+        id = log.id
+
     db.session.expunge(log)
-    return log
+    return id
 
 
 def update_scan_job_error(scan_job_id: int, error_str: str):
@@ -139,7 +135,9 @@ def update_scan_job_started(scan_job_id: int):
             return
         item.state = 1
         item.percent = 0
-
+        dict_class = Dict2Class(item.to_dict())
     db.session.flush()
     db.session.expunge(item)
-    return item
+    return dict_class
+
+
