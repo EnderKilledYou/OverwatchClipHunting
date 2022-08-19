@@ -31,6 +31,11 @@ def register_blueprints(app: Flask):
     from routes.video import video as video_blueprint
     from routes.streamer import streamer as streamer_blueprint
     from Database.Twitch.twitch_clip_instance_scan_job import TwitchClipInstanceScanJob
+    from Database.Twitch.twitch_clip_instance import TwitchClipInstance
+    from Database.Twitch.twitch_clip_tag import TwitchClipTag
+    from Database.live_twitch_instance import LiveTwitchInstance
+    from Database.tag_and_bag import TagAndBagRequest
+
     from routes.zombie import zombie_route as zombie_callback_blueprint
 
     app.register_blueprint(zombie_callback_blueprint)
