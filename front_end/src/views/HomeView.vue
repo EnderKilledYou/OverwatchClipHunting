@@ -90,7 +90,7 @@ export default class HomeView extends Vue {
   get twitch_streams_filtered() {
     if (!this.twitch_streams) return []
     let filter = this.twitch_streams.filter(a => {
-      if (!this.items) return []
+      if (!this.items || !this.items[0]) return []
       return !this.items[0].find(b => b.broadcaster.toLowerCase() === a.user_name.toLowerCase())
     });
 

@@ -89,8 +89,11 @@ export default class CurrentlyLive extends Vue {
     debugger
     if (!this.items) return
     let item = this.items[0];
-    this.streamerMonitorStates = item.map((a: any) => new Monitor(a));
-    this.LiveStreams = this.items[1].map((a: any) => new TwitchLiveStreamData(a));
+    if (item) {
+      this.streamerMonitorStates = item.map((a: any) => new Monitor(a));
+    }
+    if (this.items.length > 1 && this.items[1])
+      this.LiveStreams = this.items[1].map((a: any) => new TwitchLiveStreamData(a));
   }
 
   @Emit('updatedmonitored')
