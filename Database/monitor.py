@@ -340,7 +340,7 @@ default = {
     'frames_read_seconds': 0,
     'back_fill_seconds': 0,
     'fps': 0,
-    'queue_size': '',
+    'queue_size': 0,
     'stream_resolution': '',
 
 }
