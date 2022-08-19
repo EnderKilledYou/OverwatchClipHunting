@@ -13,4 +13,4 @@ def get_tag_and_bag_by_clip_id(clip_id: int) -> List[TwitchClipTag]:
 
 
 def list_dicts(items):
-    return map(lambda x: Dict2Class(x), items)
+    return map(lambda x: Dict2Class(x.to_dict()), items)
