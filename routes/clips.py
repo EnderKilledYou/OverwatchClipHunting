@@ -8,7 +8,7 @@ from flask import Blueprint
 
 from Database.Twitch.twitch_clip_instance_scan_job import get_twitch_clip_scan_by_clip_id, add_twitch_clip_scan, \
     get_twitch_clip_scan_by_page
-from cloud_logger import cloud_error_logger
+from cloud_logger import cloud_error_logger, cloud_logger
 from twitch_helpers.twitch_helpers import get_twitch_api
 
 clips = Blueprint('clips', __name__)
@@ -35,6 +35,7 @@ rescanner = ReScanner()
 
 @sharp.function()
 def add_clip(clip_id: str):
+    cloud_logger()
     twitch_api = get_twitch_api()
     clip_resp = twitch_api.get_clips(clip_id=clip_id)
     if len(clip_resp['data']) == 0:
@@ -53,6 +54,7 @@ def add_clip(clip_id: str):
 
 @sharp.function()
 def get_game_ids():
+    cloud_logger()
     twitch_api = get_twitch_api()
     games = twitch_api.get_top_games(first=100)
     data = games['data']
@@ -61,8 +63,9 @@ def get_game_ids():
 
 @sharp.function()
 def get_clip_scan_jobs(page: int = 1):
-    try:
 
+    try:
+        cloud_logger()
         by_page = get_twitch_clip_scan_by_page(page, 10)
         return {"success": True,
                 'items': by_page}
@@ -73,6 +76,7 @@ def get_clip_scan_jobs(page: int = 1):
 
 @sharp.function()
 def add_clip_scan(clip_id: str):
+    cloud_logger()
     exists = get_twitch_clip_scan_by_clip_id(clip_id)
     if exists:
         return {"success": False, "error": "Job already exists, try resetting it"}
@@ -82,6 +86,7 @@ def add_clip_scan(clip_id: str):
 
 @sharp.function()
 def deleteclips(clip_id: str):
+    cloud_logger()
     with db.session.begin():
         clip = TwitchClipInstance.query.filter_by(id=int(clip_id)).first()
         if clip:
@@ -94,6 +99,7 @@ def deleteclips(clip_id: str):
 
 @sharp.function()
 def clip_tags(clip_id: int, tag_id: int):
+    cloud_logger()
     clip_scan = add_twitch_clip_job(clip_id, tag_id)
     return {"success": True, 'clip_scan': clip_scan.to_dict()}
 
@@ -110,6 +116,7 @@ def search_twitch_clips(broadcaster: Optional[str] = None,
     twitch_api = get_twitch_api(
     )
     try:
+        cloud_logger()
         if started_at is not None:
             started_at = isoparse(started_at)
         if ended_at is not None:
@@ -148,12 +155,14 @@ def parse_broadcaster_id(broadcaster, twitch_api):
 
 @sharp.function()
 def tags_job(clip_id: int):
+    cloud_logger()
     clip_scan = add_twitch_clip_scan(clip_id)
     return {"success": True, 'clip_scan': clip_scan.to_dict()}
 
 
 @sharp.function()
 def clips_search(creator_name: str, clip_type: List[str] = [], page: int = 1):
+    cloud_logger()
     int_page = int(page)
     if int_page < 1:
         int_page = 1
@@ -181,6 +190,7 @@ def clips_search(creator_name: str, clip_type: List[str] = [], page: int = 1):
 
 @sharp.function()
 def all_clips(clip_type: str = "", page: int = 1):
+    cloud_logger()
     int_page = int(page)
     with db.session.begin():
         if clip_type == "all":
@@ -201,6 +211,7 @@ def all_clips(clip_type: str = "", page: int = 1):
 
 @flask_event.on('clip')
 def store_clip(clip_data, type):
+    cloud_logger()
     try:
         clip = get_twitch_api().get_clips(clip_id=clip_data[0]["id"])
         if len(clip["data"]) == 0:
