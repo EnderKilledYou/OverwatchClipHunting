@@ -146,7 +146,10 @@ def add_stream_to_monitor(broadcaster: str):
 def get_all_monitors() -> List[Monitor]:
     # cloud_logger()
     with db.session.begin():
-        return list(Monitor.query.filter_by())
+        items = list(Monitor.query.filter_by())
+        for a in items:
+            db.session.expunge(a)
+        return items
 
 
 def get_all_logins() -> List[str]:

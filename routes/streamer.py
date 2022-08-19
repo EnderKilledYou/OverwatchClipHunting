@@ -27,7 +27,7 @@ def list_streamers():
         twitch_api = get_twitch_api()
         streams = None  # cache.get('get_monitored_streams')
         if streams is None:
-            streams = get_monitored_streams(twitch_api, user_list)
+            streams = get_monitored_streams(twitch_api)
             # cache.set('get_monitored_streams', 30)
         dictsm = list_obj_to_list_dicts(my_monitors)
         dictss = list_obj_to_list_dicts(streams)
