@@ -1,15 +1,8 @@
-
-
 import os
 import threading
 from flask import Flask, jsonify
 from oauthlib.common import generate_token
 from sharp import Sharp, naming
-
-
-
-from fix import class_checker
-
 
 from google_cloud_helpers.tesseract_install_helper import install
 

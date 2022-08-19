@@ -4,8 +4,10 @@ from Database.monitor import remove_stream_to_monitor, add_stream_to_monitor, ge
 from cloud_logger import cloud_error_logger
 from twitch_helpers.get_monitored_streams import get_monitored_streams
 from twitch_helpers.twitch_helpers import get_twitch_api
+
 streamer = Blueprint('streamer', __name__)
 from app import api_generator
+
 sharp = api_generator
 
 
@@ -27,10 +29,17 @@ def list_streamers():
         if streams is None:
             streams = get_monitored_streams(twitch_api, user_list)
             # cache.set('get_monitored_streams', 30)
-        return {"success": True, 'items': [my_monitors, streams]}
+        dictsm = list_object_to_dicts(my_monitors)
+        dictss = list_object_to_dicts(streams)
+        return {"success": True, 'items': [dictsm, dictss]}
     except BaseException as b:
         cloud_error_logger(b)
         return {"error": str(b)}
+
+
+def list_object_to_dicts(my_monitors):
+    list_obj_to_dict = list(map(lambda x: x.to_dict(), my_monitors))
+    return list_obj_to_dict
 
 
 @sharp.function()
