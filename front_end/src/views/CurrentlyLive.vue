@@ -44,6 +44,10 @@ export default class CurrentlyLive extends Vue {
 
   }
 
+
+
+
+
   GetLiveStream(monitor: Monitor) {
     return this.LiveStreams.find(a => a.user_login === monitor.broadcaster)
   }
