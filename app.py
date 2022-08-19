@@ -39,7 +39,7 @@ def register_blueprints(app: Flask):
     app.register_blueprint(twitch_blueprint)
     app.register_blueprint(monitor_blueprint)
     app.register_blueprint(video_blueprint)
-    # init_db()
+    init_db()
 
 
 app.url_map.strict_slashes = False
