@@ -48,10 +48,10 @@ class VideoCapReader:
         fps = int(video_capture.get(cv.CAP_PROP_FPS))
         if fps > 500:
             fps = 60
-        if fps == 0:
+        if fps < 10:
             fps = 60
         self.fps = fps
-        self.sample_every_count = fps // 4
+        self.sample_every_count = fps // 16
         for frame in self._yield_frames(fps):
             buffer.put(frame)
 
