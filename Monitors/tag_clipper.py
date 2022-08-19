@@ -4,6 +4,9 @@ import sys
 
 import time
 from os.path import abspath
+
+from dateutil.parser import isoparse
+
 from Database.Twitch.update_tag_and_bag_filename import update_tag_and_bag_filename
 from startup_file import copy_to_cloud
 from Database.Twitch.twitch_clip_instance import get_twitch_clip_instance_by_id, TwitchClipInstance, \
@@ -74,6 +77,8 @@ class TagClipper(ThreadedManager):
 
 
 def get_clip_path(clip: TwitchClipInstance):
+    if isinstance(clip.created_at, str):
+        clip.created_at = isoparse(clip.created_at)
     return f'videos/{clip.broadcaster_name}/{str(clip.created_at.year)}/{str(clip.created_at.month)}/{str(clip.created_at.day)}/'
 
 
