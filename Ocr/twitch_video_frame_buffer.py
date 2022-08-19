@@ -48,9 +48,11 @@ class TwitchEater(VideoFrameBuffer):
         self._consumers(matcher)
         wait_for_tesseract()
 
-        (ocr_stream, stream_res) = StreamLinkHelper.get_best_stream(self.broadcaster)
-        if ocr_stream is None:
+        best_stream = StreamLinkHelper.get_best_stream(self.broadcaster)
+        if best_stream is None:
             return
+        (ocr_stream, stream_res) = best_stream
+
         self.stream_res = stream_res
         self.capture_url_or_file(ocr_stream.url)
 
