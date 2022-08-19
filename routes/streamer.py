@@ -45,5 +45,4 @@ def list_obj_to_list_dicts(my_monitors):
 @sharp.function()
 def remove(stream_name: str):
     remove_stream_to_monitor(stream_name)
-
     return {"success": True, 'items': []}
