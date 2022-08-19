@@ -1,9 +1,14 @@
-import json_fix
+
+
 import os
 import threading
 from flask import Flask, jsonify
 from oauthlib.common import generate_token
 from sharp import Sharp, naming
+
+
+
+from fix import class_checker
 
 
 from google_cloud_helpers.tesseract_install_helper import install
@@ -30,11 +35,6 @@ def register_blueprints(app: Flask):
     from routes.clips import clips as clips_blueprint
     from routes.video import video as video_blueprint
     from routes.streamer import streamer as streamer_blueprint
-    from Database.Twitch.twitch_clip_instance_scan_job import TwitchClipInstanceScanJob
-    from Database.Twitch.twitch_clip_instance import TwitchClipInstance
-    from Database.Twitch.twitch_clip_tag import TwitchClipTag
-    from Database.live_twitch_instance import LiveTwitchInstance
-    from Database.tag_and_bag import TagAndBagRequest
 
     from routes.zombie import zombie_route as zombie_callback_blueprint
 
