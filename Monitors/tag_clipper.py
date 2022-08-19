@@ -77,9 +77,11 @@ class TagClipper(ThreadedManager):
 
 
 def get_clip_path(clip: TwitchClipInstance):
+    tmp = clip.created_at
     if isinstance(clip.created_at, str):
-        clip.created_at = isoparse(clip.created_at)
-    return f'videos/{clip.broadcaster_name}/{str(clip.created_at.year)}/{str(clip.created_at.month)}/{str(clip.created_at.day)}/'
+        tmp = isoparse(clip.created_at)
+
+    return f'videos/{clip.broadcaster_name}/{str(tmp.year)}/{str(tmp.month)}/{str(tmp.day)}/'
 
 
 def get_storage_path(clip: TwitchClipInstance):
