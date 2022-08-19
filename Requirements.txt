@@ -21,5 +21,3 @@ gunicorn
 PyMySQL
 google-cloud-storage
 json-fix
-marshmallow-sqlalchemy
-flask-marshmallow
