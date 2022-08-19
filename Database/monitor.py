@@ -146,7 +146,7 @@ def add_stream_to_monitor(broadcaster: str):
 def get_all_monitors() -> List[Monitor]:
     # cloud_logger()
     with db.session.begin():
-        items = list(Monitor.query.filter_by())
+        items = list(Monitor.query.filter_by(avoid=False))
         for a in items:
             db.session.expunge(a)
         return items
@@ -155,7 +155,7 @@ def get_all_monitors() -> List[Monitor]:
 def get_all_logins() -> List[str]:
     # cloud_logger()
     with db.session.begin():
-        return list(map(lambda a: a[0], db.session.query(Monitor.broadcaster).filter_by()))
+        return list(map(lambda a: a[0], db.session.query(Monitor.broadcaster).filter_by(avoid=False)))
 
 
 def get_inactive_monitors() -> List[Monitor]:
@@ -316,10 +316,12 @@ def cancel_stream_to_monitor(stream_name):
 def avoid_monitor(stream_name):
     cloud_logger()
     with db.session.begin():
-        monitor = get_monitor_by_name(stream_name)
+        monitor = Monitor.query.filter_by(broadcaster=stream_name).first()
         if not monitor:
             return
+        monitor.activated_by = "<avoid>"
         monitor.avoid = True
+
 
     db.session.flush()
 

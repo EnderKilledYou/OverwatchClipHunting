@@ -27,6 +27,7 @@ from Database.Twitch.twitch_clip_instance import TwitchClipInstance, \
     get_twitch_clip_instance_by_video_id, add_twitch_clip_instance_from_api
 from Database.Twitch.tag_clipper_job import add_twitch_clip_job
 from app import api_generator
+
 sharp = api_generator
 
 rescanner = ReScanner()
@@ -84,10 +85,9 @@ def deleteclips(clip_id: str):
         if clip:
             db.session.delete(clip)
 
-        db.session.flush()
+    db.session.flush()
 
     return {"success": True}
-
 
 
 @sharp.function()
@@ -146,7 +146,6 @@ def parse_broadcaster_id(broadcaster, twitch_api):
 
 @sharp.function()
 def tags_job(clip_id: int):
-    clip_queue = get_tag_and_bag_by_clip_id(clip_id)
     clip_scan = add_twitch_clip_scan(clip_id)
     return {"success": True, 'clip_scan': clip_scan.to_dict()}
 
@@ -156,26 +155,24 @@ def clips_search(creator_name: str, clip_type: List[str] = [], page: int = 1):
     int_page = int(page)
     if int_page < 1:
         int_page = 1
+    with db.session.begin():
+        q = TwitchClipInstance.query.join(TwitchClipTag,
+                                          TwitchClipInstance.id == TwitchClipTag.clip_id, isouter=False).with_entities(
+            TwitchClipInstance, TwitchClipTag)
 
-    q = TwitchClipInstance.query.join(TwitchClipTag,
-                                      TwitchClipInstance.id == TwitchClipTag.clip_id, isouter=False).with_entities(
-        TwitchClipInstance, TwitchClipTag)
+        if len(clip_type) > 0:
+            q = q.filter(TwitchClipTag.tag.in_(clip_type))
 
-    if len(clip_type) > 0:
-        q = q.filter(TwitchClipTag.tag.in_(clip_type))
+        if len(creator_name) > 0:
+            q = q.filter(TwitchClipInstance.broadcaster_name == creator_name)
 
-    if len(creator_name) > 0:
-        q = q.filter(TwitchClipInstance.broadcaster_name == creator_name)
-
-
-
-    clip_dict = {}
-    for a in q.order_by(TwitchClipInstance.id.desc()).limit(100).offset((int_page - 1) * 100):
-        if a[1] is None:
-            continue
-        if a[0] not in clip_dict:
-            clip_dict[a[0]] = (a[0].to_dict(), [])
-        clip_dict[a[0]][1].append(a[1].to_dict())
+        clip_dict = {}
+        for a in q.order_by(TwitchClipInstance.id.desc()).limit(100).offset((int_page - 1) * 100):
+            if a[1] is None:
+                continue
+            if a[0] not in clip_dict:
+                clip_dict[a[0]] = (a[0].to_dict(), [])
+            clip_dict[a[0]][1].append(a[1].to_dict())
 
     return {"success": True, 'items': list(clip_dict.values())}
 
@@ -183,17 +180,18 @@ def clips_search(creator_name: str, clip_type: List[str] = [], page: int = 1):
 @sharp.function()
 def all_clips(clip_type: str = "", page: int = 1):
     int_page = int(page)
+    with db.session.begin():
+        if clip_type == "all":
+            filter_by = TwitchClipInstance.query.filter_by()  # .order_by(TwitchClipLog.id.desc())
+        else:
+            filter_by = TwitchClipInstance.query.filter_by(type=clip_type).order_by(TwitchClipInstance.id.desc())
 
-    if clip_type == "all":
-        filter_by = TwitchClipInstance.query.filter_by()  # .order_by(TwitchClipLog.id.desc())
-    else:
-        filter_by = TwitchClipInstance.query.filter_by(type=clip_type).order_by(TwitchClipInstance.id.desc())
+        clips_response = get_query_by_page(filter_by, int_page)
 
-    clips_response = get_query_by_page(filter_by, int_page)
-
-    clip_list = query_to_list(clips_response)
-    resp_list = []
+        clip_list = query_to_list(clips_response)
+        resp_list = []
     for clip in clip_list:
+        db.session.expunge(clip)
         tags = list(map(lambda x: x.to_dict(), get_tag_and_bag_by_clip_id(clip['id'])))
         resp_list.append((clip, tags))
     return {"success": True, 'items': resp_list}
@@ -202,7 +200,6 @@ def all_clips(clip_type: str = "", page: int = 1):
 @flask_event.on('clip')
 def store_clip(clip_data, type):
     try:
-
         clip = get_twitch_api().get_clips(clip_id=clip_data[0]["id"])
         if len(clip["data"]) == 0:
             sleep(15)
@@ -210,9 +207,12 @@ def store_clip(clip_data, type):
             if len(clip["data"]) == 0:
                 print("couldn't get clip")
                 return
-        clip = add_twitch_clip_instance_from_api(clip['data'][0], type)
+        with db.session.begin():
+            clip = add_twitch_clip_instance_from_api(clip['data'][0], type)
 
-        job = add_twitch_clip_scan(clip.id, clip.broadcaster_name)
+            job = add_twitch_clip_scan(clip.id, clip.broadcaster_name)
+        db.session.expunge(job)
+        db.session.expunge(clip)
         if job is not None:
             rescanner.add_job(job.id)
     except BaseException as e:

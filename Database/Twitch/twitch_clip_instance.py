@@ -34,7 +34,6 @@ twitch_clip_instance_helper = BasicWithId(TwitchClipInstance)
 
 
 def fix_vod_and_duration(api_data):
-
     with db.session.begin():
         clip = get_twitch_clip_instance_by_video_id(api_data['id'])
         if clip is None:
@@ -54,24 +53,32 @@ def add_twitch_clip_instance_from_api(api_data, clip_type: str) -> TwitchClipIns
         log.type = clip_type
         db.session.add(log)
     db.session.flush()
+    db.session.expunge(log)
     return log
 
 
 def update_twitch_clip_instance_filename(twitch_clip_id: int, file_path):
     with db.session.begin():
-        item = get_twitch_clip_instance_by_id(twitch_clip_id)
+        item =  TwitchClipInstance.query.filter_by(id=twitch_clip_id).first()
         if not item:
             return
         item.file_path = file_path
 
     db.session.flush()
 
+
 def get_twitch_clip_instance_by_id(id: int) -> TwitchClipInstance:
-    return TwitchClipInstance.query.filter_by(id=id).first()
+    with db.session.begin():
+        first = TwitchClipInstance.query.filter_by(id=id).first()
+    db.session.expunge(first)
+    return first
 
 
 def get_twitch_clip_instance_by_video_id(video_id) -> TwitchClipInstance:
-    return TwitchClipInstance.query.filter_by(video_id=video_id).first()
+    with db.session.begin():
+        first = TwitchClipInstance.query.filter_by(video_id=video_id).first()
+    db.session.expunge(first)
+    return first
 
 
 def delete_twitch_clip_instance(instance: TwitchClipInstance):

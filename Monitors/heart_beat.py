@@ -31,9 +31,9 @@ class HeartBeat:
 
         self._active_monitor_count = 0
 
-    def update_monitor_healths(self, monitors: List[Monitor]):
+    def update_monitor_healths(self):
+        monitors = list(self._active_monitors)
         for monitor in monitors:
-
             needs = monitor.check_need_restart()
             if not needs:
                 continue
@@ -97,4 +97,4 @@ class HeartBeat:
         monitor = claim_one_monitor(streams, len(self._active_monitors))
         if monitor is not None:
             self._add_to_monitor_list(monitor)
-        # self.update_monitor_healths(monitors)
+        self.update_monitor_healths()

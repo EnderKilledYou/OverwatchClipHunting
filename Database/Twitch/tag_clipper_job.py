@@ -42,7 +42,7 @@ def get_twitch_clip_job() -> TagClipperJob:
 def requeue_twitch_clip_jobs(rescanner):
     items = TwitchClipInstanceScanJob.query.filter_by(state=0)
     for item in items:
-        add_twitch_clip_scan(item.clip_id,item.broadcaster)
+        add_twitch_clip_scan(item.clip_id, item.broadcaster)
         rescanner.add_job(item.id)
 
 
@@ -69,7 +69,6 @@ def update_twitch_clip_job_state(job_id: int, state: int, error: str = '') -> Li
         if state == 3:
             item.error = error
 
-
     db.session.flush()
 
 
@@ -84,5 +83,6 @@ def add_twitch_clip_job(clip_id: int, tag_id: int) -> TagClipperJob:
             raise RecordExistsError('already exists')
         log = TagClipperJob(state=0, created_at=datetime.datetime.now(), clip_id=clip_id, tag_id=tag_id)
         db.session.add(log)
+    db.session.expunge(log)
     db.session.flush()
     return log

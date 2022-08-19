@@ -17,7 +17,7 @@ class TwitchClipInstanceScanJob(db.Model, SerializerMixin):
     error = db.Column(db.String(900), default='')
 
 
-from Database.Twitch.twitch_clip_instance import get_twitch_clip_instance_by_id
+from Database.Twitch.twitch_clip_instance import get_twitch_clip_instance_by_id, TwitchClipInstance
 
 from OrmHelpers.BasicWithId import BasicWithId
 
@@ -27,45 +27,55 @@ from Database.Twitch.get_tag_and_bag import get_tag_and_bag_by_clip_id
 
 
 def get_twitch_clip_scan_by_id(id: int) -> TwitchClipInstanceScanJob:
-    return TwitchClipInstanceScanJob.query.filter_by(id=id).first()
+    with db.session.begin():
+        first = TwitchClipInstanceScanJob.query.filter_by(id=id).first()
+    db.session.expunge(first)
+    return first
 
 
 def get_twitch_clip_scan_by_clip_id(clip_id: int) -> TwitchClipInstanceScanJob:
-    return TwitchClipInstanceScanJob.query.filter_by(clip_id=clip_id).first()
+    with db.session.begin():
+        first = TwitchClipInstanceScanJob.query.filter_by(clip_id=clip_id).first()
+    db.session.expunge(first)
+    return first
 
 
 def get_twitch_clip_scan_by_page(page: int, page_count: int = 25):
-    try:
+    output = []
+    with db.session.begin():
         resp = TwitchClipInstanceScanJob.query.filter_by().order_by(TwitchClipInstanceScanJob.id.desc()).paginate(
             page=page, per_page=page_count).items
-        output = []
-        for a in resp:
-            by_id = get_twitch_clip_instance_by_id(a.clip_id)
-            if by_id is not None:
-                output.append((a, by_id))
-    except:
-        output = []
+    for a in resp:
+        by_id = get_twitch_clip_instance_by_id(a.clip_id)
+        db.session.expunge(a)
+        if by_id is not None:
+            db.session.expunge(by_id)
+            db.session.expunge(a)
+            output.append((a, by_id))
+
     return output
 
 
 def add_twitch_clip_scan(clip_id: str, broadcaster: str) -> TwitchClipInstanceScanJob:
     with db.session.begin():
         log = get_twitch_clip_scan_by_clip_id(clip_id)
-        if log:
-            if log.state == 1 or log.state == 5:
-                return None
-            log.state = 0
-            log.error = ""
-            log.percent = 0
-            clips_found = get_tag_and_bag_by_clip_id(clip_id)
+    if log:
+        db.session.expunge(log)
+        if log.state == 1 or log.state == 5:
+            return None
+        log.state = 0
+        log.error = ""
+        log.percent = 0
+        clips_found = get_tag_and_bag_by_clip_id(clip_id)
+        with db.session.begin():
             for a in clips_found:
                 db.session.delete(a)
-
             return log
+    with db.session.begin():
         log = TwitchClipInstanceScanJob(state=0, created_at=datetime.now(), clip_id=clip_id, broadcaster=broadcaster)
         db.session.add(log)
-
     db.session.flush()
+    db.session.expunge(log)
     return log
 
 
@@ -115,7 +125,7 @@ def update_scan_job_in_subclip(scan_job_id: int):
 
 def update_scan_job_in_queue(scan_job_id: int):
     with db.session.begin():
-        item: TwitchClipInstanceScanJob = TwitchClipInstanceScanJob.query.filter_by(id=scan_job_id).first()
+        item: TwitchClipInstanceScanJob = TwitchClipInstance.query.filter_by(id=scan_job_id).first()
         if item is None:
             return
         item.state = 5
@@ -131,4 +141,5 @@ def update_scan_job_started(scan_job_id: int):
         item.percent = 0
 
     db.session.flush()
+    db.session.expunge(item)
     return item

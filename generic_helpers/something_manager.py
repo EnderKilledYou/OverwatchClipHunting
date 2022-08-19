@@ -3,6 +3,7 @@ import threading
 from queue import Queue, Empty
 from time import sleep
 
+from cloud_logger import cloud_error_logger
 
 
 class ThreadedManager:
