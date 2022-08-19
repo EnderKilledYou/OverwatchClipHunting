@@ -10,15 +10,15 @@
           }}</a></h5>
         <p class="card-text" v-if="watcher.is_active"> {{ watcher.frames_done }} ( {{
             watcher.back_fill_seconds
-          }} s) / {{ watcher.frames_read }}
+          }} s lag) / {{ watcher.frames_read }}
           (
-          {{ watcher.frames_read_seconds }} s)</p>
+          {{ watcher.frames_read_seconds }} s <small class="text-danger"> read</small>)</p>
         <p v-if="GetLiveStream(watcher)" class="card-text">
           {{ GetLiveStream(watcher).viewer_count }} watching since:
           {{ GetLiveStream(watcher).started_at }}</p>
         <p v-if="GetLiveStream(watcher)" class="card-text"> {{ GetLiveStream(watcher).game_name }} </p>
       </div>
-      <span v-if="watcher.is_active"  class="text-success">({{
+      <span v-if="watcher.is_active" class="text-success">({{
           watcher.stream_resolution
         }}@{{ watcher.fps }})</span>
       <button class="btn btn-danger btn-block btn-outline-dark" @click="Avoid(watcher)">Avoid Watching</button>
