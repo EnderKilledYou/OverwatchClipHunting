@@ -5,20 +5,20 @@
            :src="GetThumbnailUrl(watcher)"/>
 
       <div class="card-body">
-        <h5 class="card-title"><a target="_blank" :href="`https://twitch.tv/` + watcher.name">{{
-            watcher.name
+        <h5 class="card-title"><a target="_blank" :href="`https://twitch.tv/` + watcher.broadcaster">{{
+            watcher.broadcaster
           }}</a></h5>
-        <p class="card-text" v-if="GetLiveStream(watcher)"> {{ watcher.frames_done }} ( {{
+        <p class="card-text" v-if="watcher.is_active"> {{ watcher.frames_done }} ( {{
             watcher.back_fill_seconds
           }} s) / {{ watcher.frames_read }}
           (
           {{ watcher.frames_read_seconds }} s)</p>
         <p v-if="GetLiveStream(watcher)" class="card-text">
-          {{ watcher.viewer_count }} watching since:
-          {{ watcher.started_at }}</p>
-        <p v-if="GetLiveStream(watcher)" class="card-text"> {{ watcher.game_name }} </p>
+          {{ GetLiveStream(watcher).viewer_count }} watching since:
+          {{ GetLiveStream(watcher).started_at }}</p>
+        <p v-if="GetLiveStream(watcher)" class="card-text"> {{ GetLiveStream(watcher).game_name }} </p>
       </div>
-      <span class="text-success">({{
+      <span v-if="watcher.is_active"  class="text-success">({{
           watcher.stream_resolution
         }}@{{ watcher.fps }})</span>
       <button class="btn btn-danger btn-block btn-outline-dark" @click="Avoid(watcher)">Avoid Watching</button>
@@ -61,7 +61,7 @@ export default class CurrentlyLive extends Vue {
     if (this.show_inactive) {
       return true
     }
-    return this.GetLiveStream(watcher)
+    return watcher.is_active
   }
 
   @Prop show_inactive?: boolean

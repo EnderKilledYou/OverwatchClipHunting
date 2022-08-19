@@ -116,7 +116,7 @@ export default class ClipView extends Vue {
   }
 
   async Delete(clip: TwitchClipLog) {
-    await API.remove(clip.id)
+    await API.deleteclips(clip.id)
     await this.list_items()
   }
 

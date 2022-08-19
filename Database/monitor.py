@@ -325,7 +325,6 @@ def avoid_monitor(stream_name):
 
     db.session.flush()
 
-
 def remove_stream_to_monitor(stream_name):
     with db.session.begin():
         monitor = get_monitor_by_name(stream_name)
@@ -333,6 +332,8 @@ def remove_stream_to_monitor(stream_name):
             return
         monitor.is_active = False
     db.session.flush()
+
+
 
 
 default = {
