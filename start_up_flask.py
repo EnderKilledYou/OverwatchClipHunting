@@ -2,9 +2,10 @@ import atexit
 import threading
 
 from Database.Twitch.tag_clipper_job import reset_twitch_clip_job_state, requeue_twitch_clip_jobs
-from app import app
+
 from Monitors.heart_beat import HeartBeat
-from config.db_config import init_db
+from google_cloud_helpers.tesseract_install_helper import install
+
 from routes.clips import rescanner
 
 nothing = ""
@@ -22,3 +23,4 @@ atexit.register(rescanner.stop)
 atexit.register(alli.stop)
 
 threading.Thread(target=start_up).start()
+threading.Thread(target=install, args=[]).start()

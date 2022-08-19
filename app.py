@@ -1,10 +1,8 @@
 import os
-import threading
 from flask import Flask, jsonify
 from oauthlib.common import generate_token
 from sharp import Sharp, naming
 
-from google_cloud_helpers.tesseract_install_helper import install
 
 
 def config_app() -> Flask:
@@ -57,13 +55,10 @@ def not_found(e):
         return "The app didn't install error"
 
 
-# if 'OCR_PRODUCTION' in os.environ:
-# read_db_from_cloud()
-# thread = RepeatingTimer()
-# thread.start()
+
 if __name__ == '__main__':
     app.run(threaded=True)
 
-from start_up_flask import nothing
 
-threading.Thread(target=install, args=[nothing]).start()
+
+
