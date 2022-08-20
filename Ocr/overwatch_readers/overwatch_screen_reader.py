@@ -3,6 +3,7 @@ import sys
 import cv2 as cv
 from PIL import Image
 
+
 from Ocr.frames.frame import Frame
 from Ocr.frames.frame_tester import FrameTester
 from Ocr.frames.ordered_frame_aggregator import OrderedFrameAggregator
@@ -11,7 +12,7 @@ from Ocr.overwatch_readers.overwatch_searching_for_game_screen_region import Ove
 from Ocr.screen_reader import ScreenReader
 from Ocr.video_frame_buffer import VideoFrameBuffer
 from cloud_logger import cloud_error_logger
-from start_up_flask import alli
+
 
 
 class OverwatchScreenReader(ScreenReader):
@@ -49,8 +50,9 @@ class OverwatchScreenReader(ScreenReader):
                 if not frame.empty:
                     self.last_action_second = frame.ts_second
                 if self.frame_watcher.in_queue:
+                    import start_up_flask
                     print("In queue " + frame.source_name)
-                    alli.stop_streamer(frame.source_name)
+                    start_up_flask.alli.stop_streamer(frame.source_name)
                     self.skip_frames += 2
                     return
                 if frame.ts_second - self.last_action_second > 45 and frame.empty:

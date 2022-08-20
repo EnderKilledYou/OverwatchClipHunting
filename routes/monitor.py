@@ -1,10 +1,12 @@
+
+
+
 from flask import Blueprint
-from Database.monitor import avoid_monitor
+monitor = Blueprint('monitor', __name__)
 from Monitors.tag_clipper import TagClipper
 
 from twitch_helpers.twitch_helpers import get_twitch_api
-
-monitor = Blueprint('monitor', __name__)
+from Database.avoid_monitor import avoid_monitor
 from app import api_generator
 sharp = api_generator
 tag_clipper = TagClipper()

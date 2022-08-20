@@ -191,17 +191,6 @@ def get_claimed_count() -> Monitor:
         return db.session.query(func.count(Monitor.id)).filter_by(activated_by=self_id).scalar()
 
 
-def unclaim_monitor(stream_name) -> Monitor:
-    with db.session.begin():
-        monitor =  Monitor.query.filter_by(broadcaster=stream_name).first()
-        if monitor is None:
-            return
-        monitor.activated_by = ""
-        monitor.activated_at = datetime.datetime(1999, 12, 11, 0, 0)
-        monitor.is_active = False
-    db.session.flush()
-
-
 def reset_for_claim(stream_name):
     with db.session.begin():
         monitor =   Monitor.query.filter_by(broadcaster=stream_name).first()
@@ -313,17 +302,7 @@ def cancel_stream_to_monitor(stream_name):
     db.session.flush()
 
 
-def avoid_monitor(stream_name):
-    cloud_logger()
-    with db.session.begin():
-        monitor = Monitor.query.filter_by(broadcaster=stream_name).first()
-        if not monitor:
-            return
-        monitor.activated_by = "<avoid>"
-        monitor.avoid = True
 
-
-    db.session.flush()
 
 def remove_stream_to_monitor(stream_name):
     with db.session.begin():

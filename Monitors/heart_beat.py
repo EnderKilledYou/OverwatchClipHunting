@@ -4,21 +4,21 @@ from threading import Timer, Thread
 from time import sleep
 from typing import List
 
-from Database.monitor import unclaim_monitor, Monitor, update_claim_on_monitor, get_monitor_stats, release_monitors, \
-    get_all_monitors
+
+from Database.unclaim_monitor import unclaim_monitor
 from Monitors.heart_beat_helpers import claim_one_monitor
 from cloud_logger import cloud_logger, cloud_error_logger
 from twitch_helpers.get_monitored_streams import get_monitored_streams
 from twitch_helpers.twitch_helpers import get_twitch_api
 
-
+from Database.monitor import Monitor, update_claim_on_monitor, get_monitor_stats, release_monitors, \
+    get_all_monitors
 class HeartBeat:
     _claim_timer: Timer
 
     def __json__(self):
         return "Heartbeat"
 
-    monitor: Monitor
     _thread_timer: Thread
 
     def __init__(self, max_active_monitors=5):
@@ -32,7 +32,7 @@ class HeartBeat:
         self._active_monitor_count = 0
 
     def update_monitor_healths(self):
-        monitors =self.get_copy_active_monitors()
+        monitors = self.get_copy_active_monitors()
         for monitor in monitors:
             needs = monitor.check_need_restart()
             if not needs:
@@ -133,10 +133,11 @@ class HeartBeat:
     def size(self):
         self._data_lock.acquire(True)
         try:
-          return len(self._active_monitors)
+            return len(self._active_monitors)
         finally:
             self._data_lock.release()
             pass
+
     def _prod_monitors(self, streams):
         monitors = self.get_copy_active_monitors()
         for monitor in monitors:

@@ -1,7 +1,8 @@
 import threading
 from threading import Thread
 
-from Database.monitor import add_stream_to_monitor, get_all_monitors, avoid_monitor
+from Database.monitor import add_stream_to_monitor, get_all_monitors
+from Database.avoid_monitor import avoid_monitor
 from cloud_logger import cloud_logger, cloud_error_logger, cloud_message
 
 
