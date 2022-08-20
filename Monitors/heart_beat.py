@@ -11,8 +11,7 @@ from cloud_logger import cloud_logger, cloud_error_logger
 from twitch_helpers.get_monitored_streams import get_monitored_streams
 from twitch_helpers.twitch_helpers import get_twitch_api
 
-from Database.monitor import Monitor, update_claim_on_monitor, get_monitor_stats, release_monitors, \
-    get_all_monitors
+from Database.monitor import Monitor, update_claim_on_monitor, get_monitor_stats, release_monitors
 class HeartBeat:
     _claim_timer: Timer
 
