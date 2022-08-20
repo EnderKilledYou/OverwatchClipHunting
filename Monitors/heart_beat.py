@@ -22,7 +22,7 @@ class HeartBeat:
     _thread_timer: Thread
 
     def __init__(self, max_active_monitors=5):
-
+        self._data_lock = threading.Lock()
         self.max_active_monitors = max_active_monitors
         self._thread_timer = None
         self._claim_timer = None
@@ -32,7 +32,7 @@ class HeartBeat:
         self._active_monitor_count = 0
 
     def update_monitor_healths(self):
-        monitors = list(self._active_monitors)
+        monitors =self.get_copy_active_monitors()
         for monitor in monitors:
             needs = monitor.check_need_restart()
             if not needs:
@@ -47,7 +47,7 @@ class HeartBeat:
         self._thread_timer.start()
 
     def stop_streamer(self, streamer_name):
-        streamer_names = list(self._active_monitors)
+        streamer_names = self.get_copy_active_monitors()
         for active_stream in streamer_names:
             if active_stream.broadcaster == streamer_name:
                 self._remove_monitor_from_list(active_stream.broadcaster)
@@ -81,28 +81,72 @@ class HeartBeat:
 
     def _add_to_monitor_list(self, monitor: Monitor):
         monitor.start()
-        self._active_monitors.append(monitor)
+        self._data_lock.acquire()
+        try:
+            self._active_monitors.append(monitor)
+        finally:
+            self._data_lock.release()
 
     def _remove_monitor_from_list(self, streamer_name: str):
-        item_range_count = reversed(range(0, len(self.get_copy_active_monitors())))
-        for i in item_range_count:
-            monitor = self._active_monitors[i]
-            if monitor.Broadcaster == streamer_name:
-                monitor.stop()
-                del self._active_monitors[i]
+        self._data_lock.acquire()
+        try:
+            item_range_count = reversed(range(0, len(self._active_monitors)))
+            for i in item_range_count:
+                monitor = self._active_monitors[i]
+                if monitor.Broadcaster == streamer_name:
+                    monitor.stop()
+                    del self._active_monitors[i]
 
-                break
+                    break
+        finally:
+            self._data_lock.release()
+
+    def delete_monitor_index(self, index) -> List[Monitor]:
+        self._data_lock.acquire(True)
+        try:
+            del self._active_monitors[index]
+        finally:
+            self._data_lock.release()
+            pass
 
     def get_copy_active_monitors(self) -> List[Monitor]:
-        return list(self._active_monitors)
+        self._data_lock.acquire(True)
+        try:
+            return list(self._active_monitors)
+        finally:
+            self._data_lock.release()
+            pass
 
     def _heart_beat(self, twitch_api):
         cloud_logger()
         release_monitors()
 
         streams = get_monitored_streams(twitch_api)
+        self._prod_monitors(streams)
 
-        monitor = claim_one_monitor(streams, len(self._active_monitors))
-        if monitor is not None:
+        claim = claim_one_monitor(streams, self.size())
+        if claim is not None:
+            monitor, game = claim
             self._add_to_monitor_list(monitor)
         self.update_monitor_healths()
+
+    def size(self):
+        self._data_lock.acquire(True)
+        try:
+          return len(self._active_monitors)
+        finally:
+            self._data_lock.release()
+            pass
+    def _prod_monitors(self, streams):
+        monitors = self.get_copy_active_monitors()
+        for monitor in monitors:
+            found = False
+            for stream in streams:
+                if monitor.Broadcaster != stream.user_login:
+                    continue
+                found = True
+                if stream.game_name.lower().startswith("overwatch"):
+                    continue
+                self.stop_streamer(stream.user_login)  # they changed game
+            if not found:
+                self.stop_streamer(stream.user_login)  # they stopped stream

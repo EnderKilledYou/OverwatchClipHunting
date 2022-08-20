@@ -11,6 +11,7 @@ from Ocr.overwatch_readers.overwatch_searching_for_game_screen_region import Ove
 from Ocr.screen_reader import ScreenReader
 from Ocr.video_frame_buffer import VideoFrameBuffer
 from cloud_logger import cloud_error_logger
+from start_up_flask import alli
 
 
 class OverwatchScreenReader(ScreenReader):
@@ -49,6 +50,7 @@ class OverwatchScreenReader(ScreenReader):
                     self.last_action_second = frame.ts_second
                 if self.frame_watcher.in_queue:
                     print("In queue " + frame.source_name)
+                    alli.stop_streamer(frame.source_name)
                     self.skip_frames += 2
                     return
                 if frame.ts_second - self.last_action_second > 45 and frame.empty:
