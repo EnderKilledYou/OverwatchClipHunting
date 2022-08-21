@@ -1,4 +1,5 @@
 import os
+import subprocess
 import sys
 import tempfile
 import traceback
@@ -82,12 +83,12 @@ class ReScanner(ThreadedManager):
         update_scan_job_in_scanning(job.id)
         frames = queue_to_list(reader_buffer)
         frames.sort(key=attrgetter('frame_number'))
-        self._scan_clip(job, frames)
+        self._scan_clip(job, frames, path)
 
     def _read(self, job, path, reader_buffer):
-        reader = ClipVideoCapReader(job.broadcaster, job.clip_id)
-        reader.read(path, reader_buffer)
-        reader.stop()
+        pass
+        # reader.read(path, reader_buffer)
+        # reader.stop()
 
     def _get_url(self, job: TwitchClipInstanceScanJob):
         video_id = get_twitch_clip_video_id_by_id(job.clip_id)
@@ -99,16 +100,23 @@ class ReScanner(ThreadedManager):
         if self._reader is not None:
             self._reader.stop()
 
-    def _scan_clip(self, job: TwitchClipInstanceScanJob, reader_list):
-        size = len(reader_list)
+    def _scan_clip(self, job: TwitchClipInstanceScanJob, reader_list, path: str):
+        reader = ClipVideoCapReader(job.broadcaster, job.clip_id)
+        # size = len(reader_list)
         frame_number = 0
+        seconds = get_length(path)
+        size = reader.fps * seconds
         try:
+
             with PyTessBaseAPI(path=tess_fast_dir) as api:
-                for frame in reader_list:
-                    self.matcher.ocr(frame,api)
+                for frame in reader.readYield(path):
+                    self.matcher.ocr(frame, api)
                     self._frame_count += 1
                     frame_number = frame_number + 1
-                    percent_done = frame_number / size
+                    if frame_number < size:
+                        percent_done = frame_number / size
+                    else:
+                        percent_done = .99 # we guessed the fps wrong (ffmped)
                     i = int(percent_done * 100.0)
                     if i > 0 and i % 15 == 0:
                         update_scan_job_percent(job.id, percent_done)
@@ -128,3 +136,10 @@ def queue_to_list(queue: Queue):
     except Empty:
         pass
     return items
+
+
+def get_length(input_video):
+    result = subprocess.run(
+        ['ffprobe', '-v', 'error', '-show_entries', 'format=duration', '-of', 'default=noprint_wrappers=1:nokey=1',
+         input_video], stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+    return float(result.stdout)

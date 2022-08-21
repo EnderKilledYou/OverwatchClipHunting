@@ -40,8 +40,34 @@ class VideoCapReader:
             pass
         self._release()
 
+    def readYield(self, url):
+        self.Active = True
+        self._acquire(url)
+        try:
+            video_capture = self.video_capture
+
+            fps = int(video_capture.get(cv.CAP_PROP_FPS))
+            if fps > 500:
+                fps = 60
+            if fps < 10:
+                fps = 60
+            self.fps = fps
+            self.sample_every_count = fps // sample_frame_rate
+            for frame in self._yield_frames(fps):
+                yield frame
+        except StreamEndedError:
+            try:
+                self._release()
+            except:
+                pass
+            pass
+
+
     def stop(self):
         self.Active = False
+
+
+
 
     def _read(self, buffer: Queue):
         video_capture = self.video_capture

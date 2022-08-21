@@ -7,8 +7,10 @@ refresh_token = 'eyu6aat8gmjdublpqumpr7whi2ytx0v9ff769or70apag78l4m'
 flask_secret_key = 'woooolooooloo!wooooloooo'
 admin_user = ['bestboyfriend4']
 if "TESSERACT_DATA_FAST" not in os.environ:
-    raise RuntimeError("Need tessy data")
+    raise RuntimeError("Need tessy data (env: TESSERACT_DATA_FAST)")
 tess_fast_dir = os.environ["TESSERACT_DATA_FAST"]
+if not tess_fast_dir.endswith(os.sep):
+    tess_fast_dir= tess_fast_dir+os.sep
 
 sample_frame_rate = 8
 if "SAMPLE_FRAME_RATE" in os.environ:
