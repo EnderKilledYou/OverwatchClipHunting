@@ -14,13 +14,16 @@
         </li>
 
         <li class="nav-item">
-          <router-link class="nav-link" to="/clips_viewer">clips viewer</router-link>
+          <router-link class="nav-link" to="/clips_viewer">scanned clips</router-link>
         </li>
         <li class="nav-item">
-          <router-link class="nav-link" to="/search_twitch">search</router-link>
+          <router-link class="nav-link" to="/search_twitch">Twitch search</router-link>
         </li>
         <li class="nav-item">
           <router-link class="nav-link" to="/list_scan_jobs">scanners</router-link>
+        </li>
+        <li class="nav-item">
+          <router-link class="nav-link" to="/ListClipsMade/">clips</router-link>
         </li>
 
       </ul>

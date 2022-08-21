@@ -7,7 +7,7 @@ watch_cli_config = {  # used with added with watch and no config
         'min_blocking_duration': 4,
         'min_defense_duration': 4,
         'min_assist_duration': 4,
-        'clip_deaths': True,
+        'clip_deaths': False,
         'stream_prefers_quality': '720p60',
         'buffer_prefers_quality': 'best',
         'max_frames_to_scan_per_second': 16,

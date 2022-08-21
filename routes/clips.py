@@ -44,11 +44,11 @@ def add_clip(clip_id: str):
     if not clip:
         (clip_id, clip_broadcaster) = add_twitch_clip_instance_from_api(clip_resp['data'][0], 'elim')
     else:
-        (clip_id, clip_broadcaster) = clip.id,clip.broadcaster_name
+        (clip_id, clip_broadcaster) = clip.id, clip.broadcaster_name
     job_id = add_twitch_clip_scan(clip_id, clip_broadcaster)
     if job_id is not None:
         rescanner.add_job(job_id)
-        return {"success": True, "clip":dict(clip)}
+        return {"success": True, "clip": dict(clip)}
     return {"success": False, "error": "Clip is alread being processed"}
 
 
@@ -63,7 +63,6 @@ def get_game_ids():
 
 @sharp.function()
 def get_clip_scan_jobs(page: int = 1):
-
     try:
         cloud_logger()
         by_page = get_twitch_clip_scan_by_page(page, 10)
@@ -186,6 +185,21 @@ def clips_search(creator_name: str, clip_type: List[str] = [], page: int = 1):
             clip_dict[a[0]][1].append(a[1].to_dict())
 
     return {"success": True, 'items': list(clip_dict.values())}
+
+
+@sharp.function()
+def list_twitch_clips(page: int = 1):
+    cloud_logger()
+    int_page = int(page)
+    with db.session.begin():
+        filter_by = TwitchClipInstance.query.filter_by().order_by(TwitchClipInstance.id.desc())
+        clips_response = get_query_by_page(filter_by, int_page)
+        tmp = []
+        for clip in clips_response:
+            tmp.append(clip.to_dict())
+            db.session.expunge(clip)
+
+    return {"success": True, 'items': tmp}
 
 
 @sharp.function()

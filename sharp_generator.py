@@ -10,6 +10,7 @@ if __name__ == '__main__':
 
     api_generator.generate(output_js_filename)
     print("done")
+    raise RuntimeError("Done")
     sys.exit(0)
 
 
