@@ -30,7 +30,7 @@ class ScreenReader:
     def next_frame(self, api):
         frame = self.wait_next_frame()
         if frame is None:
-            sleep(os.cpu_count() * 2)
+            sleep(1)
             return True
 
         self.ocr(frame, api)

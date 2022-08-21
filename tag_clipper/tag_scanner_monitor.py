@@ -29,7 +29,7 @@ class ScannerMonitor(ThreadedManager):
 
             return self.return_queue.get(False)
         except Empty as e:
-            sleep(10)
+            sleep(3)
         finally:
             pass
         return None
