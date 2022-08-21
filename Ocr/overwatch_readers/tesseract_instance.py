@@ -13,3 +13,6 @@ class TesseractInstance:
     def image_to_string(self, img: Image):
         self.api.SetImage(img)
         return self.api.GetUTF8Text()
+
+    def End(self):
+        self.api.End()
