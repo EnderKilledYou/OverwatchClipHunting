@@ -225,7 +225,7 @@ def all_clips(clip_type: str = "", page: int = 1):
 
 @flask_event.on('clip')
 def store_clip(clip_data, type):
-    return
+
     cloud_logger()
     try:
         clip = get_twitch_api().get_clips(clip_id=clip_data[0]["id"])
@@ -235,7 +235,7 @@ def store_clip(clip_data, type):
             if len(clip["data"]) == 0:
                 print("couldn't get clip")
                 return
-        return
+
         (clip_id, clip_broadcaster) = add_twitch_clip_instance_from_api(clip['data'][0], type)
         job_id = add_twitch_clip_scan(clip_id, clip_broadcaster)
 
