@@ -8,25 +8,16 @@ from routes.clips import rescanner
 
 nothing = ""
 alli = HeartBeat()
-startup_lock = threading.Lock()
-started = {}
 
 
-@app.before_first_request
-def start_up():
-    startup_lock.acquire()
-    try:
-        if "started" in started:
-            return
-        threading.Thread(target=install, args=[]).start()
-        rescanner.start()
-        alli.start()
-        reset_twitch_clip_job_state()
-        requeue_twitch_clip_jobs(rescanner)
-    finally:
-        started["started"] = "started"
-        startup_lock.release()
+def start_workers():
+    threading.Thread(target=install, args=[]).start()
+    rescanner.start()
+    alli.start()
+    reset_twitch_clip_job_state()
+    requeue_twitch_clip_jobs(rescanner)
+    atexit.register(rescanner.stop)
+    atexit.register(alli.stop)
 
 
-atexit.register(rescanner.stop)
-atexit.register(alli.stop)
+threading.Thread(target=start_workers, args=[]).start()
