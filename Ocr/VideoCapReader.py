@@ -1,4 +1,5 @@
 from queue import Queue
+from time import sleep
 
 import cv2
 import cv2 as cv
@@ -82,20 +83,24 @@ class VideoCapReader:
             fps = 60
         self.fps = fps
         frame_number = 0
+        tmp_list = []
         self.sample_every_count = fps // sample_frame_rate
-        while self.Active and self._next_frame(frame_number, buffer):
+        while self.Active and self._next_frame(frame_number, buffer, tmp_list):
             frame_number = frame_number + 1
 
-    def _next_frame(self, frame_number, buffer):
+    def _next_frame(self, frame_number, buffer, tmp_list):
         item = self._read_one(frame_number, self.fps)
-        # if self.count() > 20:
-        #     try:
-        #         buffer.get(False)
-        #     except:
-        #         pass
-        #     return True
+
         if item is None:
             return True
+        if self.count() > 20:
+            tmp_list.append(item)
+            sleep(1)
+            return True
+        if self.count() < 10 and len(tmp_list) > 0:
+            for item in tmp_list:
+                buffer.put(item)
+            tmp_list.clear()
         buffer.put(item)
 
         self.incr_items_read()
