@@ -64,7 +64,7 @@ class HeartBeat:
     def stop(self):
         cloud_logger()
         self._active = False
-        self._thread_timer.cancel()
+
 
     def _heart_beat_thread(self):
         cloud_logger()
