@@ -24,9 +24,12 @@ class ScannerMonitor(ThreadedManager):
 
     def _get_one_ret_queue(self):
         try:
+            if self.return_queue.qsize() == 0:
+                sleep(10)
+                return None
             return self.return_queue.get(False)
         except Empty as e:
-            sleep(2)
+            sleep(10)
         finally:
             pass
         return None
@@ -36,7 +39,6 @@ class ScannerMonitor(ThreadedManager):
         # reset_twitch_clip_job_state()  # reset the jobs that dies half if server crash
         request = self._make_request_from_job(job)
         self.tag_clipper.add_job(request)
-
 
     def _make_request_from_job(self, job):
         clip = get_twitch_clip_instance_by_id(job.clip_id)
