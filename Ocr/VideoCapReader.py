@@ -89,7 +89,7 @@ class VideoCapReader:
                 pass
             return True
         if item is None:
-            return
+            return True
         buffer.put(item)
 
         self.items_read = self.items_read + 1
