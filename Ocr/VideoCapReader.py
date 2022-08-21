@@ -1,3 +1,4 @@
+import threading
 from queue import Queue
 from time import sleep
 
@@ -15,7 +16,7 @@ class StreamEndedError(BaseException):
 
 class VideoCapReader:
     def __init__(self, streamer_name):
-
+        self._count_lock = threading.Lock()
         self.Active = False
         self.streamer_name = streamer_name
         self.sample_every_count = 30
@@ -24,13 +25,16 @@ class VideoCapReader:
         self.fps = 1
 
     def count(self):
-        return self.items_read - self.items_drained
+        with self._count_lock.acquire():
+            return self.items_read - self.items_drained
 
     def incr_items_drained(self):
-        self.items_drained = self.items_drained + 1
+        with self._count_lock.acquire():
+            self.items_drained = self.items_drained + 1
 
     def incr_items_read(self):
-        self.items_read = self.items_read + 1
+        with self._count_lock.acquire():
+            self.items_read = self.items_read + 1
 
     def _read_one(self, frame_number, fps):
         ret, frame = self.video_capture.read()
@@ -83,28 +87,21 @@ class VideoCapReader:
             fps = 60
         self.fps = fps
         frame_number = 0
-        tmp_list = []
+
         self.sample_every_count = fps // sample_frame_rate
-        while self.Active and self._next_frame(frame_number, buffer, tmp_list):
+        while self.Active and self._next_frame(frame_number, buffer):
             frame_number = frame_number + 1
 
-    def _next_frame(self, frame_number, buffer, tmp_list):
+    def _next_frame(self, frame_number, buffer):
         item = self._read_one(frame_number, self.fps)
 
         if item is None:
             return True
-        if self.count() > 20:
-            if len(tmp_list) < 50:
-                tmp_list.append(item)
-                sleep(3)
-            return True
-        if self.count() < 10 and len(tmp_list) > 0:
-            for item in tmp_list:
-                buffer.put(item)
-                self.incr_items_read()
-            tmp_list.clear()
+        if self.count() > 5:
+            sleep(1)
         buffer.put(item)
-
+        if self.count() > 5:
+            sleep(1)
         self.incr_items_read()
         return True
 
