@@ -5,6 +5,7 @@ from time import sleep
 import cv2
 import cv2 as cv
 
+import cloud_logger
 from Ocr.frames.frame import Frame
 from Ocr.no_stream_error import NoStreamError
 from config.config import sample_frame_rate
@@ -89,6 +90,8 @@ class VideoCapReader:
         frame_number = 0
 
         self.sample_every_count = fps // sample_frame_rate
+        cloud_logger.cloud_message(
+            f"Starting sampling.. sampling {fps} /  {sample_frame_rate} = {self.sample_every_count}")
         while self.Active and self._next_frame(frame_number, buffer):
             frame_number = frame_number + 1
 
