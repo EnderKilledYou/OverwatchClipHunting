@@ -27,6 +27,6 @@ def claim_one_monitor(streams: List[LiveTwitchInstance], claimed_count: int):
 
 
 if 'MAX_ACTIVE_MONITORS' not in os.environ:
-    max_active_monitors = os.cpu_count()
+    max_active_monitors = os.cpu_count() * 4
 else:
     max_active_monitors = int(os.environ['MAX_ACTIVE_MONITORS'])
