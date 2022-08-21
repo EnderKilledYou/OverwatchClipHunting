@@ -78,6 +78,8 @@ class HeartBeat:
             sleep(20)
 
     def _one(self, twitch_api):
+        if not self._active:
+            return False
         try:
             self._heart_beat(twitch_api)
             self.reassert_claim(monitors=self.get_copy_active_monitors())
