@@ -44,17 +44,14 @@ def requeue_twitch_clip_jobs(rescanner):
         items = TwitchClipInstanceScanJob.query.filter_by(state=0)
         items_tuple = list(map(lambda x: (int(x.clip_id), x.broadcaster), items))
     for item in items_tuple:
-        id =add_twitch_clip_scan(item[0], item[1])
+        id = add_twitch_clip_scan(item[0], item[1])
         if id is not None:
             rescanner.add_job(id)
 
 
 def reset_twitch_clip_job_state():
     with db.session.begin():
-        items = TwitchClipInstanceScanJob.query.filter_by(state=1)
-        for item in items:
-            item.state = 0
-        items = TwitchClipInstanceScanJob.query.filter_by(state=5)
+        items = TwitchClipInstanceScanJob.query.filter(TwitchClipInstanceScanJob.state != 2)
         for item in items:
             item.state = 0
 

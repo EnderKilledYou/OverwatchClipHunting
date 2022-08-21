@@ -18,9 +18,9 @@ class ThreadedManager:
 
     def start(self):
         for i in range(0, self.max_threads):
-            _thread = threading.Timer(0, self._repeat)
+            _thread = threading.Thread(target=self._start)
             _thread.start()
-        #    self._threads.append(_thread)
+            self._threads.append(_thread)
 
     def join(self, timeout=None):
         for thread in self._threads:
