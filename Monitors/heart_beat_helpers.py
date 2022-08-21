@@ -10,7 +10,7 @@ def claim_one_monitor(streams: List[LiveTwitchInstance], claimed_count: int):
     cloud_logger.cloud_logger()
 
     if claimed_count >= max_active_monitors:
-        cloud_logger.cloud_message(f"No space to start new streamers {max_active_monitors}")
+        #cloud_logger.cloud_message(f"No space to start new streamers {max_active_monitors}")
         return
 
     for stream in streams:
@@ -27,6 +27,6 @@ def claim_one_monitor(streams: List[LiveTwitchInstance], claimed_count: int):
 
 
 if 'MAX_ACTIVE_MONITORS' not in os.environ:
-    max_active_monitors = os.cpu_count() * 1
+    max_active_monitors = os.cpu_count() * 10
 else:
     max_active_monitors = int(os.environ['MAX_ACTIVE_MONITORS'])
