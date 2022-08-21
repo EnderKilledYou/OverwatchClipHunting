@@ -64,7 +64,7 @@ class ThreadedManager:
 
                 if self._exit_on_empty:
                     return
-                sleep(2)
+                sleep(5)
             except BaseException as b:
                 cloud_error_logger(b, file=sys.stderr)
 
