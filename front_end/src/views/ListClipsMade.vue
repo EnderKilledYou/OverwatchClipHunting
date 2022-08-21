@@ -73,7 +73,7 @@ export default class ListClipsMade extends Vue {
   }
 
   async list_items() {
-    const jobs = await API.all_clips(this.page)
+    const jobs = await API.list_twitch_clips(this.page)
     this.items = jobs.items.map((a: Partial<TwitchClipInstanceScanJob>) => new TwitchClipInstanceScanJob(a));
   }
 }
