@@ -94,8 +94,9 @@ class VideoCapReader:
         if item is None:
             return True
         if self.count() > 20:
-            tmp_list.append(item)
-            sleep(1)
+            if len(tmp_list) < 50:
+                tmp_list.append(item)
+                sleep(3)
             return True
         if self.count() < 10 and len(tmp_list) > 0:
             for item in tmp_list:

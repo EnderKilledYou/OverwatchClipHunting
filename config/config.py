@@ -12,6 +12,6 @@ tess_fast_dir = os.environ["TESSERACT_DATA_FAST"]
 if not tess_fast_dir.endswith(os.sep):
     tess_fast_dir= tess_fast_dir+os.sep
 
-sample_frame_rate = 8
+sample_frame_rate = 4
 if "SAMPLE_FRAME_RATE" in os.environ:
     sample_frame_rate = int(os.environ["SAMPLE_FRAME_RATE"])
