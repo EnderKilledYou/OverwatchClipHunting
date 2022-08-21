@@ -54,7 +54,7 @@ class Monitor(db.Model, SerializerMixin):
         back_fill_seconds = frames_pending // reader.fps
         if back_fill_seconds <= 45:
             return
-        cloud_message("Restarting " + self.broadcaster + " with backqueue of " + back_fill_seconds)
+        cloud_message(f"Restarting {self.broadcaster} with backqueue of {str(back_fill_seconds)}")
         self.stop()
 
     ocr: VideoFrameBuffer
@@ -174,7 +174,7 @@ class NotOursAnymoreError:
 
 def update_claim_on_monitor(stream_name, fields: Dict[str, any] = {}) -> Monitor:
     with db.session.begin():
-        monitor =  Monitor.query.filter_by(broadcaster=stream_name).first()
+        monitor = Monitor.query.filter_by(broadcaster=stream_name).first()
         if monitor is None or monitor.activated_by != self_id:
             return False
 
@@ -193,7 +193,7 @@ def get_claimed_count() -> Monitor:
 
 def reset_for_claim(stream_name):
     with db.session.begin():
-        monitor =   Monitor.query.filter_by(broadcaster=stream_name).first()
+        monitor = Monitor.query.filter_by(broadcaster=stream_name).first()
         if monitor is None:
             return
         monitor.frames_read = 0
@@ -302,8 +302,6 @@ def cancel_stream_to_monitor(stream_name):
     db.session.flush()
 
 
-
-
 def remove_stream_to_monitor(stream_name):
     with db.session.begin():
         monitor = get_monitor_by_name(stream_name)
@@ -311,8 +309,6 @@ def remove_stream_to_monitor(stream_name):
             return
         monitor.is_active = False
     db.session.flush()
-
-
 
 
 default = {
