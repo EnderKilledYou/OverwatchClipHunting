@@ -3,16 +3,15 @@ import sys
 import cv2 as cv
 from PIL import Image
 
-
 from Ocr.frames.frame import Frame
 from Ocr.frames.frame_tester import FrameTester
 from Ocr.frames.ordered_frame_aggregator import OrderedFrameAggregator
 from Ocr.overwatch_readers.overwatch_action_screen_region import OverwatchActionScreenRegion
 from Ocr.overwatch_readers.overwatch_searching_for_game_screen_region import OverwatchSearchingForGameScreenRegion
+from Ocr.overwatch_readers.tesseract_instance import TesseractInstance
 from Ocr.screen_reader import ScreenReader
 from Ocr.video_frame_buffer import VideoFrameBuffer
 from cloud_logger import cloud_error_logger
-
 
 
 class OverwatchScreenReader(ScreenReader):
@@ -20,7 +19,7 @@ class OverwatchScreenReader(ScreenReader):
         from Events.overwatch_events import overwatch_event
         super(OverwatchScreenReader, self).__init__(framebuffer)
         self.skip_frames = 0
-
+        self.TesseractInstance = TesseractInstance()
         self.last_queue_check = 0
         self.frame_tester = FrameTester()
         self.Show = False
