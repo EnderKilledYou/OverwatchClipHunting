@@ -18,9 +18,9 @@ class ThreadedManager:
 
     def start(self):
         for i in range(0, self.max_threads):
-            _thread = threading.Thread(target=self._start)
+            _thread = threading.Timer(0, self._repeat)
             _thread.start()
-            self._threads.append(_thread)
+        #    self._threads.append(_thread)
 
     def join(self, timeout=None):
         for thread in self._threads:
@@ -33,12 +33,27 @@ class ThreadedManager:
     def _stop(self):
         pass
 
-    def add_job(self, scan_job ):
+    def add_job(self, scan_job):
 
         self.buffer.put(scan_job)
 
     def _do_work(self, item):
         pass
+
+    def _repeat(self):
+        if not self._active:
+            return
+        try:
+            job = self.buffer.get(False)
+            self._do_work(job)
+        except Empty:
+            if self._exit_on_empty:
+                return
+        except BaseException as b:
+            cloud_error_logger(b, file=sys.stderr)
+        finally:
+            _thread = threading.Timer(2, self._start)
+            _thread.start()
 
     def _start(self):
         while self._active:
@@ -51,7 +66,7 @@ class ThreadedManager:
                     return
                 sleep(2)
             except BaseException as b:
-                cloud_error_logger(b,file=sys.stderr)
+                cloud_error_logger(b, file=sys.stderr)
 
             finally:
                 pass
