@@ -112,7 +112,7 @@ class ClipVideoCapReader(VideoCapReader):
     def __init__(self, streamer_name: str, clip_id: int):
         super(ClipVideoCapReader, self).__init__(streamer_name)
         self.clip_id = clip_id
-        self.sample_every_count = 10
+        self.sample_every_count = 30
 
     def _read_one(self, frame_number, fps):
         ret, frame = self.video_capture.read()
