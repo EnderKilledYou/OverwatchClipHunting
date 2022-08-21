@@ -7,11 +7,7 @@ from os.path import abspath
 from threading import Timer
 from queue import Empty, Queue
 
-from twitchdl import twitch
-from twitchdl.commands.download import get_clip_authenticated_url
-from twitchdl.download import download_file
-
-from Database.Twitch.twitch_clip_instance import get_twitch_clip_instance_by_id, update_twitch_clip_instance_filename, \
+from Database.Twitch.twitch_clip_instance import update_twitch_clip_instance_filename, \
     get_twitch_clip_video_id_by_id
 from Database.Twitch.twitch_clip_instance_scan_job import TwitchClipInstanceScanJob, update_scan_job_error, \
     update_scan_job_percent, update_scan_job_started, update_scan_job_in_scanning
@@ -21,6 +17,7 @@ from Ocr.twitch_dl_args import Args
 
 from Ocr.VideoCapReader import VideoCapReader, ClipVideoCapReader
 from Ocr.overwatch_readers.overwatch_clip_reader import OverwatchClipReader
+from Ocr.vod_downloader import _download_clip
 from Ocr.wait_for_tessy import wait_for_tesseract
 from cloud_logger import cloud_logger, cloud_error_logger
 from generic_helpers.something_manager import ThreadedManager
@@ -127,18 +124,3 @@ def queue_to_list(queue: Queue):
         pass
     return items
 
-
-def _download_clip(slug, args):
-    print("<dim>Looking up clip...</dim>")
-    clip = twitch.get_clip(slug)
-    if not clip:
-        return
-    game = clip["game"]["name"] if clip["game"] else "Unknown"
-
-    url = get_clip_authenticated_url(slug, args.quality)
-    print("Selected URL: {}".format(url))
-
-    print("Downloading clip...")
-    print(url, args.output)
-    download_file(url, args.output)
-    print("Downloaded: {} ".format(args.output))
