@@ -25,9 +25,7 @@ class ScannerMonitor(ThreadedManager):
 
     def _get_one_ret_queue(self):
         try:
-            if self._gathered == 50:
-                sleep(1)
-                self._gathered = 0
+
             self._gathered = self._gathered + 1
             if self.return_queue.qsize() == 0:
                 sleep(10)

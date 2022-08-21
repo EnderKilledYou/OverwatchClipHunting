@@ -59,7 +59,7 @@ class ThreadedManager:
         while self._active:
             try:
                 if self.buffer.qsize() == 0:
-                    sleep(5)
+                    sleep(2)
                     continue
                 job = self.buffer.get(False)
                 self._do_work(job)

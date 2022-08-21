@@ -38,10 +38,7 @@ class ScreenReader:
 
     def wait_next_frame(self):
         try:
-            if self._gathered == 50:
-                self._gathered = 0
-                sleep(2)
-            self._gathered = self._gathered + 1
+
 
             if self.framebuffer.is_empty():
                 return None
