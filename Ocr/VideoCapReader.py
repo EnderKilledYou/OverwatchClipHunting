@@ -54,7 +54,7 @@ class VideoCapReader:
         if not ret:
             raise StreamEndedError("Could not read frame")
         if frame_number % self.sample_every_count == 0:
-            print(f"releasing frame {frame_number}")
+
             return Frame(frame_number, frame, frame_number // fps, self.streamer_name)
         return None
 
