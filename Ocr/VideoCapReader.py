@@ -76,6 +76,7 @@ class VideoCapReader:
         if fps < 10:
             fps = 60
         self.fps = fps
+        frame_number=0
         self.sample_every_count = fps // sample_frame_rate
         while self.Active:
             item = self._read_one(frame_number, fps)

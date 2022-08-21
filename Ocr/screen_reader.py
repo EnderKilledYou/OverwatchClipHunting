@@ -22,13 +22,16 @@ class ScreenReader:
 
     def consume_twitch_broadcast(self):
         with PyTessBaseAPI(path=tess_fast_dir) as api:
-            while self.Active and self.framebuffer.active:
-                frame = self.wait_next_frame()
-                if frame is None:
-                    sleep(2)
-                    continue
+            while self.Active and self.framebuffer.active and self.next_frame(api):
+                pass
 
-                self.ocr(frame, api)
+    def next_frame(self, api):
+        frame = self.wait_next_frame()
+        if frame is None:
+            sleep(2)
+            return
+
+        self.ocr(frame, api)
 
     def wait_next_frame(self):
         try:
