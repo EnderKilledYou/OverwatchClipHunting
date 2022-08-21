@@ -29,7 +29,9 @@ class VideoCapReader:
         ret, frame = self.video_capture.read()
         if not ret:
             raise StreamEndedError("Could not read frame")
-        return Frame(frame_number, frame, frame_number // fps, self.streamer_name)
+        if frame_number % self.sample_every_count == 0:
+            return Frame(frame_number, frame, frame_number // fps, self.streamer_name)
+        return None
 
     def read(self, url, buffer):
         self.Active = True
@@ -62,12 +64,8 @@ class VideoCapReader:
                 pass
             pass
 
-
     def stop(self):
         self.Active = False
-
-
-
 
     def _read(self, buffer: Queue):
         video_capture = self.video_capture
@@ -79,8 +77,14 @@ class VideoCapReader:
             fps = 60
         self.fps = fps
         self.sample_every_count = fps // sample_frame_rate
-        for frame in self._yield_frames(fps):
-            buffer.put(frame)
+        while self.Active:
+            item = self._read_one(frame_number, fps)
+            frame_number = frame_number + 1
+            if item is None:
+                continue
+            buffer.put(item)
+            self.items_read = self.items_read + 1
+            frame_number = frame_number + 1
 
     def _yield_frames(self, fps):
         frame_number = 0
