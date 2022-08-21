@@ -11,12 +11,8 @@ alli = HeartBeat()
 startup_lock = threading.Lock()
 started = {}
 
-threading.Thread(target=install, args=[]).start()
-rescanner.start()
-alli.start()
-reset_twitch_clip_job_state()
-requeue_twitch_clip_jobs(rescanner)
-#@app.before_first_request
+
+@app.before_first_request
 def start_up():
     startup_lock.acquire()
     try:
