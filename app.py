@@ -4,7 +4,6 @@ from oauthlib.common import generate_token
 from sharp import Sharp, naming
 
 
-
 def config_app() -> Flask:
     appx = Flask('ocr', static_url_path='',
                  static_folder='static',
@@ -15,7 +14,7 @@ def config_app() -> Flask:
     return appx
 
 
-app = config_app()
+app: Flask = config_app()
 api_generator = Sharp(app, prefix="/api", naming=naming.file_based)
 
 
@@ -54,11 +53,13 @@ def not_found(e):
     else:
         return "The app didn't install error"
 
+@app.get('/shutdown')
+def shutdown():
+    raise RuntimeError("Server going down")
+
 
 
 if __name__ == '__main__':
     app.run(threaded=True)
-
-
 
 import start_up_flask
