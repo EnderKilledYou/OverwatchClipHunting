@@ -66,6 +66,9 @@ class HeartBeat:
     def stop(self):
         cloud_logger()
         self._active = False
+        active_monitors = self.get_copy_active_monitors()
+        for monitor in active_monitors:
+            unclaim_monitor(monitor.broadcaster)
 
     def _heart_beat_thread(self):
         cloud_logger()

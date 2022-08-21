@@ -53,10 +53,6 @@ def not_found(e):
     else:
         return "The app didn't install error"
 
-@app.get('/shutdown')
-def shutdown():
-    raise RuntimeError("Server going down")
-
 
 
 if __name__ == '__main__':
