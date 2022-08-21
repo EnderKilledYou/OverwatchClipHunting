@@ -1,3 +1,4 @@
+import os
 from time import sleep
 
 from tesserocr import PyTessBaseAPI
@@ -28,7 +29,7 @@ class ScreenReader:
     def next_frame(self, api):
         frame = self.wait_next_frame()
         if frame is None:
-            sleep(5)
+            sleep(os.cpu_count())
             return True
 
         self.ocr(frame, api)
@@ -36,6 +37,8 @@ class ScreenReader:
 
     def wait_next_frame(self):
         try:
+            if self.framebuffer.is_empty():
+                return None
             return self.framebuffer.get_one()
         except:
             return None

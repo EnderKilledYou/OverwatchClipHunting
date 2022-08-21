@@ -24,3 +24,6 @@ class VideoFrameBuffer:
     @property
     def active(self):
         return self._active
+
+    def is_empty(self):
+        return self.buffer.qsize() == 0
