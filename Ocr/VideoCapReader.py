@@ -87,12 +87,13 @@ class VideoCapReader:
                 buffer.get(False)
             except:
                 pass
-            return
+            return True
         if item is None:
             return
         buffer.put(item)
 
         self.items_read = self.items_read + 1
+        return True
 
     def _yield_frames(self, fps):
         frame_number = 0
