@@ -13,6 +13,7 @@ class ScreenReader:
     def __init__(self, framebuffer: VideoFrameBuffer):
         self.Active = True
         self.framebuffer = framebuffer
+        self._gathered = 0
 
     def ocr(self, frame: Frame, api: PyTessBaseAPI) -> None:
         """Load in the frame for extracting text."""
@@ -37,6 +38,11 @@ class ScreenReader:
 
     def wait_next_frame(self):
         try:
+            if self._gathered == 50:
+                self._gathered = 0
+                sleep(1)
+            self._gathered = self._gathered + 1
+
             if self.framebuffer.is_empty():
                 return None
             return self.framebuffer.get_one()
