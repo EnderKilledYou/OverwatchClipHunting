@@ -59,7 +59,7 @@ class OverwatchScreenReader(ScreenReader):
                     print("In queue or full screen " + frame.source_name)
                     self.skip_frames += 2
 
-        except Exception as e:
+        except BaseException as e:
             cloud_error_logger(e, file=sys.stderr)
             import traceback
             traceback.print_exc()
