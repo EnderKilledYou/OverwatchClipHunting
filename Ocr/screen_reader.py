@@ -39,9 +39,6 @@ class ScreenReader:
     def wait_next_frame(self):
         try:
 
-
-            if self.framebuffer.is_empty():
-                return None
             return self.framebuffer.get_one()
         except:
             return None
