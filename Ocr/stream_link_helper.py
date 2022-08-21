@@ -31,13 +31,13 @@ class StreamLinkHelper:
         ocr_stream = streams['best']
         items = []
 
-
+        if '720p60' in streams:
+            return streams['720p60'], '720p60'
         if '480p60' in streams:
             return streams['480p60'], '480p60'
         if '480p' in streams:
             return streams['480p'], '480p'
-        if '720p60' in streams:
-            return streams['720p60'], '720p60'
+
         for stream_res in streams:
             if not stream_res.endswith('p60'):
                 continue
