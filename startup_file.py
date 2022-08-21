@@ -33,7 +33,5 @@ def read_db_from_cloud():
 
 if __name__ == '__main__':
     print("start up file starting")
-    if "zombie" not in os.environ:
-        read_db_from_cloud()
-    cpuCount = os.cpu_count()
-    print("Number of CPUs in the system:", cpuCount)
+    count = os.cpu_count()
+    print("Cpu threads would be " + str(count))
