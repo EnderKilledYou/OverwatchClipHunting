@@ -7,6 +7,8 @@ from os.path import abspath
 from threading import Timer
 from queue import Empty, Queue
 
+from tesserocr import PyTessBaseAPI
+
 from Database.Twitch.twitch_clip_instance import update_twitch_clip_instance_filename, \
     get_twitch_clip_video_id_by_id
 from Database.Twitch.twitch_clip_instance_scan_job import TwitchClipInstanceScanJob, update_scan_job_error, \
@@ -20,6 +22,7 @@ from Ocr.overwatch_readers.overwatch_clip_reader import OverwatchClipReader
 from Ocr.vod_downloader import _download_clip
 from Ocr.wait_for_tessy import wait_for_tesseract
 from cloud_logger import cloud_logger, cloud_error_logger
+from config.config import tess_fast_dir
 from generic_helpers.something_manager import ThreadedManager
 
 
@@ -100,14 +103,15 @@ class ReScanner(ThreadedManager):
         size = len(reader_list)
         frame_number = 0
         try:
-            for frame in reader_list:
-                self.matcher.ocr(frame)
-                self._frame_count += 1
-                frame_number = frame_number + 1
-                percent_done = frame_number / size
-                i = int(percent_done * 100.0)
-                if i > 0 and i % 15 == 0:
-                    update_scan_job_percent(job.id, percent_done)
+            with PyTessBaseAPI(path=tess_fast_dir) as api:
+                for frame in reader_list:
+                    self.matcher.ocr(frame,api)
+                    self._frame_count += 1
+                    frame_number = frame_number + 1
+                    percent_done = frame_number / size
+                    i = int(percent_done * 100.0)
+                    if i > 0 and i % 15 == 0:
+                        update_scan_job_percent(job.id, percent_done)
 
         except BaseException as b:
             traceback.print_exc()
