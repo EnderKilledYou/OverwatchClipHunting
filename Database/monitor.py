@@ -52,7 +52,7 @@ class Monitor(db.Model, SerializerMixin):
         qsize = reader.items_read - reader.items_drained
         frames_pending = qsize * reader.sample_every_count
         back_fill_seconds = frames_pending // reader.fps
-        if back_fill_seconds <= 180:
+        if back_fill_seconds <= 45:
             return
         cloud_message("Restarting " + self.broadcaster + " with backqueue of " + back_fill_seconds)
         self.stop()
