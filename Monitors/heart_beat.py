@@ -74,14 +74,18 @@ class HeartBeat:
     def _heart_beat_thread(self):
         cloud_logger()
         twitch_api = get_twitch_api()
-        while True:
-            try:
-                self._heart_beat(twitch_api)
-                self.reassert_claim(monitors=self.get_copy_active_monitors())
-            except BaseException as b:
-                cloud_error_logger(b)
-                traceback.print_exc()
+        while self._one(twitch_api):
             sleep(20)
+
+    def _one(self, twitch_api):
+        try:
+            self._heart_beat(twitch_api)
+            self.reassert_claim(monitors=self.get_copy_active_monitors())
+        except BaseException as b:
+            cloud_error_logger(b)
+            traceback.print_exc()
+
+        return True
 
     def _add_to_monitor_list(self, monitor: Monitor):
         monitor.start()
