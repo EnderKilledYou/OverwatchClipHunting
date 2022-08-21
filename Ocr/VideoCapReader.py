@@ -68,9 +68,9 @@ class VideoCapReader:
         self.Active = False
 
     def _read(self, buffer: Queue):
-        video_capture = self.video_capture
 
-        fps = int(video_capture.get(cv.CAP_PROP_FPS))
+
+        fps = int(self.video_capture.get(cv.CAP_PROP_FPS))
         if fps > 500:
             fps = 60
         if fps < 10:
@@ -104,7 +104,6 @@ class VideoCapReader:
 
     def _acquire(self, url: str):
         self.video_capture = cv2.VideoCapture(url)
-
         if not self.video_capture:
             raise NoStreamError("Capture could not open stream")
         if not self.video_capture.isOpened():
@@ -114,6 +113,7 @@ class VideoCapReader:
         if not self.video_capture:
             return
         self.video_capture.release()
+        self.video_capture = None
 
 
 class ClipVideoCapReader(VideoCapReader):
