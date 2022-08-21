@@ -76,16 +76,19 @@ class VideoCapReader:
         if fps < 10:
             fps = 60
         self.fps = fps
-        frame_number=0
+        frame_number = 0
         self.sample_every_count = fps // sample_frame_rate
         while self.Active:
-            item = self._read_one(frame_number, fps)
+            self._next_frame(frame_number, buffer)
             frame_number = frame_number + 1
-            if item is None:
-                continue
-            buffer.put(item)
-            self.items_read = self.items_read + 1
-            frame_number = frame_number + 1
+
+    def _next_frame(self, frame_number, buffer):
+        item = self._read_one(frame_number, self.fps)
+        if item is None:
+            return
+        buffer.put(item)
+        self.items_read = self.items_read + 1
+
 
     def _yield_frames(self, fps):
         frame_number = 0
