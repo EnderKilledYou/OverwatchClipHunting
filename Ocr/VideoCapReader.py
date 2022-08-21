@@ -83,6 +83,10 @@ class VideoCapReader:
     def _next_frame(self, frame_number, buffer):
         item = self._read_one(frame_number, self.fps)
         if self.items_read - self.items_drained > 100:
+            try:
+                buffer.get(False)
+            except:
+                pass
             return
         if item is None:
             return
