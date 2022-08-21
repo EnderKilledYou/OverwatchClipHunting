@@ -13,7 +13,6 @@ def claim_one_monitor(streams: List[LiveTwitchInstance], claimed_count: int):
         cloud_logger.cloud_message("No space to start new streamers")
         return
 
-
     for stream in streams:
         if stream.game_name.lower().startswith("overwatch"):
             user_login = stream.user_login
@@ -28,6 +27,6 @@ def claim_one_monitor(streams: List[LiveTwitchInstance], claimed_count: int):
 
 
 if 'MAX_ACTIVE_MONITORS' not in os.environ:
-    max_active_monitors = 5
+    max_active_monitors = os.cpu_count()
 else:
     max_active_monitors = int(os.environ['MAX_ACTIVE_MONITORS'])

@@ -1,9 +1,9 @@
+import os
 import threading
 import traceback
 from threading import Timer, Thread
 from time import sleep
 from typing import List
-
 
 from Database.unclaim_monitor import unclaim_monitor
 from Monitors.heart_beat_helpers import claim_one_monitor
@@ -12,6 +12,8 @@ from twitch_helpers.get_monitored_streams import get_monitored_streams
 from twitch_helpers.twitch_helpers import get_twitch_api
 
 from Database.monitor import Monitor, update_claim_on_monitor, get_monitor_stats, release_monitors
+
+
 class HeartBeat:
     _claim_timer: Timer
 
@@ -20,7 +22,7 @@ class HeartBeat:
 
     _thread_timer: Thread
 
-    def __init__(self, max_active_monitors=5):
+    def __init__(self, max_active_monitors=os.cpu_count()):
         self._data_lock = threading.Lock()
         self.max_active_monitors = max_active_monitors
         self._thread_timer = None
@@ -64,7 +66,6 @@ class HeartBeat:
     def stop(self):
         cloud_logger()
         self._active = False
-
 
     def _heart_beat_thread(self):
         cloud_logger()
