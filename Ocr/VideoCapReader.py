@@ -100,6 +100,7 @@ class VideoCapReader:
         if self.count() < 10 and len(tmp_list) > 0:
             for item in tmp_list:
                 buffer.put(item)
+                self.incr_items_read()
             tmp_list.clear()
         buffer.put(item)
 
