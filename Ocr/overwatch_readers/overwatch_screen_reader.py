@@ -29,7 +29,7 @@ class OverwatchScreenReader(ScreenReader):
         self.GameSearchCropper = OverwatchSearchingForGameScreenRegion()
         self.frame_watcher = OrderedFrameAggregator(overwatch_event)
 
-    def ocr(self, frame: Frame,api : PyTessBaseAPI) -> None:
+    def ocr(self, frame: Frame, api: PyTessBaseAPI) -> None:
         if self.skip_frames > 0:
             print("skipping ")
             self.skip_frames = self.skip_frames - 1
@@ -39,7 +39,8 @@ class OverwatchScreenReader(ScreenReader):
             pil_grey = Image.fromarray(img_grey)
 
             self.ActionTextCropper.process(pil_grey, frame, self.frame_watcher,
-                                           self.frame_tester,api)
+                                           self.frame_tester, api)
+            return
             if not frame.empty:
                 self.last_action_second = frame.ts_second
                 return
@@ -50,7 +51,7 @@ class OverwatchScreenReader(ScreenReader):
                 if not frame.empty:
                     self.last_action_second = frame.ts_second
                 if self.frame_watcher.in_queue:
-                   # import start_up_flask
+                    # import start_up_flask
                     print("In queue " + frame.source_name)
                     # start_up_flask.alli.stop_streamer(frame.source_name)
                     self.skip_frames += 2
