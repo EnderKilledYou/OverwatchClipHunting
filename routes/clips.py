@@ -237,7 +237,7 @@ def store_clip(clip_data, type):
                 return
 
         (clip_id, clip_broadcaster) = add_twitch_clip_instance_from_api(clip['data'][0], type)
-        job_id = add_twitch_clip_scan(clip_id, clip_broadcaster)
+        #job_id = add_twitch_clip_scan(clip_id, clip_broadcaster)
 
         if job_id is not None:
             rescanner.add_job(job_id)
