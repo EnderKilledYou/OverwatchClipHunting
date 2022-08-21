@@ -15,6 +15,7 @@ class VideoFrameBuffer:
         self.buffer = Queue()
         self._active = True
 
+
     def buffer_broadcast(self):
         pass
 

@@ -49,7 +49,7 @@ class Monitor(db.Model, SerializerMixin):
         reader = self.ocr.reader
         if not reader:
             return
-        qsize = reader.items_read - reader.items_drained
+        qsize = reader.count()
         frames_pending = qsize * reader.sample_every_count
         back_fill_seconds = frames_pending // reader.fps
         if back_fill_seconds <= 45:
@@ -330,7 +330,7 @@ def get_monitor_stats(monitor: Monitor) -> Dict[str, str]:
     if monitor.ocr is None or monitor.ocr.reader is None:
         return default
     reader = monitor.ocr.reader
-    qsize = reader.items_read - reader.items_drained
+    qsize = reader.count()
     frames_pending = qsize * reader.sample_every_count
     frames_finished = reader.items_drained * reader.sample_every_count
     back_fill_seconds = frames_pending // reader.fps

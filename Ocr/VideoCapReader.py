@@ -22,8 +22,14 @@ class VideoCapReader:
         self.items_drained = 0
         self.fps = 1
 
+    def count(self):
+        return self.items_read - self.items_drained
+
     def incr_items_drained(self):
         self.items_drained = self.items_drained + 1
+
+    def incr_items_read(self):
+        self.items_read = self.items_read + 1
 
     def _read_one(self, frame_number, fps):
         ret, frame = self.video_capture.read()
@@ -82,17 +88,17 @@ class VideoCapReader:
 
     def _next_frame(self, frame_number, buffer):
         item = self._read_one(frame_number, self.fps)
-        if self.items_read - self.items_drained > 100:
-            try:
-                buffer.get(False)
-            except:
-                pass
-            return True
+        # if self.count() > 20:
+        #     try:
+        #         buffer.get(False)
+        #     except:
+        #         pass
+        #     return True
         if item is None:
             return True
         buffer.put(item)
 
-        self.items_read = self.items_read + 1
+        self.incr_items_read()
         return True
 
     def _yield_frames(self, fps):
@@ -104,7 +110,7 @@ class VideoCapReader:
 
             if frame_number % self.sample_every_count == 0:
                 yield item
-                self.items_read = self.items_read + 1
+                self.incr_items_read()
             frame_number = frame_number + 1
 
     def _acquire(self, url: str):
