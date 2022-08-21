@@ -58,8 +58,9 @@ class TwitchEater(VideoFrameBuffer):
 
     def _consumers(self, matcher: ScreenReader):
         count = os.cpu_count()
-        if count is None:
-            count = 4
+        print("Cpu threads would be " + count)
+        # if count is None:
+        count = 4
         for i in range(0, count):
             consumer_thread = threading.Thread(target=matcher.consume_twitch_broadcast)
             self.consumer_threads.append(consumer_thread)
