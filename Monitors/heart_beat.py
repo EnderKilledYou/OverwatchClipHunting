@@ -86,7 +86,7 @@ class HeartBeat:
         except BaseException as b:
             cloud_error_logger(b)
             traceback.print_exc()
-        sleep(60)
+        sleep(10)
         return True
 
     def _add_to_monitor_list(self, monitor: Monitor):

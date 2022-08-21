@@ -69,7 +69,6 @@ class VideoCapReader:
 
     def _read(self, buffer: Queue):
 
-
         fps = int(self.video_capture.get(cv.CAP_PROP_FPS))
         if fps > 500:
             fps = 60
@@ -78,17 +77,18 @@ class VideoCapReader:
         self.fps = fps
         frame_number = 0
         self.sample_every_count = fps // sample_frame_rate
-        while self.Active:
-            self._next_frame(frame_number, buffer)
+        while self.Active and self._next_frame(frame_number, buffer):
             frame_number = frame_number + 1
 
     def _next_frame(self, frame_number, buffer):
         item = self._read_one(frame_number, self.fps)
+        if self.items_read - self.items_drained > 100:
+            return
         if item is None:
             return
         buffer.put(item)
-        self.items_read = self.items_read + 1
 
+        self.items_read = self.items_read + 1
 
     def _yield_frames(self, fps):
         frame_number = 0
