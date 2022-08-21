@@ -11,8 +11,8 @@ class TesseractInstance:
         self._api = PyTessBaseAPI(path=tess_fast_dir)
 
     def image_to_string(self, img: Image):
-        self.api.SetImage(img)
-        return self.api.GetUTF8Text()
+        self._api.SetImage(img)
+        return self._api.GetUTF8Text()
 
-    def End(self):
-        self.api.End()
+    def __del__(self):
+        self._api.End()

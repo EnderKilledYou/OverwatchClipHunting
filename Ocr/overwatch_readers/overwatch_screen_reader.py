@@ -2,6 +2,7 @@ import sys
 
 import cv2 as cv
 from PIL import Image
+from tesserocr import PyTessBaseAPI
 
 from Ocr.frames.frame import Frame
 from Ocr.frames.frame_tester import FrameTester
@@ -19,7 +20,7 @@ class OverwatchScreenReader(ScreenReader):
         from Events.overwatch_events import overwatch_event
         super(OverwatchScreenReader, self).__init__(framebuffer)
         self.skip_frames = 0
-        self.TesseractInstance = TesseractInstance()
+
         self.last_queue_check = 0
         self.frame_tester = FrameTester()
         self.Show = False
@@ -28,7 +29,7 @@ class OverwatchScreenReader(ScreenReader):
         self.GameSearchCropper = OverwatchSearchingForGameScreenRegion()
         self.frame_watcher = OrderedFrameAggregator(overwatch_event)
 
-    def ocr(self, frame: Frame) -> None:
+    def ocr(self, frame: Frame,api : PyTessBaseAPI) -> None:
         if self.skip_frames > 0:
             print("skipping ")
             self.skip_frames = self.skip_frames - 1
@@ -38,14 +39,14 @@ class OverwatchScreenReader(ScreenReader):
             pil_grey = Image.fromarray(img_grey)
 
             self.ActionTextCropper.process(pil_grey, frame, self.frame_watcher,
-                                           self.frame_tester, self.Show)
+                                           self.frame_tester,api)
             if not frame.empty:
                 self.last_action_second = frame.ts_second
                 return
             if self.last_queue_check != frame.ts_second and frame.ts_second % 30 == 0:
                 self.last_queue_check = frame.ts_second
                 self.GameSearchCropper.process(pil_grey, frame, self.frame_watcher,
-                                               self.frame_tester, self.Show)
+                                               self.frame_tester, api)
                 if not frame.empty:
                     self.last_action_second = frame.ts_second
                 if self.frame_watcher.in_queue:

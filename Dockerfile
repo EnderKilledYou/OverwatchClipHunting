@@ -11,7 +11,7 @@ ENV CLOUD_PRINT True
 ARG DEBIAN_FRONTEND=noninteractive
 
 FROM BASE as CERTSANDINSTALLS
-RUN  apt-get update  &&  apt-get  -qq -y  --no-install-recommends    install git unzip ca-certificates ffmpeg libsm6 libxext6 tesseract-ocr  < /dev/null > /dev/null
+RUN  apt-get update  &&  apt-get  -qq -y  --no-install-recommends    install python3-dev  build-essential git unzip ca-certificates ffmpeg libsm6 libxext6 tesseract-ocr   libtesseract-dev libleptonica-dev pkg-config < /dev/null > /dev/null
 RUN sed -i '/^mozilla\/DST_Root_CA_X3.crt$/ s/^/!/' /etc/ca-certificates.conf
 RUN update-ca-certificates
 

@@ -2,6 +2,7 @@ import os
 
 from PIL import Image
 from pytesseract import image_to_string
+
 from tesserocr import PyTessBaseAPI
 
 from Ocr.frames.frame import Frame
@@ -15,12 +16,15 @@ from config.config import tess_fast_dir
 
 class OverwatchActionScreenRegion(ScreenRegion):
     def process(self, pil: Image, frame: Frame, frame_watcher: FrameAggregator, frame_tester: FrameTester,
-                api: TesseractInstance):
+                api: PyTessBaseAPI):
         img_crop = self.crop(pil)
         if not os.path.exists(tess_fast_dir):
             wait_for_tess()
-        text = api.image_to_string(
-            img_crop)  # image_to_string(img_crop, config=f'--tessdata-dir "{tess_fast_dir}"', lang='eng')  # , lang='eng')
+
+        api.SetImage(pil)
+        text = api.GetUTF8Text()
+        # text = image_to_string(
+        #     img_crop)  # image_to_string(img_crop, config=f'--tessdata-dir "{tess_fast_dir}"', lang='eng')  # , lang='eng')
         frame.empty = True
         if len(text) < 4:
             return

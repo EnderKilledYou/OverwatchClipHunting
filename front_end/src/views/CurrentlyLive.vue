@@ -80,6 +80,7 @@ export default class CurrentlyLive extends Vue {
   @Prop show_inactive?: boolean
 
   async Avoid(watcher: Monitor) {
+    alert("avoiding " + watcher.broadcaster)
     await API.avoid_user(watcher.broadcaster)
     await this.update_monitor()
 
