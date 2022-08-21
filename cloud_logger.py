@@ -97,6 +97,7 @@ def cloud_message(message):
 
 
 def cloud_logger():
+    return
     args = '<none>'
     name = '<unknown_function>'
     args_json = '{}'
