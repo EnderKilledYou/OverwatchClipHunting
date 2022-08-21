@@ -43,7 +43,7 @@ class ReScanner(ThreadedManager):
     # self._instance.thumbnail_url.split("-preview", 1)[0] + ".mp4"
     def __init__(self):
         super(ReScanner, self).__init__(1)
-
+        self._reader = None
         self._frame_count = 0
         self.matcher = OverwatchClipReader()
 
@@ -93,7 +93,8 @@ class ReScanner(ThreadedManager):
         return video_id
 
     def _stop(self):
-        self._reader.stop()
+        if self._reader is not None:
+            self._reader.stop()
 
     def _scan_clip(self, job: TwitchClipInstanceScanJob, reader_list):
         size = len(reader_list)
@@ -123,4 +124,3 @@ def queue_to_list(queue: Queue):
     except Empty:
         pass
     return items
-

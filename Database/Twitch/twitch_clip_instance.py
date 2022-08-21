@@ -76,6 +76,8 @@ def update_twitch_clip_instance_filename(twitch_clip_id: int, file_path):
 def get_twitch_clip_instance_by_id(id: int) -> TwitchClipInstance:
     with db.session.begin():
         first = TwitchClipInstance.query.filter_by(id=id).first()
+        if first is None:
+            return None
         class_dict = Dict2Class(first.to_dict())
     db.session.expunge(first)
 
@@ -92,6 +94,8 @@ def get_twitch_clip_video_id_by_id(id: int) -> TwitchClipInstance:
 def get_twitch_clip_instance_by_video_id(video_id) -> TwitchClipInstance:
     with db.session.begin():
         first = TwitchClipInstance.query.filter_by(video_id=video_id).first()
+        if first is None:
+            return None
         dict_class = Dict2Class(first.to_dict())
     return dict_class
 
