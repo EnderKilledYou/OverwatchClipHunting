@@ -134,11 +134,13 @@ def add_stream_to_monitor(broadcaster: str):
     cloud_logger()
     with db.session.begin():
         lower = broadcaster.lower().strip()
-        if not get_monitor_exists(lower):
+        exists = get_monitor_exists(lower)
+        if exists == 0:
             monitor2 = Monitor(lower)
             monitor2.is_active = True
             db.session.add(monitor2)
-
+        else:
+            monitor2 = Monitor.query.filter_by(broadcaster=lower).first()
     db.session.flush()
     return monitor2
 
