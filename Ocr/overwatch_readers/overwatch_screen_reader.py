@@ -52,7 +52,7 @@ class OverwatchScreenReader(ScreenReader):
                 if self.frame_watcher.in_queue:
                     import start_up_flask
                     print("In queue " + frame.source_name)
-                    start_up_flask.alli.stop_streamer(frame.source_name)
+                    # start_up_flask.alli.stop_streamer(frame.source_name)
                     self.skip_frames += 2
                     return
                 if frame.ts_second - self.last_action_second > 45 and frame.empty:
