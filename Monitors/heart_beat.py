@@ -33,6 +33,7 @@ class HeartBeat:
         self._active_monitor_count = 0
 
     def update_monitor_healths(self):
+        return
         monitors = self.get_copy_active_monitors()
         for monitor in monitors:
             needs = monitor.check_need_restart()
