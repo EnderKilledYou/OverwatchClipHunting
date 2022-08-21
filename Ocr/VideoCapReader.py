@@ -26,22 +26,35 @@ class VideoCapReader:
         self.fps = 1
 
     def count(self):
-        with self._count_lock.acquire():
+        try:
+            self._count_lock.acquire()
             return self.items_read - self.items_drained
+        finally:
+            self._count_lock.release()
+            pass
 
     def incr_items_drained(self):
-        with self._count_lock.acquire():
+        try:
+            self._count_lock.acquire()
             self.items_drained = self.items_drained + 1
+        finally:
+            self._count_lock.release()
+            pass
 
     def incr_items_read(self):
-        with self._count_lock.acquire():
+        try:
+            self._count_lock.acquire()
             self.items_read = self.items_read + 1
+        finally:
+            self._count_lock.release()
+            pass
 
     def _read_one(self, frame_number, fps):
         ret, frame = self.video_capture.read()
         if not ret:
             raise StreamEndedError("Could not read frame")
         if frame_number % self.sample_every_count == 0:
+            print("releasing frame " + frame_number)
             return Frame(frame_number, frame, frame_number // fps, self.streamer_name)
         return None
 
