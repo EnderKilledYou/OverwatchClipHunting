@@ -124,7 +124,7 @@ class HeartBeat:
         streams = get_monitored_streams(twitch_api)
         self._prod_monitors(streams)
 
-        claim = claim_one_monitor(streams, self.sizbe())
+        claim = claim_one_monitor(streams, self.size())
         if claim is not None:
             monitor, game = claim
             self._add_to_monitor_list(monitor)
