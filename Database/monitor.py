@@ -9,6 +9,7 @@ from sqlalchemy import func
 from sqlalchemy.orm import validates
 from sqlalchemy_serializer import SerializerMixin
 
+from Database.Twitch.dict_to_class import Dict2Class
 from Ocr.overwatch_readers.overwatch_screen_reader import OverwatchScreenReader
 from Ocr.screen_reader import ScreenReader
 from Ocr.twitch_video_frame_buffer import TwitchEater
@@ -167,7 +168,13 @@ def get_inactive_monitors() -> List[Monitor]:
 
 def get_all_my_monitors() -> List[Monitor]:
     cloud_logger()
-    return list(Monitor.query.filter_by(activated_by=self_id))
+    with db.session.begin():
+        return list(map(lambda x:Dict2Class(x),Monitor.query.filter_by(activated_by=self_id)))
+
+def get_all_my_monitors_names() -> List[Monitor]:
+    cloud_logger()
+    with db.session.begin():
+        return list(db.session.query(Monitor.broadcaster).filter_by(activated_by=self_id))
 
 
 class NotOursAnymoreError:

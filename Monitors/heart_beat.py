@@ -12,7 +12,7 @@ from cloud_logger import cloud_logger, cloud_error_logger
 from twitch_helpers.get_monitored_streams import get_monitored_streams
 from twitch_helpers.twitch_helpers import get_twitch_api
 
-from Database.monitor import Monitor, update_claim_on_monitor, get_monitor_stats, release_monitors
+from Database.monitor import Monitor, update_claim_on_monitor, get_monitor_stats, release_monitors, get_all_my_monitors
 
 
 class HeartBeat:
@@ -136,8 +136,11 @@ class HeartBeat:
         self._prod_monitors(streams)
 
         active_monitors = list(map(lambda x: x.Broadcaster, self.get_copy_active_monitors()))
+        already_claimed = list(map(lambda x:x.Broadcaster,get_all_my_monitors()))
 
         not_monitored = list(filter(lambda stream: stream.user_login not in active_monitors, streams))
+        not_monitored = list(filter(lambda stream: stream.user_login not in already_claimed, not_monitored))
+
         claim = claim_one_monitor(not_monitored, self.size())
         if claim is not None:
             monitor, game = claim
