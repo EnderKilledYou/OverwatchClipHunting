@@ -31,7 +31,7 @@ class OverwatchScreenReader(ScreenReader):
 
     def ocr(self, frame: Frame, api: PyTessBaseAPI) -> None:
         if self.skip_frames > 0:
-            print("skipping ")
+            # print("skipping ")
             self.skip_frames = self.skip_frames - 1
             return
         try:
