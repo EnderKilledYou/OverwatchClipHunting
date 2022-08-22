@@ -113,8 +113,6 @@ class VideoCapReader:
 
         if item is None:
             return True
-        while self.count() > 5:
-            sleep(1)
 
         buffer.put(item)
 
