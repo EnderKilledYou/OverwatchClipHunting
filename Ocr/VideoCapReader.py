@@ -115,6 +115,8 @@ class VideoCapReader:
             return True
 
         buffer.put(item)
+        if self.items_read % 30 == 0:
+            sleep(1)
 
         self.incr_items_read()
         return True
