@@ -1,7 +1,7 @@
 import os
 from time import sleep
 
-from tesserocr import PyTessBaseAPI
+from tesserocr import PyTessBaseAPI, PSM
 
 from Ocr.frames.frame import Frame
 
@@ -23,7 +23,7 @@ class ScreenReader:
         self.Active = False
 
     def consume_twitch_broadcast(self):
-        with PyTessBaseAPI(path=tess_fast_dir) as api:
+        with PyTessBaseAPI(path=tess_fast_dir,psm=PSM.SINGLE_COLUMN) as api:
             while self.Active and self.framebuffer.active and self.next_frame(api):
                 pass
 
