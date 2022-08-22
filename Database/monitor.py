@@ -169,7 +169,7 @@ def get_inactive_monitors() -> List[Monitor]:
 def get_all_my_monitors() -> List[Monitor]:
     cloud_logger()
     with db.session.begin():
-        return list(map(lambda x:Dict2Class(x),Monitor.query.filter_by(activated_by=self_id)))
+        return list(map(lambda x:Dict2Class(x.to_dict()),Monitor.query.filter_by(activated_by=self_id)))
 
 def get_all_my_monitors_names() -> List[Monitor]:
     cloud_logger()
