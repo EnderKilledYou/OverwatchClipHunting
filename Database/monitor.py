@@ -229,9 +229,9 @@ def claim_monitor(stream_name) -> bool:
         monitor = Monitor.query.filter_by(broadcaster=stream_name).first()
         if monitor is None:
             cloud_message("Could not import " + stream_name + " when looking at streamers")
-            return
+            return False
         if monitor.activated_by == self_id:
-            return
+            return False
         time_delta = current_time - datetime.datetime(1999, 12, 11, 0, 0)
         if monitor.activated_at is not None:
             time_delta = current_time - monitor.activated_at

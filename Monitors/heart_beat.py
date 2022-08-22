@@ -5,6 +5,7 @@ from threading import Timer, Thread
 from time import sleep
 from typing import List
 
+from Database.live_twitch_instance import LiveTwitchInstance
 from Database.unclaim_monitor import unclaim_monitor
 from Monitors.heart_beat_helpers import claim_one_monitor
 from cloud_logger import cloud_logger, cloud_error_logger
@@ -131,10 +132,13 @@ class HeartBeat:
         cloud_logger()
         release_monitors()
 
-        streams = get_monitored_streams(twitch_api)
+        streams: List[LiveTwitchInstance] = get_monitored_streams(twitch_api)
         self._prod_monitors(streams)
 
-        claim = claim_one_monitor(streams, self.size())
+        active_monitors = list(map(lambda x: x.Broadcaster, self.get_copy_active_monitors()))
+
+        not_monitored = list(filter(lambda stream: stream.user_login in active_monitors, streams))
+        claim = claim_one_monitor(not_monitored, self.size())
         if claim is not None:
             monitor, game = claim
             self._add_to_monitor_list(monitor)
