@@ -40,6 +40,8 @@ class OverwatchScreenReader(ScreenReader):
 
             self.ActionTextCropper.process(pil_grey, frame, self.frame_watcher,
                                            self.frame_tester, api)
+            if frame.empty:
+                self.skip_frames += 1
             return
             if not frame.empty:
                 self.last_action_second = frame.ts_second
