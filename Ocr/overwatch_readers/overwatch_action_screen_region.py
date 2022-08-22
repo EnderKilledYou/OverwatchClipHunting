@@ -21,7 +21,7 @@ class OverwatchActionScreenRegion(ScreenRegion):
         if not os.path.exists(tess_fast_dir):
             wait_for_tess()
 
-        api.SetImage(pil)
+        api.SetImage(img_crop)
         text = api.GetUTF8Text()
         # text = image_to_string(
         #     img_crop)  # image_to_string(img_crop, config=f'--tessdata-dir "{tess_fast_dir}"', lang='eng')  # , lang='eng')
