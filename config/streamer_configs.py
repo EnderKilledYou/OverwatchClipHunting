@@ -2,11 +2,11 @@ from config.streamer_config import StreamerConfig
 
 watch_cli_config = {  # used with added with watch and no config
        'make_clips': True,  # Set to false for just watch mode
-        'min_healing_duration': 4,  # set stupid high to ignore
+        'min_healing_duration': 3,  # set stupid high to ignore
         'min_elims': 4,
-        'min_blocking_duration': 4,
-        'min_defense_duration': 4,
-        'min_assist_duration': 4,
+        'min_blocking_duration': 3,
+        'min_defense_duration': 3,
+        'min_assist_duration': 3,
         'clip_deaths': False,
         'stream_prefers_quality': '720p60',
         'buffer_prefers_quality': 'best',
