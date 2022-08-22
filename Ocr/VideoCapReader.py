@@ -108,7 +108,7 @@ class VideoCapReader:
         while self.Active and self._next_frame(frame_number, buffer):
             frame_number = frame_number + 1
             if frame_number % 50 == 0:
-                sleep(4)
+                sleep(.1)
 
     def _next_frame(self, frame_number, buffer :Queue):
         item = self._read_one(frame_number, self.fps)
