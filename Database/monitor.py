@@ -230,10 +230,12 @@ def claim_monitor(stream_name) -> bool:
         if monitor is None:
             cloud_message("Could not import " + stream_name + " when looking at streamers")
             return
+        if monitor.activated_by == self_id:
+            return
         time_delta = current_time - datetime.datetime(1999, 12, 11, 0, 0)
         if monitor.activated_at is not None:
             time_delta = current_time - monitor.activated_at
-        last_claim_expy = time_delta.seconds > 60 * 1
+        last_claim_expy = time_delta.seconds > 60 * 3
         if last_claim_expy or not monitor.is_active:
             query = Monitor.query.filter_by(
                 activated_by=monitor.activated_by, broadcaster=stream_name)
