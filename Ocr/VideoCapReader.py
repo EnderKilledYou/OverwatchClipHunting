@@ -108,16 +108,16 @@ class VideoCapReader:
         while self.Active and self._next_frame(frame_number, buffer):
             frame_number = frame_number + 1
 
-    def _next_frame(self, frame_number, buffer):
+    def _next_frame(self, frame_number, buffer :Queue):
         item = self._read_one(frame_number, self.fps)
 
         if item is None:
             return True
-        if self.count() > 5:
+        while self.count() > 5:
             sleep(1)
+
         buffer.put(item)
-        if self.count() > 5:
-            sleep(1)
+
         self.incr_items_read()
         return True
 
