@@ -51,10 +51,11 @@ class VideoCapReader:
 
     def _read_one(self, frame_number, fps):
         ret, frame = self.video_capture.read()
+        if self.count() > 30:
+            return None
         if not ret:
             raise StreamEndedError("Could not read frame")
         if frame_number % self.sample_every_count == 0:
-
             return Frame(frame_number, frame, frame_number // fps, self.streamer_name)
         return None
 
@@ -108,8 +109,7 @@ class VideoCapReader:
         while self.Active and self._next_frame(frame_number, buffer):
             frame_number = frame_number + 1
 
-
-    def _next_frame(self, frame_number, buffer :Queue):
+    def _next_frame(self, frame_number, buffer: Queue):
         item = self._read_one(frame_number, self.fps)
 
         if item is None:
