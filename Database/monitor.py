@@ -123,7 +123,7 @@ class Monitor(db.Model, SerializerMixin):
 
     def stop(self):
         cloud_logger()
-        if hasattr(self, 'ocr')  and self.ocr is not None:
+        if hasattr(self, 'ocr') and self.ocr is not None:
             self.ocr.stop()
             del self.ocr
             self.ocr = None
@@ -131,7 +131,6 @@ class Monitor(db.Model, SerializerMixin):
             self.matcher.stop()
             del self.matcher
             self.matcher = None
-
 
     def wait_for_stop(self, timeout=None):
         cloud_logger()
@@ -147,12 +146,12 @@ def add_stream_to_monitor(broadcaster: str):
             monitor2 = Monitor(lower)
             monitor2.is_active = True
             db.session.add(monitor2)
-        else:
-            monitor2 = Monitor.query.filter_by(broadcaster=lower).first()
-    db.session.flush()
-    return monitor2
+            return True
 
-def get_all_monitors_dicts() -> List[Dict[str,any]]:
+        return False
+
+
+def get_all_monitors_dicts() -> List[Dict[str, any]]:
     items_out = []
     # cloud_logger()
     with db.session.begin():
@@ -160,6 +159,8 @@ def get_all_monitors_dicts() -> List[Dict[str,any]]:
         for item in items:
             items_out.append(item.to_dict())
     return items_out
+
+
 def get_all_monitors() -> List[Monitor]:
     items_out = []
     # cloud_logger()

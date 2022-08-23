@@ -18,7 +18,9 @@ sharp = api_generator
 
 @sharp.function()
 def add(stream_name: str):
-    add_stream_to_monitor(stream_name)
+    if add_stream_to_monitor(stream_name):
+        cache.delete('my_monitors')
+        cache.delete('get_monitored_streams')
     return {"success": True, 'items': []}
 
 
