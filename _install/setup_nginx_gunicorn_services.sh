@@ -14,6 +14,8 @@ User=gamin
 WorkingDirectory=/app
 Environment="TESSERACT_DATA_FAST=/FAST_DATA/tessdata_fast/"
 ExecStart=gunicorn --workers 1 --threads 8 --timeout 0 --bind unix:/app/clip.sock -m 007 app:app
+StandardOutput=/var/log/clip.log
+StandardError=/var/log/clip.error
 
 [Install]
 WantedBy=multi-user.target
