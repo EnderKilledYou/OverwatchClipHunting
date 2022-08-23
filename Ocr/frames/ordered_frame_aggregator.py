@@ -11,8 +11,9 @@ class OrderedFrameAggregator(FrameAggregator):
 
     def __del__(self):
         self.emitter = None
-        del self.lock
-        self.lock = None
+        if hasattr(self,'lock'):
+            del self.lock
+            self.lock = None
 
     def set_in_prepare(self, frame, mode):
         self.lock.acquire()
