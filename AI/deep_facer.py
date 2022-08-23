@@ -38,7 +38,6 @@ def crop_by_region(frame, region):
 class DeepFacer(ThreadedManager):
     _frame_count: int
 
-
     def __json__(self):
         return "rescanner"
 
@@ -60,9 +59,10 @@ class DeepFacer(ThreadedManager):
             (clip_id, file, scan_job_id) = job_tuple
             update_scan_job_in_deepface(scan_job_id)
             clip: TwitchClipInstance = get_twitch_clip_instance_by_id(clip_id)
-            reader = ClipVideoCapReader(clip.broadcaster_name.lower(), clip_id)
-            frames: List[DeepFaceResult] = self._scan_clip(scan_job_id, reader, file)
-            reader.stop()
+
+            frames: List[DeepFaceResult] = self._scan_clip(scan_job_id, reader, file, clip.broadcaster_name.lower(),
+                                                           clip_id)
+
             if frames is None:
                 return
 
@@ -72,10 +72,12 @@ class DeepFacer(ThreadedManager):
             self._calculate_emotion(clip_id, frames, 'sad')
             self._calculate_emotion(clip_id, frames, 'angry')
             self._calculate_emotion(clip_id, frames, 'disgust')
-
+            for item in frames:
+                del item
+            frames.clear()
             update_scan_job_in_subclip(scan_job_id)
             Timer(8, clip_tag_to_clip, (clip_id, file, scan_job_id)).start()
-            frames.clear()
+
 
 
         except BaseException as e:
@@ -104,6 +106,9 @@ class DeepFacer(ThreadedManager):
         if change_duration > 2 and change_amount > 20:
             add_twitch_clip_tag_request(clip_id, tag_text, change_amount, change_duration,
                                         min(min_second, max_second))
+        max_frames.clear()
+        min_frames.clear()
+        happy.clear()
 
     def _calculate_happy(self, clip_id, max_happy_frames, min_happy_frames):
         max_happy_second = max(max_happy_frames, key=lambda x: x.frame.ts_second)
@@ -119,35 +124,36 @@ class DeepFacer(ThreadedManager):
             add_twitch_clip_tag_request(clip_id, tag_text, change_amount, change_amount,
                                         min(min_happy_second, max_happy_second))
 
-    def _scan_clip(self, scan_job_id: int, reader, path: str):
+    def _scan_clip(self, scan_job_id: int, reader, path: str, broadcaster, clip_id):
 
-        # size = len(reader_list)
-        frame_number = 0
-        seconds = get_length(path)
-        size = reader.fps * seconds
-        frames = []
-        try:
-            itr = reader.readYield(path)
-            while True:
-                frame_list = self.scanned_frame(itr)
-                if len(frame_list) == 0:
-                    break
-                self._frame_count += len(frame_list)
-                frame_number = frame_number + len(frame_list)
-                for frame in frame_list:
-                    frames.append(frame)
-                if frame_number < size:
-                    percent_done = frame_number / size
-                else:
-                    percent_done = .99  # we guessed the fps wrong (ffmped)
-                i = int(percent_done * 100.0)
-                # if i > 0 and i % 15 == 0:
-                # update_scan_job_percent(scan_job_id, percent_done)
-            return frames
+        with ClipVideoCapReader(broadcaster, clip_id) as reader:
+            # size = len(reader_list)
+            frame_number = 0
+            seconds = get_length(path)
+            size = reader.fps * seconds
+            frames = []
+            try:
+                itr = reader.readYield(path)
+                while True:
+                    frame_list = self.scanned_frame(itr)
+                    if len(frame_list) == 0:
+                        break
+                    self._frame_count += len(frame_list)
+                    frame_number = frame_number + len(frame_list)
+                    for frame in frame_list:
+                        frames.append(frame)
+                    if frame_number < size:
+                        percent_done = frame_number / size
+                    else:
+                        percent_done = .99  # we guessed the fps wrong (ffmped)
+                    i = int(percent_done * 100.0)
+                    if i > 0 and i % 15 == 0:
+                        update_scan_job_percent(scan_job_id, percent_done)
+                return frames
 
-        except BaseException as b:
-            traceback.print_exc()
-            pass
+            except BaseException as b:
+                traceback.print_exc()
+                pass
 
     def scanned_frame(self, itr):
         items = []
@@ -188,7 +194,7 @@ class DeepFacer(ThreadedManager):
         scans = []
         for item in results_list:
             results_list[item]["frame"] = items[index]
-
+            items[index].image = None
             result = DeepFaceResult(results_list[item])
             scans.append(result)
             # add_clip_twitch_tag_by_emotion(cl)

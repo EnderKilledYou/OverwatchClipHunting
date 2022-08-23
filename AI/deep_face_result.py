@@ -69,7 +69,8 @@ class DeepFaceResult:
         return self
 
     def __exit__(self, exc_type, exc_value, tb):
-        self.frame = None
+        if self.frame is not None:
+            del self.frame
         self.region = None
         self.dominant_emotion = None
         self.emotion = None

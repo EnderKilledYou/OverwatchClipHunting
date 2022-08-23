@@ -34,6 +34,7 @@ class ScreenReader:
             return True
 
         self.ocr(frame, api)
+        frame.image = None
         return True
 
     def wait_next_frame(self):
