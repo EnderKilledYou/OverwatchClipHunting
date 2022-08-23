@@ -26,7 +26,7 @@ def add_clip(clip_id: str):
     job_id = add_twitch_clip_scan(clip_id, clip_broadcaster)
     if job_id is not None:
         rescanner.add_job(job_id)
-        return {"success": True, "clip": dict(clip)}
+        return {"success": True,  }
     return {"success": False, "error": "Clip is alread being processed"}
 
 
