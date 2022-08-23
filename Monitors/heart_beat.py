@@ -40,8 +40,8 @@ class HeartBeat:
             needs = monitor.check_need_restart()
             if not needs:
                 continue
-            unclaim_monitor(monitor.Broadcaster)
-            self._remove_monitor_from_list(monitor.Broadcaster)
+            unclaim_monitor(monitor.broadcaster)
+            self._remove_monitor_from_list(monitor.broadcaster)
 
     def start(self):
         cloud_logger()
@@ -61,7 +61,7 @@ class HeartBeat:
         cloud_logger()
         for monitor in monitors:
             stats = get_monitor_stats(monitor)
-            if update_claim_on_monitor(monitor.Broadcaster, stats):
+            if update_claim_on_monitor(monitor.broadcaster, stats):
                 continue
             self._remove_monitor_from_list(monitor.broadcaster)
 
@@ -104,7 +104,7 @@ class HeartBeat:
             item_range_count = reversed(range(0, len(self._active_monitors)))
             for i in item_range_count:
                 monitor = self._active_monitors[i]
-                if monitor.Broadcaster == streamer_name:
+                if monitor.broadcaster == streamer_name:
                     monitor.stop()
                     del self._active_monitors[i]
 
@@ -135,7 +135,7 @@ class HeartBeat:
         streams: List[LiveTwitchInstance] = get_monitored_streams(twitch_api)
         self._prod_monitors(streams)
 
-        active_monitors = list(map(lambda x: x.Broadcaster, self.get_copy_active_monitors()))
+        active_monitors = list(map(lambda x: x.broadcaster, self.get_copy_active_monitors()))
         already_claimed = list(map(lambda x:x.broadcaster,get_all_my_monitors()))
 
         not_monitored = list(filter(lambda stream: stream.user_login not in active_monitors, streams))
@@ -160,7 +160,7 @@ class HeartBeat:
         for monitor in monitors:
             found = False
             for stream in streams:
-                if monitor.Broadcaster != stream.user_login:
+                if monitor.broadcaster != stream.user_login:
                     continue
                 found = True
                 if stream.game_name.lower().startswith("overwatch"):
