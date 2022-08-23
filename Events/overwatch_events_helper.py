@@ -63,6 +63,8 @@ def can_clip(frame, type: str):
     if not get_streamer_config(frame.source_name).make_clips:
         return False
     last_clip_distance = get_last_clip_time_distance(frame)
+    if type == 'slept':
+        last_clip_distance = last_clip_distance * 4
     if last_clip_distance < 30:
         print(f"Creating clips too soon {type} {str(last_clip_distance)}")
         return False
@@ -79,6 +81,3 @@ def get_last_clip_time_distance(frame: Frame):
     distance = frame.ts_second - last_clip_time[frame.source_name]
 
     return distance
-
-
-
