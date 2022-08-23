@@ -3,6 +3,9 @@ import os
 import sqlalchemy
 from flask_sqlalchemy import SQLAlchemy
 
+
+
+
 def config_db() -> SQLAlchemy:
     """
 
@@ -48,8 +51,11 @@ db = config_db()
 
 from Database import *
 from Database.Twitch import *
-def init_db():
 
+def init_db():
+    from Database.Twitch.twitch_clip_instance_scan_job import TwitchClipInstanceScanJob
+    from Database.Twitch.twitch_clip_tag import TwitchClipTag
+    from Database.Twitch.twitch_clip_instance import TwitchClipInstance
     db.create_all()
 
 

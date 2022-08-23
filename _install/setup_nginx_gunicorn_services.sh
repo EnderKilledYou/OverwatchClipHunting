@@ -13,7 +13,7 @@ After=network.target
 User=gamin
 WorkingDirectory=/app
 Environment="TESSERACT_DATA_FAST=/FAST_DATA/tessdata_fast/"
-ExecStart=/home/sammy/myproject/myprojectenv/bin/gunicorn --workers 1 --threads 8 --timeout 0 --bind unix:clip.sock -m 007 app:app
+ExecStart=gunicorn --workers 1 --threads 8 --timeout 0 --bind unix:/app/clip.sock -m 007 app:app
 
 [Install]
 WantedBy=multi-user.target
@@ -25,9 +25,9 @@ server {
     listen 80;
     server_name $DOMAIN www.$DOMAIN;
 
-    location / {
+    location / {:4
         include proxy_params;
-        proxy_pass http://unix:/app/clip.sock;
+        proxy_pass unix:/app/clip.sock;
     }
 }
 EOT
@@ -51,3 +51,5 @@ install_service
 enable_nginx_service
 
 enable_service
+
+chown gamin:www-data /app/clip.sock
