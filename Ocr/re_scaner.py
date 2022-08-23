@@ -91,11 +91,14 @@ class ReScanner(ThreadedManager):
             self._reader.stop()
 
     def match_frame(self, itr, api):
-        frame = next(itr)
+
         try:
+            frame = next(itr)
             if frame is not None:
                 with frame as frame__:
                     self.matcher.ocr(frame__, api)
+        except StopIteration as st:
+            return False
         except BaseException as b:
             return False
         return True
