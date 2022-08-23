@@ -1,3 +1,5 @@
+import json
+
 import json_fix
 from flask import Blueprint
 from Database.monitor import remove_stream_to_monitor, add_stream_to_monitor, get_all_my_monitors, get_all_monitors
@@ -22,21 +24,24 @@ def add(stream_name: str):
 @sharp.function()
 def list_streamers():
     try:
-        my_monitors = cache.get('my_monitors')
-        if my_monitors is None:
+        if cache.has('my_monitors'):
+           my_monitors = cache.get('my_monitors')
+        else:
             my_monitors = get_all_monitors()
-            cache.set('my_monitors', 120)
+            cache.set('my_monitors', list_obj_to_list_dicts(my_monitors),120)
+            my_monitors = list_obj_to_list_dicts(my_monitors)
         if len(my_monitors) == 0:
             return {"success": True, 'items': []}
 
-        twitch_api = get_twitch_api()
-        streams = cache.get('get_monitored_streams')
-        if streams is None:
+        if cache.has('get_monitored_streams'):
+            streams = cache.get('get_monitored_streams')
+        else:
+            twitch_api = get_twitch_api()
             streams = get_monitored_streams(twitch_api)
-            cache.set('get_monitored_streams', 120)
-        dictsm = list_obj_to_list_dicts(my_monitors)
-        dictss = list_obj_to_list_dicts(streams)
-        return {"success": True, 'items': [dictsm, dictss]}
+            cache.set('get_monitored_streams', list_obj_to_list_dicts(streams),120)
+
+            streams = list_obj_to_list_dicts(streams)
+        return {"success": True, 'items': [my_monitors, streams]}
     except BaseException as b:
         cloud_error_logger(b)
         return {"error": str(b)}

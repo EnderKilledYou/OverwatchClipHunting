@@ -20,7 +20,7 @@ def config_db() -> SQLAlchemy:
 
 
 def config_app_db_settings(app):
-
+    app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
     if 'OCR_PRODUCTION' in os.environ:
         config_mysql(app)
 
