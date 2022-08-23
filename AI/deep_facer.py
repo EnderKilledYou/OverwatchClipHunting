@@ -142,6 +142,7 @@ class DeepFacer(ThreadedManager):
             size = reader.fps * seconds
             frames = []
             frame_list = []
+
             try:
                 itr = reader.readYield(path)
 
@@ -149,11 +150,11 @@ class DeepFacer(ThreadedManager):
                     self.scanned_frame(itr, frame_list)
                     if len(frame_list) == 0:
                         break
+
                     self._frame_count += len(frame_list)
                     frame_number = frame_number + len(frame_list)
                     for frame in frame_list:
-
-                        if 150 < frame.region.w < 350:
+                        if 150 < frame.region.w < frame.frame.image.shape[0] * .9:
                             frames.append(frame)
                     frame_list.clear()
                     if frame_number < size:
