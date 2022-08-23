@@ -5,7 +5,9 @@ from Ocr.frames.frame_aggregator import FrameAggregator
 
 
 class OrderedFrameAggregator(FrameAggregator):
-    lock = threading.Lock()
+    def __init__(self, ee):
+        super(OrderedFrameAggregator).__init__(ee)
+        self.lock = threading.Lock()
 
     def __del__(self):
         self.emitter = None
