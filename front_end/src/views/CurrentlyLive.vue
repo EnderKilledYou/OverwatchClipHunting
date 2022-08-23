@@ -43,6 +43,9 @@ import prettyMilliseconds from 'pretty-ms';
 export default class CurrentlyLive extends Vue {
   private twitch_streams: any[] = [];
 
+  prettyMilliseconds(time: any) {
+    return prettyMilliseconds(time)
+  }
 
   async Unwatch(watcher: Monitor) {
     await API.remove(watcher.broadcaster)
