@@ -59,12 +59,24 @@ class DeepFaceResult:
     dominant_race: str
     race: Race
 
+    def __del__(self):
+        self.frame = None
+        self.region = None
+        self.dominant_emotion = None
+        self.emotion = None
+
+    def __enter__(self):
+        return self
+
+    def __exit__(self, exc_type, exc_value, tb):
+        self.frame = None
+        self.region = None
+        self.dominant_emotion = None
+        self.emotion = None
+        return self
+
     def __init__(self, from_api) -> None:
         self.frame = from_api['frame']
         self.region = Region(from_api['region'])
-#        self.age = from_api['age']
-#        self.gender = from_api['gender']
         self.dominant_emotion = from_api['dominant_emotion']
         self.emotion = Emotion(from_api['emotion'])
-#        self.dominant_race = from_api['dominant_race']
-        #self.race = Race(from_api['race'])

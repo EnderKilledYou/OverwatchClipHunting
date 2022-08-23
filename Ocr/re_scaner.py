@@ -101,23 +101,23 @@ class ReScanner(ThreadedManager):
         return True
 
     def _scan_clip(self, job: TwitchClipInstanceScanJob, path: str):
-        reader = ClipVideoCapReader(job.broadcaster, job.clip_id)
-        # size = len(reader_list)
-        frame_number = 0
-        seconds = get_length(path)
-        reader.sample_every_count = 10
-        size = reader.fps * seconds / reader.sample_every_count
-        try:
-            itr = reader.readYield(path)
-            with PyTessBaseAPI(path=tess_fast_dir) as api:
-                while self.match_frame(itr, api):
-                    self._frame_count += 1
-                    frame_number = frame_number + 1
-                    self._update_percentage_in_row(frame_number, job, size)
+        with ClipVideoCapReader(job.broadcaster, job.clip_id) as reader:
+            # size = len(reader_list)
+            frame_number = 0
+            seconds = get_length(path)
+            reader.sample_every_count = 10
+            size = reader.fps * seconds / reader.sample_every_count
+            try:
+                itr = reader.readYield(path)
+                with PyTessBaseAPI(path=tess_fast_dir) as api:
+                    while self.match_frame(itr, api):
+                        self._frame_count += 1
+                        frame_number = frame_number + 1
+                        self._update_percentage_in_row(frame_number, job, size)
 
-        except BaseException as b:
-            traceback.print_exc()
-            pass
+            except BaseException as b:
+                traceback.print_exc()
+                pass
 
         update_scan_job_percent(job.id, 1)
 

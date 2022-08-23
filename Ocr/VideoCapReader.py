@@ -69,7 +69,6 @@ class VideoCapReader:
             pass
         self._release()
 
-
     def readYield(self, url):
         self.Active = True
         self._acquire(url)
@@ -83,7 +82,7 @@ class VideoCapReader:
                 fps = 60
             self.fps = fps
             self.sample_every_count = fps // sample_frame_rate
-            return self._yield_frames(fps,True)
+            return self._yield_frames(fps, True)
         except StreamEndedError:
             try:
                 self._release()
@@ -141,8 +140,17 @@ class VideoCapReader:
         if not self.video_capture.isOpened():
             self.video_capture.open(url)
 
+    def __enter__(self):
+        return self
+
+    def __exit__(self, exc_type, exc_val, exc_tb):
+        self._release()
+
+    def __del__(self):
+        self._release()
+
     def _release(self):
-        if not self.video_capture:
+        if self.video_capture is None:
             return
         self.video_capture.release()
         self.video_capture = None
@@ -154,7 +162,7 @@ class ClipVideoCapReader(VideoCapReader):
         self.clip_id = clip_id
         self.sample_every_count = 30
 
-    def _read_one(self, frame_number, fps,loose_buffer=False):
+    def _read_one(self, frame_number, fps, loose_buffer=False):
         ret, frame = self.video_capture.read()
         if not ret:
             raise StreamEndedError("Could not read frame")

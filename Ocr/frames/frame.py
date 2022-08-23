@@ -21,8 +21,18 @@ class Frame:
         self.empty = False
         self.clip_id = clip_id
 
+    def __del__(self):
+        self.image = None
+        self.frame_number = None
+        self.ts_second = None
+        self.source_name = None
+        self.text = None
+        self.empty = None
+        self.clip_id = None
+
     def __enter__(self):
         return self
 
     def __exit__(self, exc_type, exc_value, tb):
         self.image = None
+        return self
