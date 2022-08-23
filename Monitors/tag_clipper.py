@@ -65,6 +65,7 @@ class TagClipper(ThreadedManager):
                 os.unlink(out_file)
 
             update_twitch_clip_instance_filename(clip_id, None)
+            clip_parts.clear()
 
         except BaseException as e:
             update_scan_job_error(scan_job_id, str(e))
@@ -74,10 +75,7 @@ class TagClipper(ThreadedManager):
         finally:
             if os.path.exists(file):
                 os.unlink(file)
-        update_scan_job_percent(scan_job_id, 1,True)
-
-
-
+        update_scan_job_percent(scan_job_id, 1, True)
 
 
 def get_clip_path(clip: TwitchClipInstance):

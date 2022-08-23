@@ -1,6 +1,3 @@
-
-
-
 class Emotion:
     sad: float
     angry: float
@@ -44,10 +41,10 @@ class Region:
     h: int
 
     def __init__(self, from_api) -> None:
-        self.x = from_api['x']
-        self.y = from_api['y']
-        self.w = from_api['w']
-        self.h = from_api['h']
+        i = 0
+        for index in ['x', 'y', 'w', 'h']:
+            setattr(self, index, from_api[i])
+            i = i + 1
 
 
 class DeepFaceResult:

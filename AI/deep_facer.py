@@ -5,7 +5,13 @@ from os.path import abspath
 from threading import Timer
 from typing import List
 
+import cv2
+import deepface.DeepFace
+import numpy as np
 from deepface import DeepFace
+from deepface.DeepFace import build_model
+from deepface.commons import functions
+from keras.utils import image_utils
 
 from AI.deep_face_result import DeepFaceResult
 from Database.Twitch.twitch_clip_instance import TwitchClipInstance, get_twitch_clip_instance_by_id
@@ -188,20 +194,38 @@ class DeepFacer(ThreadedManager):
             except:
                 frame = None
             continue
-        images = list(map(lambda x: x.image, items))
+        for item in map(get_deep_result, items):
+            return_items.append(item)
+        return return_items
 
-        results_list = DeepFace.analyze(images,
-                                        actions=['emotion'],
-                                        enforce_detection=False
-                                        )
 
-        item: DeepFaceResult
-        index = 0
+models = {}
+models['emotion'] = build_model('Emotion')
 
-        for item in results_list:
-            results_list[item]["frame"] = items[index]
-            items[index].image = None
-            result = DeepFaceResult(results_list[item])
-            return_items.append(result)
-            # add_clip_twitch_tag_by_emotion(cl)
-            index = index + 1
+
+def get_deep_result(frame):
+    emotions = parse_emotions(frame.image)
+    emotions["frame"] = frame
+    frame.image = None
+    return DeepFaceResult(emotions)
+
+
+def parse_emotions(numpy_image):
+    emotion_labels = ['angry', 'disgust', 'fear', 'happy', 'sad', 'surprise', 'neutral']
+    img, region = functions.preprocess_face(img=numpy_image, target_size=(48, 48), grayscale=True,
+                                            enforce_detection=False, detector_backend='opencv',
+                                            return_region=True)
+
+    emotion_predictions = models['emotion'].predict(img)[0, :]
+
+    sum_of_predictions = emotion_predictions.sum()
+    resp_obj = {"region": region}
+    resp_obj["emotion"] = {}
+
+    for i in range(0, len(emotion_labels)):
+        emotion_label = emotion_labels[i]
+        emotion_prediction = 100 * emotion_predictions[i] / sum_of_predictions
+        resp_obj["emotion"][emotion_label] = emotion_prediction
+
+    resp_obj["dominant_emotion"] = emotion_labels[np.argmax(emotion_predictions)]
+    return resp_obj
