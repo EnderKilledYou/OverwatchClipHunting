@@ -85,7 +85,7 @@ class DeepFacer(ThreadedManager):
             frames.clear()
             update_scan_job_in_subclip(scan_job_id)
             Timer(8, clip_tag_to_clip, (clip_id, file, scan_job_id)).start()
-            #update_scan_job_percent(scan_job_id, 1, True)
+            # update_scan_job_percent(scan_job_id, 1, True)
 
 
 
@@ -152,7 +152,8 @@ class DeepFacer(ThreadedManager):
                     self._frame_count += len(frame_list)
                     frame_number = frame_number + len(frame_list)
                     for frame in frame_list:
-                        frames.append(frame)
+                        if frame.region.w > 50:
+                            frames.append(frame)
                     frame_list.clear()
                     if frame_number < size:
                         percent_done = frame_number / size
