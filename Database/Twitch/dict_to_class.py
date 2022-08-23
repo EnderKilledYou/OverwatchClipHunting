@@ -15,6 +15,9 @@ class Dict2Class(object):
         for x, y in iters.items():
             yield x, y
 
+    def to_dict(self):
+        return self._dict
+
     def __init__(self, my_dict):
         self._dict = my_dict
         for key in my_dict:
