@@ -17,7 +17,7 @@ def start_workers():
     alli.start()
     facer.start()
     reset_twitch_clip_job_state()
-    #requeue_twitch_clip_jobs(rescanner)
+    requeue_twitch_clip_jobs(rescanner)
     atexit.register(rescanner.stop)
     atexit.register(alli.stop)
     atexit.register(facer.stop)
