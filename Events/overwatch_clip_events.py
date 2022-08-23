@@ -26,7 +26,7 @@ def on_elimed_event(frame: Frame):  # you can save the frame data for a screen c
 @overwatch_clips_event.on('healing')
 def on_healing_event(frame: Frame, duration: Tuple[int, int]):
     print(f"Streamer {frame.source_name} healing {str(duration[0])} {str(duration[1])}")
-    add_twitch_clip_tag_request(frame.clip_id, 'healing', duration[1], duration[1], duration[0])
+    add_twitch_clip_tag_request(frame.clip_id, 'healing', duration[1], duration[2], duration[0])
 
 
 @overwatch_clips_event.on('queue_start')

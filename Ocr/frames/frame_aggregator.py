@@ -11,6 +11,9 @@ class FrameCompactor:
         if self.last_frame == -1:
             self.reset_streak(other)
             return
+        if self.last_frame > other.frame_number:
+            print(f"Skipping frame out of order {other.frame_number}")
+            return
         second_distance = other.ts_second - self.last_second
         if second_distance > self._second_distance:
             self.reset_streak(other)
@@ -28,7 +31,7 @@ class FrameCompactor:
         self.streak_size_seconds = 0
 
     def __init__(self, second_distance: int):
-        self.healing_frame_watcher = FrameCompactor(5)
+
         self._second_distance = second_distance
         self.last_frame = -1
         self.last_second = -1
@@ -75,6 +78,14 @@ class FrameAggregator:
 
         :param ee: The event emitter to push events to
         """
+        self.healing_frame_watcher = FrameCompactor(5)
+        self.orb_frame_watcher = FrameCompactor(5)
+        self.elim_frame_watcher = FrameCompactor(5)
+        self.elimed_frame_watcher = FrameCompactor(5)
+        self.defense_frame_watcher = FrameCompactor(5)
+        self.assist_frame_watcher = FrameCompactor(5)
+        self.blocking_frame_watcher = FrameCompactor(5)
+        self.slept_frame_watcher = FrameCompactor(5)
 
         self.last_contested_frame = -1
         self.contested_streak = 0
@@ -156,14 +167,14 @@ class FrameAggregator:
         if self.too_soon_after_death('heal', frame):
             return
         self.healing_frame_watcher.add(frame)
-
         if frame.ts_second - self.healing_frame_watcher.last_second < 1:
             print_scanner(
                 "Skipping {3} Heal at {0}, out of order second: {1} Frame num {1} Last Frame {2}  ".format(
                     str(frame.ts_second),
                     frame.frame_number, self.healing_frame_watcher.last_second, frame.source_name))
             return
-
+        if self.last_healing_frame_s == frame.ts_second:
+            return
         # heal_frame_distance = frame.frame_number - self.last_healing_frame
         # heal_frame_distance_s = frame.ts_second - self.last_healing_frame_s
         # if self.last_healing_frame != -1 and heal_frame_distance < 2:
@@ -183,9 +194,8 @@ class FrameAggregator:
         # print_scanner("Hero {1} Healed at {0}   ".format(str(frame.ts_second), frame.source_name))
 
         thread_function(self.emitter.emit, 'healing', frame, (
-            self.healing_frame_watcher.streak_start_second, self.healing_frame_watcher.streak_size_seconds))
-
-
+            self.healing_frame_watcher.streak_start_second, self.healing_frame_watcher.streak_size, self.healing_frame_watcher.streak_size_seconds))
+        self.last_healing_frame_s = frame.ts_second
 
     def add_orb_gained_frame(self, frame):
         if self.too_soon_after_death('orb', frame):
