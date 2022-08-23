@@ -60,7 +60,7 @@ class DeepFacer(ThreadedManager):
             update_scan_job_in_deepface(scan_job_id)
             clip: TwitchClipInstance = get_twitch_clip_instance_by_id(clip_id)
 
-            frames: List[DeepFaceResult] = self._scan_clip(scan_job_id, reader, file, clip.broadcaster_name.lower(),
+            frames: List[DeepFaceResult] = self._scan_clip(scan_job_id, file, clip.broadcaster_name.lower(),
                                                            clip_id)
 
             if frames is None:
@@ -124,7 +124,7 @@ class DeepFacer(ThreadedManager):
             add_twitch_clip_tag_request(clip_id, tag_text, change_amount, change_amount,
                                         min(min_happy_second, max_happy_second))
 
-    def _scan_clip(self, scan_job_id: int, reader, path: str, broadcaster, clip_id):
+    def _scan_clip(self, scan_job_id: int, path: str, broadcaster: str, clip_id: int):
 
         with ClipVideoCapReader(broadcaster, clip_id) as reader:
             # size = len(reader_list)
