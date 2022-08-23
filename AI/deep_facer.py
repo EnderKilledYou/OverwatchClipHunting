@@ -73,7 +73,9 @@ class DeepFacer(ThreadedManager):
             self._calculate_emotion(clip_id, frames, 'angry')
             self._calculate_emotion(clip_id, frames, 'disgust')
             for item in frames:
-                del item
+                with item:
+                    pass
+
             frames.clear()
             update_scan_job_in_subclip(scan_job_id)
             Timer(8, clip_tag_to_clip, (clip_id, file, scan_job_id)).start()
