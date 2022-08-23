@@ -152,7 +152,14 @@ def add_stream_to_monitor(broadcaster: str):
     db.session.flush()
     return monitor2
 
-
+def get_all_monitors_dicts() -> List[Dict[str,any]]:
+    items_out = []
+    # cloud_logger()
+    with db.session.begin():
+        items = list(Monitor.query.filter_by(avoid=False))
+        for item in items:
+            items_out.append(item.to_dict())
+    return items_out
 def get_all_monitors() -> List[Monitor]:
     items_out = []
     # cloud_logger()

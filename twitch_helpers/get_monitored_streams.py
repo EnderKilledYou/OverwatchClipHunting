@@ -19,6 +19,16 @@ def get_monitored_streams(twitch_api: Twitch ):
     print("live streams didn't return a valid response")
     return []
 
+def get_monitored_streams_dicts(twitch_api: Twitch ):
+    cloud_logger()
+    user_logins = get_all_logins( )
+    if len(user_logins) == 0:
+        return []
+    live_streams = twitch_api.get_streams(user_login=user_logins)
+    if live_streams and 'data' in live_streams:
+        return live_streams['data']
+    print("live streams didn't return a valid response")
+    return []
 
 
 
