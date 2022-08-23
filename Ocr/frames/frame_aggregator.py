@@ -75,6 +75,7 @@ class FrameAggregator:
         self.blocking_frame_watcher = FrameCompactor(5)
         self.slept_frame_watcher = FrameCompactor(5)
         self.last_hero_room_frame = -1
+        self.in_queue = False
 
         self.emitter = ee
 
