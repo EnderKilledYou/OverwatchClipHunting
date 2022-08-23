@@ -18,11 +18,16 @@ app: Flask = config_app()
 api_generator = Sharp(app, prefix="/api", naming=naming.file_based)
 
 
+
+
 def register_blueprints(app: Flask):
     from config.db_config import init_db
     from routes.twitch import twitch as twitch_blueprint
     from routes.monitor import monitor as monitor_blueprint
+
     from routes.clips.clips import clips as clips_blueprint
+    from routes.clips import search_twitch_clips, add_clip, add_clip_scan, all_clips, clips_search, delete_clips, \
+        get_clip_scan_jobs, get_game_ids, list_twitch_clips, store_clip, tags_job
     from routes.video import video as video_blueprint
     from routes.streamer import streamer as streamer_blueprint
 
@@ -52,7 +57,6 @@ def not_found(e):
         return app.send_static_file("index.html")
     else:
         return "The app didn't install error"
-
 
 
 if __name__ == '__main__':

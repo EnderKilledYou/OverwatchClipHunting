@@ -13,7 +13,7 @@ from twitch_helpers.twitch_helpers import get_twitch_api
 @sharp.function()
 def add_clip(clip_id: str):
     cloud_logger()
-    twitch_api = get_twitch_api(session['me'].twitch_user_id)
+    twitch_api = get_twitch_api()
     clip_resp = twitch_api.get_clips(clip_id=clip_id)
     if len(clip_resp['data']) == 0:
         return {"success": False, "error": "clip doesn't on twitch"}

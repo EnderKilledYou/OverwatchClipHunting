@@ -71,7 +71,7 @@ class DeepFacer(ThreadedManager):
             self._calculate_emotion(clip_id, frames, 'sad')
             self._calculate_emotion(clip_id, frames, 'angry')
             self._calculate_emotion(clip_id, frames, 'disgust')
-            self._calculate_emotion(clip_id, frames, 'happy')
+
             update_scan_job_in_subclip(scan_job_id)
             Timer(8, clip_tag_to_clip, (clip_id, file, scan_job_id)).start()
 
@@ -97,7 +97,7 @@ class DeepFacer(ThreadedManager):
         change_duration = abs(min_second - max_second)
         change_amount = abs(_max - _min)
         if change_duration > 2 and change_amount > 20:
-            add_twitch_clip_tag_request(clip_id, tag_text, change_duration, change_duration,
+            add_twitch_clip_tag_request(clip_id, tag_text, change_amount, change_duration,
                                         min(min_second, max_second))
 
     def _calculate_happy(self, clip_id, max_happy_frames, min_happy_frames):

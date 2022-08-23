@@ -22,7 +22,11 @@ def config_app_db_settings(app):
         config_mysql(app)
 
     else:
-        app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///twitch.sqlite3'
+        config_dev_db(app)
+
+
+def config_dev_db(app):
+    app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///twitch.sqlite3'
 
 
 def config_mysql(app):
@@ -42,7 +46,8 @@ def config_mysql(app):
 
 db = config_db()
 
-
+from Database import *
+from Database.Twitch import *
 def init_db():
 
     db.create_all()

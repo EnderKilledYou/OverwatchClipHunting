@@ -1,7 +1,7 @@
 import subprocess
 
 from Ocr.clip_to_tag import tag_clipper
-from start_up_flask import facer
+
 
 
 def get_length(input_video):
@@ -15,4 +15,5 @@ def clip_tag_to_clip(clip_id: int, clip_file: str, scan_job_id: int):
     tag_clipper.add_job((clip_id, clip_file, scan_job_id))
 
 def face_to_clip(clip_id: int, clip_file: str, scan_job_id: int):
+    from start_up_flask import facer
     facer.add_job((clip_id, clip_file, scan_job_id))

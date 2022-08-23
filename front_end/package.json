@@ -10,15 +10,16 @@
     "deploy_prep": "npm run clean && npm run build && npm run zip"
   },
   "dependencies": {
+    "@cloudgeek/vue3-video-player": "^0.3.10",
     "bootstrap": "^5.2.0",
     "core-js": "^3.8.3",
     "register-service-worker": "^1.7.2",
     "vue": "^3.2.37",
     "vue-class-component": "^8.0.0-0",
+    "vue-facing-decorator": "^2.1.6",
     "vue-property-decorator": "^9.1.2",
     "vue-router": "^4.0.3",
-    "vuex": "^4.0.0",
-    "vue-facing-decorator": "^2.1.6"
+    "vuex": "^4.0.0"
   },
   "devDependencies": {
     "@vue/cli-plugin-babel": "~5.0.0",
@@ -28,8 +29,8 @@
     "@vue/cli-plugin-vuex": "~5.0.0",
     "@vue/cli-service": "~5.0.0",
     "mini-css-extract-plugin": "^2.6.1",
+    "rimraf": "^3.0.2",
     "typescript": "~4.5.5",
-    "zip-build": "^1.7.0",
-    "rimraf": "^3.0.2"
+    "zip-build": "^1.7.0"
   }
 }

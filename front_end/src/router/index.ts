@@ -42,6 +42,10 @@ const routes: Array<RouteRecordRaw> = [
         path: '/ListClipsMade/',
         name: 'listclipsmade',
         component: () => import(/* webpackChunkName: "ListClipsMade" */ '@/views/ListClipsMade.vue')
+    }, {
+        path: '/tag_video/:video_id',
+        name: 'tag_video',
+        component: () => import(/* webpackChunkName: "VideoPlayer" */ '@/views/VideoPlayer.vue')
     }
 ]
 
