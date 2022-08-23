@@ -1,4 +1,5 @@
 from datetime import datetime
+from enum import IntEnum
 
 from sqlalchemy_serializer import SerializerMixin
 
@@ -7,10 +8,22 @@ from Database.Twitch.twitch_clip_tag import TwitchClipTag
 from config.db_config import db
 
 
+class TwitchClipJobState(IntEnum):
+    Complete = 2
+    InQueue = 0
+    DownloadingClip = 1
+    Error = 3
+    InQueueForTag = 5
+    Scanning = 6
+    Yielding = 7
+    DeepFacing = 8
+    DeepFacingQueue =9
+
+
 class TwitchClipInstanceScanJob(db.Model, SerializerMixin):
     serialize_rules = ()
     serialize_only = (
-        'id', 'clip_id', 'state', 'created_at', 'completed_at', 'percent', 'error','broadcaster')
+        'id', 'clip_id', 'state', 'created_at', 'completed_at', 'percent', 'error', 'broadcaster')
     id = db.Column(db.Integer, primary_key=True)
     clip_id = db.Column(db.String(90), unique=True)
     state = db.Column(db.Integer)
@@ -28,19 +41,18 @@ from OrmHelpers.BasicWithId import BasicWithId
 twitch_clip_instance_scan_job_helper = BasicWithId(TwitchClipInstanceScanJob)
 
 
-
 def get_twitch_clip_scan_by_id(id: int) -> TwitchClipInstanceScanJob:
     with db.session.begin():
         first = TwitchClipInstanceScanJob.query.filter_by(id=id).first()
-    db.session.expunge(first)
-    return first
+        logclass = Dict2Class(first.to_dict())
+    return logclass
 
 
 def get_twitch_clip_scan_by_clip_id(clip_id: int) -> TwitchClipInstanceScanJob:
     with db.session.begin():
         first = TwitchClipInstanceScanJob.query.filter_by(clip_id=clip_id).first()
-    db.session.expunge(first)
-    return first
+        logclass = Dict2Class(first.to_dict())
+    return logclass
 
 
 def get_twitch_clip_scan_by_page(page: int, page_count: int = 25):
@@ -71,7 +83,7 @@ def add_twitch_clip_scan(clip_id: str, broadcaster: str) -> TwitchClipInstanceSc
         db.session.flush()
         id = log.id
 
-    db.session.expunge(log)
+
     return id
 
 
@@ -92,10 +104,10 @@ def update_scan_job_percent(scan_job_id: int, percent: float, is_complete: bool 
         if item is None:
             return
         item.percent = percent
-        if item.state == 0:
-            item.state = 1
+        if item.state == TwitchClipJobState.InQueue:
+            item.state = TwitchClipJobState.DownloadingClip
         if is_complete:
-            item.state = 2
+            item.state = TwitchClipJobState.Complete
             item.completed_at = datetime.now()
 
     db.session.flush()
@@ -106,7 +118,7 @@ def update_scan_job_in_scanning(scan_job_id: int):
         item: TwitchClipInstanceScanJob = TwitchClipInstanceScanJob.query.filter_by(id=scan_job_id).first()
         if item is None:
             return
-        item.state = 6
+        item.state = TwitchClipJobState.Scanning
     db.session.flush()
 
 
@@ -115,16 +127,25 @@ def update_scan_job_in_subclip(scan_job_id: int):
         item: TwitchClipInstanceScanJob = TwitchClipInstanceScanJob.query.filter_by(id=scan_job_id).first()
         if item is None:
             return
-        item.state = 7
+        item.state = TwitchClipJobState.Yielding
     db.session.flush()
 
 
-def update_scan_job_in_queue(scan_job_id: int):
+def update_scan_job_in_deepface(scan_job_id: int):
     with db.session.begin():
         item: TwitchClipInstanceScanJob = TwitchClipInstance.query.filter_by(id=scan_job_id).first()
         if item is None:
             return
-        item.state = 5
+        item.state = TwitchClipJobState.DeepFacing
+        item.percent = 0
+    db.session.flush()
+def update_scan_job_in_deepfacequeue(scan_job_id: int):
+    with db.session.begin():
+        item: TwitchClipInstanceScanJob = TwitchClipInstance.query.filter_by(id=scan_job_id).first()
+        if item is None:
+            return
+        item.state = TwitchClipJobState.DeepFacingQueue
+        item.percent = 0
     db.session.flush()
 
 
@@ -137,7 +158,5 @@ def update_scan_job_started(scan_job_id: int):
         item.percent = 0
         dict_class = Dict2Class(item.to_dict())
     db.session.flush()
-    db.session.expunge(item)
+
     return dict_class
-
-

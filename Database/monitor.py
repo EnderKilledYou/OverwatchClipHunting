@@ -147,12 +147,13 @@ def add_stream_to_monitor(broadcaster: str):
 
 
 def get_all_monitors() -> List[Monitor]:
+    items_out = []
     # cloud_logger()
     with db.session.begin():
         items = list(Monitor.query.filter_by(avoid=False))
-        for a in items:
-            db.session.expunge(a)
-        return items
+        for item in items:
+            items_out.append(Dict2Class(item.to_dict()))
+    return items_out
 
 
 def get_all_logins() -> List[str]:
@@ -169,7 +170,8 @@ def get_inactive_monitors() -> List[Monitor]:
 def get_all_my_monitors() -> List[Monitor]:
     cloud_logger()
     with db.session.begin():
-        return list(map(lambda x:Dict2Class(x.to_dict()),Monitor.query.filter_by(activated_by=self_id)))
+        return list(map(lambda x: Dict2Class(x.to_dict()), Monitor.query.filter_by(activated_by=self_id)))
+
 
 def get_all_my_monitors_names() -> List[Monitor]:
     cloud_logger()
@@ -292,9 +294,12 @@ def get_monitor_by_id(monitor_id: int) -> Monitor:
 def get_monitor_by_name(stream_name: str) -> Monitor:
     cloud_logger()
     with db.session.begin():
-        first = Monitor.query.filter_by(broadcaster=stream_name).first()
-        db.session.expunge(first)
-        return first
+        item = Monitor.query.filter_by(broadcaster=stream_name).first()
+        if item is None:
+            return None
+        dict = item.to_dict()
+        db.session.expunge(item)
+    return item
 
 
 def get_monitor_exists(stream_name: str) -> Monitor:

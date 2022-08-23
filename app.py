@@ -22,7 +22,7 @@ def register_blueprints(app: Flask):
     from config.db_config import init_db
     from routes.twitch import twitch as twitch_blueprint
     from routes.monitor import monitor as monitor_blueprint
-    from routes.clips import clips as clips_blueprint
+    from routes.clips.clips import clips as clips_blueprint
     from routes.video import video as video_blueprint
     from routes.streamer import streamer as streamer_blueprint
 

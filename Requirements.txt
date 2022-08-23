@@ -25,3 +25,4 @@ json-fix
 tesserocr
 cython
 waitress
+Deepface

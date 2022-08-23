@@ -4,6 +4,7 @@ from typing import List
 from sqlalchemy_serializer import SerializerMixin
 
 from Database.MissingRecordError import MissingRecordError, RecordExistsError
+from Database.Twitch.dict_to_class import Dict2Class
 from Database.Twitch.twitch_clip_instance_scan_job import TwitchClipInstanceScanJob, add_twitch_clip_scan
 from OrmHelpers.BasicWithId import BasicWithId
 from config.db_config import db
@@ -72,6 +73,15 @@ def update_twitch_clip_job_state(job_id: int, state: int, error: str = '') -> Li
     db.session.flush()
 
 
+def get_twitch_clip_job_by_id(id: int) -> TagClipperJob:
+    with db.session.begin():
+        first = db.session.query(TwitchClipInstanceScanJob).filter(TwitchClipInstanceScanJob.id == id).first()
+        if first is None:
+            return None
+        logclass = Dict2Class(first.to_dict())
+    return logclass
+
+
 def get_twitch_clip_job_by_clip_id(clip_id: int, tag_id: int) -> TagClipperJob:
     return TwitchClipInstanceScanJob.query.filter_by(clip_id=clip_id, tag_id=tag_id).first()
 
@@ -83,6 +93,7 @@ def add_twitch_clip_job(clip_id: int, tag_id: int) -> TagClipperJob:
             raise RecordExistsError('already exists')
         log = TagClipperJob(state=0, created_at=datetime.datetime.now(), clip_id=clip_id, tag_id=tag_id)
         db.session.add(log)
-    db.session.expunge(log)
-    db.session.flush()
-    return log
+        db.session.flush()
+        logclass = Dict2Class(log.to_dict())
+
+    return logclass

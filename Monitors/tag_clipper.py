@@ -8,12 +8,13 @@ from os.path import abspath
 from dateutil.parser import isoparse
 
 from Database.Twitch.update_tag_and_bag_filename import update_tag_and_bag_filename
+
 from startup_file import copy_to_cloud
 from Database.Twitch.twitch_clip_instance import get_twitch_clip_instance_by_id, TwitchClipInstance, \
     update_twitch_clip_instance_filename
 from Database.Twitch.get_tag_and_bag import get_tag_and_bag_by_clip_id
 from Database.Twitch.twitch_clip_instance_scan_job import update_scan_job_percent, update_scan_job_error, \
-    update_scan_job_in_subclip
+    update_scan_job_in_subclip, update_scan_job_in_deepface, update_scan_job_in_deepfacequeue
 from cloud_logger import cloud_logger, cloud_error_logger
 from generic_helpers.get_unix_time import temp_name
 
@@ -70,10 +71,11 @@ class TagClipper(ThreadedManager):
             cloud_error_logger(e, file=sys.stderr)
 
             return
-        finally:
-            if os.path.exists(file):
-                os.unlink(file)
-        update_scan_job_percent(scan_job_id, 1, True)
+
+        update_scan_job_percent(scan_job_id, 1,True)
+
+
+
 
 
 def get_clip_path(clip: TwitchClipInstance):

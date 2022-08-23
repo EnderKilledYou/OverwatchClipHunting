@@ -3,6 +3,7 @@ from typing import Tuple
 from dateutil.parser import isoparse
 from sqlalchemy_serializer import SerializerMixin
 
+from AI.deep_face_result import DeepFaceResult
 from config.db_config import db
 
 

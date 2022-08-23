@@ -8,8 +8,9 @@ export TESSERACT_DATA_FAST_INSTALL_FOLDER=/FAST_DATA
 export TESSERACT_DATA_FAST=/FAST_DATA/tessdata_fast/
 #print extra shit to console
 export CLOUD_PRINT=True
-apt install build-essential python3-dev -y
-apt-get update && apt-get -qq -y --no-install-recommends install pip git unzip ca-certificates ffmpeg libsm6 libxext6 tesseract-ocr libtesseract-dev libleptonica-dev pkg-config </dev/null >/dev/null
+
+
+apt-get update && apt-get -qq -y --no-install-recommends install pip git unzip ca-certificates ffmpeg libsm6 libxext6 tesseract-ocr libtesseract-dev libleptonica-dev pkg-config  build-essential libssl-dev libffi-dev python3-setuptools nginx  python3-dev  certbot python3-certbot-nginx </dev/null >/dev/null
 sed -i '/^mozilla\/DST_Root_CA_X3.crt$/ s/^/!/' /etc/ca-certificates.conf
 update-ca-certificates
 

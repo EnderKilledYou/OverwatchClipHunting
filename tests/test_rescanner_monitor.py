@@ -1,5 +1,5 @@
 from Ocr.re_scaner import ReScanner
-from Ocr.rescanner_monitor import ReScannerMonitor
+
 
 from Database.Twitch.twitch_clip_instance import get_twitch_clip_instance_by_video_id
 

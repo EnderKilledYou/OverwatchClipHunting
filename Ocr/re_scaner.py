@@ -1,5 +1,4 @@
 import os
-import subprocess
 import sys
 import tempfile
 import traceback
@@ -13,8 +12,8 @@ from tesserocr import PyTessBaseAPI
 from Database.Twitch.twitch_clip_instance import update_twitch_clip_instance_filename, \
     get_twitch_clip_video_id_by_id
 from Database.Twitch.twitch_clip_instance_scan_job import TwitchClipInstanceScanJob, update_scan_job_error, \
-    update_scan_job_percent, update_scan_job_started, update_scan_job_in_scanning
-from Ocr.clip_to_tag import clip_tag_to_clip
+    update_scan_job_percent, update_scan_job_started, update_scan_job_in_scanning, update_scan_job_in_deepfacequeue
+from Ocr.ocr_helpers import get_length, clip_tag_to_clip, face_to_clip
 
 from Ocr.twitch_dl_args import Args
 
@@ -62,7 +61,9 @@ class ReScanner(ThreadedManager):
                 return
             path = tmp_path + os.sep + next(tempfile._get_candidate_names()) + '.mp4'
             self._scan_and_bam(job, path)
-            Timer(8, clip_tag_to_clip, (job.clip_id, path, job.id)).start()
+            update_scan_job_in_deepfacequeue(job.id)
+            Timer(0, face_to_clip, (job.clip_id, path, job.id)).start()
+
         except BaseException as e:
             cloud_error_logger(e, file=sys.stderr)
             traceback.print_exc()
@@ -105,7 +106,8 @@ class ReScanner(ThreadedManager):
         # size = len(reader_list)
         frame_number = 0
         seconds = get_length(path)
-        size = reader.fps * seconds
+        reader.sample_every_count = 10
+        size = reader.fps * seconds / reader.sample_every_count
         try:
 
             with PyTessBaseAPI(path=tess_fast_dir) as api:
@@ -116,7 +118,7 @@ class ReScanner(ThreadedManager):
                     if frame_number < size:
                         percent_done = frame_number / size
                     else:
-                        percent_done = .99 # we guessed the fps wrong (ffmped)
+                        percent_done = .99  # we guessed the fps wrong (ffmped)
                     i = int(percent_done * 100.0)
                     if i > 0 and i % 15 == 0:
                         update_scan_job_percent(job.id, percent_done)
@@ -138,8 +140,3 @@ def queue_to_list(queue: Queue):
     return items
 
 
-def get_length(input_video):
-    result = subprocess.run(
-        ['ffprobe', '-v', 'error', '-show_entries', 'format=duration', '-of', 'default=noprint_wrappers=1:nokey=1',
-         input_video], stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
-    return float(result.stdout)

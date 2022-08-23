@@ -12,7 +12,7 @@ class TwitchClipInstance(db.Model, SerializerMixin):
     serialize_rules = ()
     serialize_only = (
         'id', 'video_id', 'video_url', 'created_at', 'thumbnail_url',
-        'title', 'broadcaster_name', 'type', 'vod_offset', 'duration')
+        'title', 'broadcaster_name', 'type', 'vod_offset', 'duration','file_path')
     id = db.Column(db.Integer, primary_key=True)
     video_id = db.Column(db.String(90), unique=True)
     video_url = db.Column(db.String(900), unique=True)
@@ -58,7 +58,7 @@ def add_twitch_clip_instance_from_api(api_data, clip_type: str) -> Tuple[int, st
         db.session.flush()
         ret = log.id, log.broadcaster_name
 
-    db.session.expunge(log)
+
 
     return ret
 
@@ -79,7 +79,7 @@ def get_twitch_clip_instance_by_id(id: int) -> TwitchClipInstance:
         if first is None:
             return None
         class_dict = Dict2Class(first.to_dict())
-    db.session.expunge(first)
+    #db.session.expunge(first)
 
     return class_dict
 def get_twitch_clip_video_id_by_id(id: int) -> TwitchClipInstance:
@@ -88,7 +88,7 @@ def get_twitch_clip_video_id_by_id(id: int) -> TwitchClipInstance:
         first = TwitchClipInstance.query.filter_by(id=id).first()
         if first is not None:
             video_id = first.video_id
-    db.session.expunge(first)
+
     return video_id
 
 def get_twitch_clip_instance_by_video_id(video_id) -> TwitchClipInstance:
