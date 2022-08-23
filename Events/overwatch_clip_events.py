@@ -1,9 +1,14 @@
+from typing import Tuple
+
 from pyee.base import EventEmitter
+
 overwatch_clips_event = EventEmitter()
 
 from Ocr.frames.frame import Frame
 
 from Database.Twitch.twitch_clip_tag import add_twitch_clip_tag_request
+
+
 @overwatch_clips_event.on('elim')
 def on_elim_event(frame: Frame, count: int, duration: int, last_death):
     print("{4} Kill count: {0} seconds in: {1} last death: {2} , Duration: {3}  ".format(count, str(frame.ts_second),
@@ -19,9 +24,9 @@ def on_elimed_event(frame: Frame):  # you can save the frame data for a screen c
 
 
 @overwatch_clips_event.on('healing')
-def on_healing_event(frame: Frame, duration: int):
-    print("Streamer " + frame.source_name + " healing " + str(duration))
-    add_twitch_clip_tag_request(frame.clip_id, 'healing', 1, duration, frame.ts_second)
+def on_healing_event(frame: Frame, duration: Tuple[int, int]):
+    print(f"Streamer {frame.source_name} healing {str(duration[0])} {str(duration[1])}")
+    add_twitch_clip_tag_request(frame.clip_id, 'healing', duration[1], duration[1], duration[0])
 
 
 @overwatch_clips_event.on('queue_start')

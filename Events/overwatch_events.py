@@ -1,3 +1,5 @@
+from typing import Tuple
+
 from pyee.base import EventEmitter
 
 from Events.overwatch_events_helper import can_clip, create_clip
@@ -42,12 +44,12 @@ def on_elimed_event(frame: Frame):  # you can save the frame data for a screen c
 
 
 @overwatch_event.on('healing')
-def on_healing_event(frame: Frame, duration: int):
+def on_healing_event(frame: Frame, duration: Tuple[int,int]):
     print("Streamer " + frame.source_name + " healing " + str(duration))
     if not can_clip(frame, 'healing'):
         return
 
-    if duration != get_streamer_config(frame.source_name).min_healing_duration:
+    if duration[1] != get_streamer_config(frame.source_name).min_healing_duration:
         return
     created = create_clip(frame, 'healing')
     print(created)
