@@ -3,6 +3,7 @@ import traceback
 from time import sleep
 
 from Database.Twitch.twitch_clip_instance import add_twitch_clip_instance_from_api
+from Database.Twitch.twitch_clip_instance_scan_job import add_twitch_clip_scan
 from Events.flask_events import flask_event
 from cloud_logger import cloud_logger, cloud_error_logger
 from twitch_helpers.twitch_helpers import get_twitch_api
@@ -22,7 +23,7 @@ def store_clip(clip_data, type):
                 return
 
         (clip_id, clip_broadcaster) = add_twitch_clip_instance_from_api(clip['data'][0], type)
-        #job_id = add_twitch_clip_scan(clip_id, clip_broadcaster)
+        job_id = add_twitch_clip_scan(clip_id, clip_broadcaster)
 
         # if job_id is not None:
         #     rescanner.add_job(job_id)
