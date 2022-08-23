@@ -53,25 +53,26 @@ export default class ListScanJob extends Vue {
   page: number = 1
 
   stateToProgressBarClass(state: number) {
-     switch (+state) {
+    switch (+state) {
       case 0:
-        return ['progress-bar', 'bg-danger','progress-bar-striped','progress-bar-animated']
+        return ['progress-bar', 'bg-danger', 'progress-bar-striped', 'progress-bar-animated']
       case 1:
-        return ['progress-bar', 'bg-danger','progress-bar-striped','progress-bar-animated']
+        return ['progress-bar', 'bg-danger', 'progress-bar-striped', 'progress-bar-animated']
       case 2:
-        return ['progress-bar' ]
+        return ['progress-bar']
       case 3:
-        return ['progress-bar', 'bg-info','progress-bar-striped','progress-bar-animated']
+        return ['progress-bar', 'bg-info', 'progress-bar-striped', 'progress-bar-animated']
       case 5:
-        return ['progress-bar', 'bg-danger','progress-bar-striped','progress-bar-animated']
+        return ['progress-bar', 'bg-danger', 'progress-bar-striped', 'progress-bar-animated']
       case 6:
-        return ['progress-bar', 'bg-success','progress-bar-striped','progress-bar-animated']
+        return ['progress-bar', 'bg-success', 'progress-bar-striped', 'progress-bar-animated']
       case 7:
-        return ['progress-bar', 'bg-danger','progress-bar-striped','progress-bar-animated']
+        return ['progress-bar', 'bg-danger', 'progress-bar-striped', 'progress-bar-animated']
       default:
-        return ['progress-bar','progress-bar-striped','progress-bar-animated']
+        return ['progress-bar', 'progress-bar-striped', 'progress-bar-animated']
     }
   }
+
 
   stateToString(num: number) {
     switch (+num) {
@@ -89,6 +90,10 @@ export default class ListScanJob extends Vue {
         return "scanning..."
       case 7:
         return "getting sub clips and yielding clip downloader"
+      case 8:
+        return "Staring at your face"
+      case 9:
+        return "waiting in face req queue"
       default:
         return "unknown"
     }
