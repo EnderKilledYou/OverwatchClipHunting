@@ -55,7 +55,7 @@ class DeepFaceResult:
     emotion: Emotion
     dominant_race: str
     race: Race
-
+    frame_width:int
     def __del__(self):
         self.frame = None
         self.region = None
@@ -78,3 +78,4 @@ class DeepFaceResult:
         self.region = Region(from_api['region'])
         self.dominant_emotion = from_api['dominant_emotion']
         self.emotion = Emotion(from_api['emotion'])
+        self.frame = from_api['frame_width']
