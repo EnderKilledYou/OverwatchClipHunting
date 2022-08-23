@@ -49,12 +49,14 @@ class VideoCapReader:
             self._count_lock.release()
             pass
 
-    def _read_one(self, frame_number, fps):
+    def _read_one(self, frame_number, fps, loose_buffer=False):
         ret, frame = self.video_capture.read()
         if not ret:
             raise StreamEndedError("Could not read frame")
 
-        if self.count() < 30 and frame_number % self.sample_every_count == 0:
+        if frame_number % self.sample_every_count == 0:
+            if not loose_buffer and self.count() > 50:
+                return None
             return Frame(frame_number, frame, frame_number // fps, self.streamer_name)
         return None
 
@@ -80,7 +82,7 @@ class VideoCapReader:
                 fps = 60
             self.fps = fps
             self.sample_every_count = fps // sample_frame_rate
-            for frame in self._yield_frames(fps):
+            for frame in self._yield_frames(fps,True):
                 yield frame
         except StreamEndedError:
             try:
@@ -116,14 +118,13 @@ class VideoCapReader:
 
         buffer.put(item)
 
-
         self.incr_items_read()
         return True
 
-    def _yield_frames(self, fps):
+    def _yield_frames(self, fps, loose_buffer=False):
         frame_number = 0
         while self.Active:
-            item = self._read_one(frame_number, fps)
+            item = self._read_one(frame_number, fps, loose_buffer)
             if item is None:
                 break
 
