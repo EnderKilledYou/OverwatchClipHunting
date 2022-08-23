@@ -76,9 +76,9 @@ class TwitchEater(VideoFrameBuffer):
             self.matcher.stop()
 
     def __del__(self):
-        if self.reader is not None:
+        if hasattr(self, 'readaer') and self.reader is not None:
             del self.reader
-        if self.reader is not None:
+        if hasattr(self, 'matcher') and self.matcher is not None:
             del self.matcher
 
     def capture_url_or_file(self, url):
