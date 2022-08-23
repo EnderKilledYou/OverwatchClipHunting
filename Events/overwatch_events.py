@@ -14,16 +14,7 @@ def on_elim_event(frame: Frame, count: int, duration: int, last_death):
     print("{4} Kill count: {0} seconds in: {1} last death: {2} , Duration: {3}  ".format(count, str(frame.ts_second),
                                                                                          last_death,
                                                                                          duration, frame.source_name))
-    # ocr: TwitchVideoFrameBuffer = get_frame_buffer(frame.source_name)
-    # config = get_streamer_config(frame.source_name)
-    # clip_time_stamp = ClipTimeStamp()
-    # clip_time_stamp.start = frame.ts_second
-    # clip_time_stamp.end = frame.ts_second + duration + 1
-    # clip_time_stamp.duration = duration
-    # clip_time_stamp.type = 'elim'
-    # clip_time_stamp.start_buffer = config.buffer_elim_clip_before
-    # clip_time_stamp.end_buffer = config.buffer_elim_clip_after
-    # ocr.stream_clipper.clip_request(clip_time_stamp)
+
     if not can_clip(frame, 'elim'):
         return
     if duration != get_streamer_config(frame.source_name).min_elims:
