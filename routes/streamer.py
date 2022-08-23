@@ -30,7 +30,7 @@ def list_streamers():
         else:
             my_monitors = get_all_monitors_dicts()
             cache.set('my_monitors', my_monitors,120)
-            my_monitors = my_monitors
+
         if len(my_monitors) == 0:
             return {"success": True, 'items': []}
 
