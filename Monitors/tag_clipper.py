@@ -71,7 +71,9 @@ class TagClipper(ThreadedManager):
             cloud_error_logger(e, file=sys.stderr)
 
             return
-
+        finally:
+            if os.path.exists(file):
+                os.unlink(file)
         update_scan_job_percent(scan_job_id, 1,True)
 
 

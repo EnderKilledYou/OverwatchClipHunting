@@ -209,7 +209,7 @@ class FrameAggregator:
         contested_frame_distance = frame.ts_second - self.last_contested_frame
         if self.last_contested_frame != -1 and contested_frame_distance < 1:
             return
-        if contested_frame_distance < 2:
+        if contested_frame_distance < 6:
             self.contested_streak += 1
         else:
             self.contested_streak = 1
@@ -224,7 +224,7 @@ class FrameAggregator:
         defense_frame_distance = frame.ts_second - self.last_defense_frame
         if self.last_defense_frame != -1 and defense_frame_distance < 1:
             return
-        if defense_frame_distance < 4:
+        if defense_frame_distance < 6:
             self.defense_streak += 1
         else:
             self.defense_streak = 1
