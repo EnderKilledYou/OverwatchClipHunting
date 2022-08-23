@@ -13,7 +13,7 @@ def fast_download_file(url, local_filename):
             shutil.copyfileobj(r.raw, f)
             r.close()
 
-    return local_filename
+
 
 
 def _download_clip(slug, args):

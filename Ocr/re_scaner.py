@@ -79,6 +79,7 @@ class ReScanner(ThreadedManager):
             return
 
         _download_clip(url, Args(url, path))
+        return
         self._read(job, path, reader_buffer)
         update_twitch_clip_instance_filename(job.clip_id, path)
         update_scan_job_in_scanning(job.id)
