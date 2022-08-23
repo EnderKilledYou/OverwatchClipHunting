@@ -13,6 +13,7 @@
     "@cloudgeek/vue3-video-player": "^0.3.10",
     "bootstrap": "^5.2.0",
     "core-js": "^3.8.3",
+    "pretty-ms": "^8.0.0",
     "register-service-worker": "^1.7.2",
     "vue": "^3.2.37",
     "vue-class-component": "^8.0.0-0",

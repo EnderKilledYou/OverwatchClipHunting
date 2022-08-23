@@ -30,18 +30,14 @@ class OverwatchScreenReader(ScreenReader):
         self.frame_watcher = OrderedFrameAggregator(overwatch_event)
 
     def ocr(self, frame: Frame, api: PyTessBaseAPI) -> None:
-        if self.skip_frames > 0:
-            # print("skipping ")
-            self.skip_frames = self.skip_frames - 1
-            return
+
         try:
             img_grey = cv.cvtColor(frame.image, cv.COLOR_RGB2GRAY)
             pil_grey = Image.fromarray(img_grey)
 
             self.ActionTextCropper.process(pil_grey, frame, self.frame_watcher,
                                            self.frame_tester, api)
-            if frame.empty:
-                self.skip_frames += 1
+
             return
             if not frame.empty:
                 self.last_action_second = frame.ts_second

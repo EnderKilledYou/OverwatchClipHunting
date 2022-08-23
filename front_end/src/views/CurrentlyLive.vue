@@ -12,7 +12,7 @@
             watcher.back_fill_seconds
           }} s lag) / {{ watcher.frames_read }}
           (
-          {{ watcher.frames_read_seconds }} s <small class="text-danger"> read</small>)</p>
+          {{ prettyMilliseconds(watcher.frames_read_seconds * 1000) }} s <small class="text-danger"> read</small>)</p>
         <p v-if="GetLiveStream(watcher)" class="card-text">
           {{ GetLiveStream(watcher).viewer_count }} watching since:
           {{ GetLiveStream(watcher).started_at }}</p>
@@ -37,6 +37,7 @@
 import Monitor, {API, StreamerMonitorState, TwitchLiveStreamData} from "@/api";
 
 import {Component, Emit, Prop, Vue, Watch} from "vue-facing-decorator";
+import prettyMilliseconds from 'pretty-ms';
 
 @Component
 export default class CurrentlyLive extends Vue {
