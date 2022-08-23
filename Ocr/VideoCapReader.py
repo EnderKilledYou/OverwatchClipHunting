@@ -123,7 +123,10 @@ class VideoCapReader:
     def _yield_frames(self, fps, loose_buffer=False):
         frame_number = 0
         while self.Active:
-            item = self._read_one(frame_number, fps, loose_buffer)
+            try:
+                item = self._read_one(frame_number, fps, loose_buffer)
+            except StreamEndedError:
+                break
             if item is None:
                 break
 
