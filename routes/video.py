@@ -41,7 +41,8 @@ def get_file(tag_id: int):
             return
         if tag.file_name is None:
             return
-    except MissingRecordError:
+
+    except:
         return
 
     range_header = request.headers.get('Range', None)
