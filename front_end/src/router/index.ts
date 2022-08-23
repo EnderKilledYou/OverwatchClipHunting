@@ -43,8 +43,8 @@ const routes: Array<RouteRecordRaw> = [
         name: 'listclipsmade',
         component: () => import(/* webpackChunkName: "ListClipsMade" */ '@/views/ListClipsMade.vue')
     }, {
-        path: '/tag_video/:video_id',
-        name: 'tag_video',
+        path: '/video/:video_id',
+        name: 'video',
         component: () => import(/* webpackChunkName: "VideoPlayer" */ '@/views/VideoPlayer.vue')
     }
 ]
