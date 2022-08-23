@@ -105,7 +105,7 @@ class FrameAggregator:
         time_since_last_death = frame.ts_second - self.elimed_frame_watcher.last_second
         if time_since_last_death < 0:
             time_since_last_death = 1
-        if self.last_death_frame != -1 and 9 > time_since_last_death > 0:
+        if self.elimed_frame_watcher.last_frame != -1 and 9 > time_since_last_death > 0:
             print_scanner(
                 "Skipping {3} {2} at {0}, seconds since last death: {1}  ".format(str(frame.ts_second),
                                                                                   time_since_last_death, event_name,
