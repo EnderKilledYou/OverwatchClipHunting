@@ -84,8 +84,8 @@ class DeepFacer(ThreadedManager):
 
             frames.clear()
             update_scan_job_in_subclip(scan_job_id)
-            # Timer(8, clip_tag_to_clip, (clip_id, file, scan_job_id)).start()
-            update_scan_job_percent(scan_job_id, 1, True)
+            Timer(8, clip_tag_to_clip, (clip_id, file, scan_job_id)).start()
+            #update_scan_job_percent(scan_job_id, 1, True)
 
 
 
@@ -194,8 +194,10 @@ class DeepFacer(ThreadedManager):
             except:
                 frame = None
             continue
-        for item in map(get_deep_result, items):
+        results = get_deep_results(items)
+        for item in results:
             return_items.append(item)
+        items.clear()
         return return_items
 
 
@@ -210,22 +212,49 @@ def get_deep_result(frame):
     return DeepFaceResult(emotions)
 
 
-def parse_emotions(numpy_image):
-    emotion_labels = ['angry', 'disgust', 'fear', 'happy', 'sad', 'surprise', 'neutral']
-    img, region = functions.preprocess_face(img=numpy_image, target_size=(48, 48), grayscale=True,
-                                            enforce_detection=False, detector_backend='opencv',
-                                            return_region=True)
+def get_deep_results(frames):
+    emotions = []
+    images = list(map(lambda x: x.image, frames))
+    parse_emotions(images, emotions)
+    for i in range(0, len(frames)):
+        emotions[i]["frame"] = frames[i]
+        frames[i].image = None
+    images.clear()
+    frames.clear()
+    deeps = list(map(DeepFaceResult, emotions))
+    emotions.clear()
+    return deeps
 
-    emotion_predictions = models['emotion'].predict(img)[0, :]
 
-    sum_of_predictions = emotion_predictions.sum()
-    resp_obj = {"region": region}
-    resp_obj["emotion"] = {}
+emotion_labels = ['angry', 'disgust', 'fear', 'happy', 'sad', 'surprise', 'neutral']
 
-    for i in range(0, len(emotion_labels)):
-        emotion_label = emotion_labels[i]
-        emotion_prediction = 100 * emotion_predictions[i] / sum_of_predictions
-        resp_obj["emotion"][emotion_label] = emotion_prediction
 
-    resp_obj["dominant_emotion"] = emotion_labels[np.argmax(emotion_predictions)]
-    return resp_obj
+def prep_images(numpy_image):
+    return functions.preprocess_face(img=numpy_image, target_size=(48, 48), grayscale=True,
+                                     enforce_detection=False, detector_backend='opencv',
+                                     return_region=True)
+
+
+def parse_emotions(numpy_images, items):
+    prepped_images_and_regions = list(map(prep_images, numpy_images))
+    prepped_images = map(lambda x: x[0], prepped_images_and_regions)
+    # img, region = functions.preprocess_face(img=numpy_image, target_size=(48, 48), grayscale=True,
+    #                                         enforce_detection=False, detector_backend='opencv',
+    #                                         return_region=True)
+
+    emotion_predictions = models['emotion'].predict(prepped_images, len(numpy_images), 2)  # [0, :]
+
+    for i in range(len(numpy_images)):
+        emotion_prediction = emotion_predictions[i]
+        region = prepped_images_and_regions[i][1]
+        sum_of_predictions = emotion_prediction.sum()
+        resp_obj = {"region": region}
+        resp_obj["emotion"] = {}
+
+        for i in range(0, len(emotion_labels)):
+            emotion_label = emotion_labels[i]
+            emotion_prediction_val = 100 * emotion_prediction[i] / sum_of_predictions
+            resp_obj["emotion"][emotion_label] = emotion_prediction_val
+
+        resp_obj["dominant_emotion"] = emotion_labels[np.argmax(emotion_prediction)]
+        items.append(resp_obj)
