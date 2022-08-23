@@ -136,7 +136,7 @@ class HeartBeat:
         self._prod_monitors(streams)
 
         active_monitors = list(map(lambda x: x.broadcaster, self.get_copy_active_monitors()))
-        already_claimed = list(map(lambda x:x.broadcaster,get_all_my_monitors()))
+        already_claimed = list(map(lambda x: x.broadcaster, get_all_my_monitors()))
 
         not_monitored = list(filter(lambda stream: stream.user_login not in active_monitors, streams))
         not_monitored = list(filter(lambda stream: stream.user_login not in already_claimed, not_monitored))
@@ -167,4 +167,4 @@ class HeartBeat:
                     continue
                 self.stop_streamer(stream.user_login)  # they changed game
             if not found:
-                self.stop_streamer(stream.user_login)  # they stopped stream
+                self.stop_streamer(monitor.broadcaster)  # they stopped stream
