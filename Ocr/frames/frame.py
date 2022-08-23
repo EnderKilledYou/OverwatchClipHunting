@@ -20,3 +20,9 @@ class Frame:
         self.text = ''
         self.empty = False
         self.clip_id = clip_id
+
+    def __enter__(self):
+        return self
+
+    def __exit__(self, exc_type, exc_value, tb):
+        self.image = None

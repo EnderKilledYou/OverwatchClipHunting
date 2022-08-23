@@ -60,9 +60,18 @@ class ReScanner(ThreadedManager):
             if job is None:
                 return
             path = tmp_path + os.sep + next(tempfile._get_candidate_names()) + '.mp4'
-            self._scan_and_bam(job, path)
+            url = self._get_url(job)
+            if url is None:
+                return
+
+            _download_clip(url, Args(url, path))
+
+            update_twitch_clip_instance_filename(job.clip_id, path)
+            update_scan_job_in_scanning(job.id)
+            self._scan_clip(job, path)
+
             update_scan_job_in_deepfacequeue(job.id)
-            #Timer(0, face_to_clip, (job.clip_id, path, job.id)).start()
+            # Timer(0, face_to_clip, (job.clip_id, path, job.id)).start()
             update_scan_job_percent(job.id, 1, True)
 
         except BaseException as e:
@@ -70,25 +79,6 @@ class ReScanner(ThreadedManager):
             traceback.print_exc()
             if job is not None:
                 update_scan_job_error(job.id, str(e))
-
-    def _scan_and_bam(self, job: TwitchClipInstanceScanJob, path: str):
-        reader_buffer = Queue()
-
-        url = self._get_url(job)
-        if url is None:
-            return
-
-        _download_clip(url, Args(url, path))
-        return
-        self._read(job, path, reader_buffer)
-        update_twitch_clip_instance_filename(job.clip_id, path)
-        update_scan_job_in_scanning(job.id)
-        self._scan_clip(job, path)
-
-    def _read(self, job, path, reader_buffer):
-        pass
-        # reader.read(path, reader_buffer)
-        # reader.stop()
 
     def _get_url(self, job: TwitchClipInstanceScanJob):
         video_id = get_twitch_clip_video_id_by_id(job.clip_id)
@@ -104,8 +94,9 @@ class ReScanner(ThreadedManager):
         frame = next(itr)
         try:
             if frame is not None:
-                self.matcher.ocr(frame, api)
-        except:
+                with frame as frame__:
+                    self.matcher.ocr(frame__, api)
+        except BaseException as b:
             return False
         return True
 
