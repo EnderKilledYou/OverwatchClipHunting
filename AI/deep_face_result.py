@@ -78,4 +78,5 @@ class DeepFaceResult:
         self.region = Region(from_api['region'])
         self.dominant_emotion = from_api['dominant_emotion']
         self.emotion = Emotion(from_api['emotion'])
-        self.frame = from_api['frame_width']
+        self.frame_width = from_api['frame_width']
+        self.frame_height = from_api['frame_height']
