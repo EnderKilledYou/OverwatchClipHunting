@@ -154,7 +154,7 @@ class ClipVideoCapReader(VideoCapReader):
         self.clip_id = clip_id
         self.sample_every_count = 30
 
-    def _read_one(self, frame_number, fps):
+    def _read_one(self, frame_number, fps,loose_buffer=False):
         ret, frame = self.video_capture.read()
         if not ret:
             raise StreamEndedError("Could not read frame")
