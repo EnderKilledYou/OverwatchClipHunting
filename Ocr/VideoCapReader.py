@@ -25,6 +25,9 @@ class VideoCapReader:
         self.items_drained = 0
         self.fps = 1
 
+    def __del__(self):
+        self._count_lock = None
+
     def count(self):
         try:
             self._count_lock.acquire()

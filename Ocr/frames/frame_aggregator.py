@@ -35,6 +35,9 @@ class FrameAggregator:
     time_eliminated_mentioned: int = 0
     in_queue: bool = False
 
+    def __del__(self):
+        self.emitter = None
+
     def __init__(self, ee: EventEmitter):
         """
 
@@ -128,8 +131,8 @@ class FrameAggregator:
         heal_frame_distance_s = frame.ts_second - self.last_healing_frame_s
         if self.last_healing_frame != -1 and heal_frame_distance < 2:
             print_scanner("Hero {1} skipped Healed at {0}  because distance was {2}  ".format(str(frame.ts_second),
-                                                                                      frame.source_name,
-                                                                                      heal_frame_distance))
+                                                                                              frame.source_name,
+                                                                                              heal_frame_distance))
             return
         if heal_frame_distance_s < 6:
             self.healing_streak += 1

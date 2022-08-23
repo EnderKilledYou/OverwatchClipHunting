@@ -16,6 +16,12 @@ from cloud_logger import cloud_error_logger
 
 
 class OverwatchScreenReader(ScreenReader):
+    def __del__(self):
+        del self.frame_tester
+        del self.ActionTextCropper
+        del self.GameSearchCropper
+        del self.frame_watcher
+
     def __init__(self, framebuffer: VideoFrameBuffer):
         from Events.overwatch_events import overwatch_event
         super(OverwatchScreenReader, self).__init__(framebuffer)

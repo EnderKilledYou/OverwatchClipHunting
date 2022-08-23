@@ -36,7 +36,7 @@ class TwitchEater(VideoFrameBuffer):
         self._active = True
 
     def get_one(self):
-        if self.reader.count()== 0:
+        if self.reader.count() == 0:
             return None
         item = self.buffer.get(False)
         self.reader.incr_items_drained()
@@ -74,6 +74,12 @@ class TwitchEater(VideoFrameBuffer):
             self.reader.stop()
         if self.matcher:
             self.matcher.stop()
+
+    def __del__(self):
+        if self.reader is not None:
+            del self.reader
+        if self.reader is not None:
+            del self.matcher
 
     def capture_url_or_file(self, url):
         self.reader = VideoCapReader(self.broadcaster)

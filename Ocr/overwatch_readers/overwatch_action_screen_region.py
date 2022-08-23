@@ -15,6 +15,7 @@ from config.config import tess_fast_dir
 
 
 class OverwatchActionScreenRegion(ScreenRegion):
+
     def process(self, pil: Image, frame: Frame, frame_watcher: FrameAggregator, frame_tester: FrameTester,
                 api: PyTessBaseAPI):
         img_crop = self.crop(pil)

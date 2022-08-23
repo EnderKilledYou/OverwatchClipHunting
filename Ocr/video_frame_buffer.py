@@ -9,12 +9,15 @@ class VideoFrameBuffer:
     def get_one(self):
         return self.buffer.get(False)
 
+    def __del__(self):
+        self.buffer = None
+        del self.buffer
+
     def __init__(self):
         self.reader = None
         self.Capturing = False
         self.buffer = Queue()
         self._active = True
-
 
     def buffer_broadcast(self):
         pass

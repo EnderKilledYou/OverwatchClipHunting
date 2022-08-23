@@ -7,6 +7,11 @@ from Ocr.frames.frame_aggregator import FrameAggregator
 class OrderedFrameAggregator(FrameAggregator):
     lock = threading.Lock()
 
+    def __del__(self):
+        self.emitter = None
+        del self.lock
+        self.lock = None
+
     def set_in_prepare(self, frame, mode):
         self.lock.acquire()
         try:
