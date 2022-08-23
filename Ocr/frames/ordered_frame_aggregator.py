@@ -6,12 +6,12 @@ from Ocr.frames.frame_aggregator import FrameAggregator
 
 class OrderedFrameAggregator(FrameAggregator):
     def __init__(self, ee):
-        super(OrderedFrameAggregator).__init__(ee)
+        super(OrderedFrameAggregator, self).__init__(ee)
         self.lock = threading.Lock()
 
     def __del__(self):
         self.emitter = None
-        if hasattr(self,'lock'):
+        if hasattr(self, 'lock'):
             del self.lock
             self.lock = None
 
