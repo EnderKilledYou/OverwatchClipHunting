@@ -24,7 +24,7 @@ def list_streamers():
         my_monitors = get_all_monitors()
         if len(my_monitors) == 0:
             return {"success": True, 'items': []}
-        user_list = list(map(lambda x: x.Broadcaster, my_monitors))
+
         twitch_api = get_twitch_api()
         streams = None  # cache.get('get_monitored_streams')
         if streams is None:
