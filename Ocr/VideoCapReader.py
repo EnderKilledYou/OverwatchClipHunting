@@ -69,6 +69,7 @@ class VideoCapReader:
             pass
         self._release()
 
+
     def readYield(self, url):
         self.Active = True
         self._acquire(url)

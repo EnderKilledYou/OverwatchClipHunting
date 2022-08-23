@@ -53,7 +53,7 @@ class ReScanner(ThreadedManager):
     def _do_work(self, job_id: int):
         cloud_logger()
         wait_for_tesseract()
-
+        job = None
         try:
 
             job: TwitchClipInstanceScanJob = update_scan_job_started(job_id)
@@ -79,12 +79,9 @@ class ReScanner(ThreadedManager):
 
         _download_clip(url, Args(url, path))
         self._read(job, path, reader_buffer)
-
         update_twitch_clip_instance_filename(job.clip_id, path)
         update_scan_job_in_scanning(job.id)
-        frames = queue_to_list(reader_buffer)
-        frames.sort(key=attrgetter('frame_number'))
-        self._scan_clip(job, frames, path)
+        self._scan_clip(job, path)
 
     def _read(self, job, path, reader_buffer):
         pass
@@ -101,7 +98,16 @@ class ReScanner(ThreadedManager):
         if self._reader is not None:
             self._reader.stop()
 
-    def _scan_clip(self, job: TwitchClipInstanceScanJob, reader_list, path: str):
+    def match_frame(self, itr, api):
+        frame = next(itr)
+        try:
+            if frame is not None:
+                self.matcher.ocr(frame, api)
+        except:
+            return False
+        return True
+
+    def _scan_clip(self, job: TwitchClipInstanceScanJob, path: str):
         reader = ClipVideoCapReader(job.broadcaster, job.clip_id)
         # size = len(reader_list)
         frame_number = 0
@@ -109,25 +115,27 @@ class ReScanner(ThreadedManager):
         reader.sample_every_count = 10
         size = reader.fps * seconds / reader.sample_every_count
         try:
-
+            itr = reader.readYield(path)
             with PyTessBaseAPI(path=tess_fast_dir) as api:
-                for frame in reader.readYield(path):
-                    self.matcher.ocr(frame, api)
+                while self.match_frame(itr, api):
                     self._frame_count += 1
                     frame_number = frame_number + 1
-                    if frame_number < size:
-                        percent_done = frame_number / size
-                    else:
-                        percent_done = .99  # we guessed the fps wrong (ffmped)
-                    i = int(percent_done * 100.0)
-                    if i > 0 and i % 15 == 0:
-                        update_scan_job_percent(job.id, percent_done)
+                    self._update_percentage_in_row(frame_number, job, size)
 
         except BaseException as b:
             traceback.print_exc()
             pass
 
         update_scan_job_percent(job.id, 1)
+
+    def _update_percentage_in_row(self, frame_number, job, size):
+        if frame_number < size:
+            percent_done = frame_number / size
+        else:
+            percent_done = .99  # we guessed the fps wrong (ffmped)
+        i = int(percent_done * 100.0)
+        if i > 0 and i % 15 == 0:
+            update_scan_job_percent(job.id, percent_done)
 
 
 def queue_to_list(queue: Queue):
@@ -138,5 +146,3 @@ def queue_to_list(queue: Queue):
     except Empty:
         pass
     return items
-
-

@@ -37,7 +37,7 @@ def crop_by_region(frame, region):
 
 class DeepFacer(ThreadedManager):
     _frame_count: int
-    _reader: VideoCapReader
+
 
     def __json__(self):
         return "rescanner"
@@ -45,14 +45,14 @@ class DeepFacer(ThreadedManager):
     # self._instance.thumbnail_url.split("-preview", 1)[0] + ".mp4"
     def __init__(self):
         super(DeepFacer, self).__init__(1)
-        self._reader = None
+
         self._frame_count = 0
         self.matcher = OverwatchClipReader()
 
     def _do_work(self, job_tuple):
         cloud_logger()
         wait_for_tesseract()
-
+        frames = []
         try:
 
             if job_tuple is None:
@@ -65,6 +65,7 @@ class DeepFacer(ThreadedManager):
             reader.stop()
             if frames is None:
                 return
+
             self._calculate_emotion(clip_id, frames, 'happy')
             self._calculate_emotion(clip_id, frames, 'neutral')
             self._calculate_emotion(clip_id, frames, 'fear')
@@ -74,12 +75,16 @@ class DeepFacer(ThreadedManager):
 
             update_scan_job_in_subclip(scan_job_id)
             Timer(8, clip_tag_to_clip, (clip_id, file, scan_job_id)).start()
+            frames.clear()
 
 
         except BaseException as e:
             cloud_error_logger(e, file=sys.stderr)
             traceback.print_exc()
             update_scan_job_error(scan_job_id, str(e))
+        finally:
+            if frames is not None:
+                frames.clear()
 
     def _calculate_emotion(self, clip_id, frames, emotion: str):
         if len(frames) == 0:
