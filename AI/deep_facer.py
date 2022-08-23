@@ -132,16 +132,19 @@ class DeepFacer(ThreadedManager):
             seconds = get_length(path)
             size = reader.fps * seconds
             frames = []
+            frame_list = []
             try:
                 itr = reader.readYield(path)
+
                 while True:
-                    frame_list = self.scanned_frame(itr)
+                    self.scanned_frame(itr, frame_list)
                     if len(frame_list) == 0:
                         break
                     self._frame_count += len(frame_list)
                     frame_number = frame_number + len(frame_list)
                     for frame in frame_list:
                         frames.append(frame)
+                    frame_list.clear()
                     if frame_number < size:
                         percent_done = frame_number / size
                     else:
@@ -155,7 +158,7 @@ class DeepFacer(ThreadedManager):
                 traceback.print_exc()
                 pass
 
-    def scanned_frame(self, itr):
+    def scanned_frame(self, itr, return_items):
         items = []
         try:
             frame = next(itr)
@@ -191,12 +194,11 @@ class DeepFacer(ThreadedManager):
 
         item: DeepFaceResult
         index = 0
-        scans = []
+
         for item in results_list:
             results_list[item]["frame"] = items[index]
             items[index].image = None
             result = DeepFaceResult(results_list[item])
-            scans.append(result)
+            return_items.append(result)
             # add_clip_twitch_tag_by_emotion(cl)
             index = index + 1
-        return scans
