@@ -78,7 +78,8 @@ class DeepFacer(ThreadedManager):
 
             frames.clear()
             update_scan_job_in_subclip(scan_job_id)
-            Timer(8, clip_tag_to_clip, (clip_id, file, scan_job_id)).start()
+            # Timer(8, clip_tag_to_clip, (clip_id, file, scan_job_id)).start()
+            update_scan_job_percent(scan_job_id, 1, True)
 
 
 
