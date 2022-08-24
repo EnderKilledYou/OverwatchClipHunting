@@ -106,7 +106,6 @@ class TwitchEater(VideoFrameBuffer):
             traceback.print_exc()
             return
         finally:
-
             self.reader.stop()
 
         print("Capture thread stopping")

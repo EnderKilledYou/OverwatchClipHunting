@@ -98,6 +98,7 @@ class VideoCapReader:
 
     def stop(self):
         self.Active = False
+        self._release()
 
     def _read(self, buffer: Queue):
 
