@@ -66,8 +66,8 @@ class TagClipper(ThreadedManager):
                 if trim(file, out_file, section.clip_start, section.clip_end):
                     update_tag_and_bag_filename(section.id, gloud_file)
                     copy_to_cloud(out_file, gloud_file)
+                if os.path.exists(out_file):
                     os.unlink(out_file)
-
 
             update_twitch_clip_instance_filename(clip_id, None)
             clip_parts.clear()
