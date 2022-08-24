@@ -2,6 +2,7 @@ from typing import Tuple
 
 from pyee.base import EventEmitter
 
+from Database.unclaim_monitor import unclaim_monitor
 from Events.overwatch_events_helper import can_clip, create_clip
 from Ocr.frames.frame import Frame
 from config.streamer_configs import get_streamer_config
@@ -56,6 +57,8 @@ def on_healing_event(frame: Frame, duration: Tuple[int, int]):
 
 @overwatch_event.on('queue_start')
 def on_queue_start_event(frame: Frame):
+    print(f"Streamer {frame.source_name} queue_start ")
+    # unclaim_monitor(frame.source_name)
     pass
 
 
