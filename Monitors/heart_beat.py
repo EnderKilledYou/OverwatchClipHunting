@@ -63,6 +63,7 @@ class HeartBeat:
         cloud_logger()
         for monitor in monitors:
             stats = get_monitor_stats(monitor)
+            print(f"checking claim {monitor.broadcaster}")
             if update_claim_on_monitor(monitor.broadcaster, stats):
                 continue
             print(f"Releasing {monitor.broadcaster}")
@@ -104,13 +105,14 @@ class HeartBeat:
     def _remove_monitor_from_list(self, streamer_name: str):
         self._data_lock.acquire()
         try:
-            item_range_count = reversed(range(0, len(self._active_monitors)))
-            for i in item_range_count:
-                monitor = self._active_monitors[i]
+            i = 0
+            for monitor in self._active_monitors:
                 if monitor.broadcaster != streamer_name:
                     continue
                 monitor.stop()
                 del self._active_monitors[i]
+                del monitor
+                i = i + 1
                 return
 
 

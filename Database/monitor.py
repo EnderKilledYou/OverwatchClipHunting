@@ -128,7 +128,7 @@ class Monitor(db.Model, SerializerMixin):
         cloud_logger()
         if hasattr(self, 'ocr') and self.ocr is not None:
             self.ocr.stop()
-            del self.ocr
+
 
     def wait_for_stop(self, timeout=None):
         cloud_logger()
