@@ -99,14 +99,14 @@ class ReScanner(ThreadedManager):
         if self._reader is not None:
             self._reader.stop()
 
-    def match_frame(self, itr, api):
+    def match_frame(self, itr, api, matcher: OverwatchClipReader):
 
         try:
-            with OverwatchClipReader() as matcher:
-                frame = next(itr)
-                if frame is not None:
-                    with frame as frame__:
-                        matcher.ocr(frame__, api)
+
+            frame = next(itr)
+            if frame is not None:
+                with frame as frame__:
+                    matcher.ocr(frame__, api)
         except StopIteration as st:
             return False
         except BaseException as b:
@@ -123,10 +123,11 @@ class ReScanner(ThreadedManager):
             try:
                 itr = reader.readYield(path)
                 with PyTessBaseAPI(path=tess_fast_dir) as api:
-                    while self.match_frame(itr, api):
-                        self._frame_count += 1
-                        frame_number = frame_number + 1
-                        self._update_percentage_in_row(frame_number, job_id, size)
+                    with OverwatchClipReader() as matcher:
+                        while self.match_frame(itr, api, matcher):
+                            self._frame_count += 1
+                            frame_number = frame_number + 1
+                            self._update_percentage_in_row(frame_number, job_id, size)
 
             except BaseException as b:
                 traceback.print_exc()

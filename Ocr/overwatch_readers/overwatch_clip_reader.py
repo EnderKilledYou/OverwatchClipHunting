@@ -20,6 +20,12 @@ class OverwatchClipReader(ScreenReader):
         self.ActionTextCropper = OverwatchActionScreenRegion()
         self.frame_watcher = OrderedFrameAggregator(overwatch_clips_event)
 
+    def __enter__(self):
+        return self
+
+    def __exit__(self, exc_type, exc_val, exc_tb):
+        self.__del__()
+
     def __del__(self):
         super().__del__()
         del self.frame_tester
