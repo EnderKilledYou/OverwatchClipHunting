@@ -1,7 +1,7 @@
 import json
 import os.path
 
-from Database.avoid_monitor import avoid_monitor
+
 from Events.flask_events import flask_event
 from Ocr.frames.frame import Frame
 
@@ -26,7 +26,8 @@ def create_clip(frame: Frame, clip_type: str):
 
     if 'status' in created and created['status'] == 403:
         print("can't clip this channel no perms")
-        avoid_monitor(frame.source_name)
+        flask_event.emit('avoid',frame.source_name)
+        #avoid_monitor(frame.source_name)
 
 
     if 'data' in created:
