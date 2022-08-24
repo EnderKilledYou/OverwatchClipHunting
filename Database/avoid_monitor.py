@@ -17,4 +17,4 @@ def avoid_monitor(stream_name):
         monitor.avoid = True
 
 
-    db.session.flush()
+
