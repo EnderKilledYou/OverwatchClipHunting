@@ -6,6 +6,7 @@ import traceback
 
 from Ocr.VideoCapReader import StreamEndedError, VideoCapReader
 from Ocr.no_stream_error import NoStreamError
+from Ocr.overwatch_readers.overwatch_screen_reader import OverwatchScreenReader
 from Ocr.screen_reader import ScreenReader
 from Ocr.stream_link_helper import StreamLinkHelper
 from Ocr.video_frame_buffer import VideoFrameBuffer
@@ -47,9 +48,8 @@ class TwitchEater(VideoFrameBuffer):
         for a in self.consumer_threads:
             a.join()
 
-    def buffer_broadcast(self, matcher: ScreenReader):
-        self.matcher = matcher
-        self._consumers(matcher)
+    def buffer_broadcast(self):
+
         wait_for_tesseract()
 
         best_stream = StreamLinkHelper.get_best_stream(self.broadcaster)
@@ -57,8 +57,10 @@ class TwitchEater(VideoFrameBuffer):
             return
         (ocr_stream, stream_res) = best_stream
 
-        self.stream_res = stream_res
-        self.capture_url_or_file(ocr_stream.url)
+        with OverwatchScreenReader(self) as matcher:
+            self._consumers(matcher)
+            self.stream_res = stream_res
+            self.capture_url_or_file(ocr_stream.url)
 
     def _consumers(self, matcher: ScreenReader):
         count = os.cpu_count()
@@ -104,7 +106,7 @@ class TwitchEater(VideoFrameBuffer):
             traceback.print_exc()
             return
         finally:
-            self.matcher.Active = False
+
             self.reader.stop()
 
         print("Capture thread stopping")

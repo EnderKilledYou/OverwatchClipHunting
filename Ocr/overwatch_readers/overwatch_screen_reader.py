@@ -1,4 +1,3 @@
-
 import sys
 
 import cv2 as cv
@@ -18,10 +17,14 @@ from cloud_logger import cloud_error_logger
 
 class OverwatchScreenReader(ScreenReader):
     def __del__(self):
-        del self.frame_tester
-        del self.ActionTextCropper
-        del self.GameSearchCropper
-        del self.frame_watcher
+        if hasattr(self, 'frame_tester'):
+            del self.frame_tester
+        if hasattr(self, 'ActionTextCropper'):
+            del self.ActionTextCropper
+        if hasattr(self, 'GameSearchCropper'):
+            del self.GameSearchCropper
+        if hasattr(self, 'frame_watcher'):
+            del self.frame_watcher
 
     def __init__(self, framebuffer: VideoFrameBuffer):
         from Events.overwatch_events import overwatch_event
@@ -35,7 +38,7 @@ class OverwatchScreenReader(ScreenReader):
         self.ActionTextCropper = OverwatchActionScreenRegion()
         self.GameSearchCropper = OverwatchSearchingForGameScreenRegion()
         self.frame_watcher = OrderedFrameAggregator(overwatch_event)
-    
+
     def ocr(self, frame: Frame, api: PyTessBaseAPI) -> None:
 
         try:

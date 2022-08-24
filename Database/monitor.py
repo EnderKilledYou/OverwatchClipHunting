@@ -62,7 +62,7 @@ class Monitor(db.Model, SerializerMixin):
 
     ocr: VideoFrameBuffer
     broadcaster: str
-    matcher: ScreenReader
+
     serialize_rules = ()
     serialize_only = ('id', 'activated_by', 'broadcaster', 'make_clips'
                       , 'min_healing_duration', 'min_elims', 'min_blocking_duration'
@@ -110,8 +110,8 @@ class Monitor(db.Model, SerializerMixin):
         if has_started:
             return
         self.ocr = TwitchEater(self.broadcaster)
-        self.matcher = OverwatchScreenReader(self.ocr)
-        self.producer_thread = threading.Thread(target=self.ocr.buffer_broadcast, args=[self.matcher])
+
+        self.producer_thread = threading.Thread(target=self.ocr.buffer_broadcast, args=[])
         self.producer_thread.start()
 
     
@@ -132,10 +132,7 @@ class Monitor(db.Model, SerializerMixin):
             self.ocr.stop()
             del self.ocr
             self.ocr = None
-        if hasattr(self, 'matcher') and self.matcher is not None:
-            self.matcher.stop()
-            del self.matcher
-            self.matcher = None
+
 
     
     def wait_for_stop(self, timeout=None):

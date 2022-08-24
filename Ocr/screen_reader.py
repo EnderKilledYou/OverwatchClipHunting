@@ -15,7 +15,11 @@ class ScreenReader:
         self.Active = True
         self.framebuffer = framebuffer
         self._gathered = 0
+    def __enter__(self):
+        return self
 
+    def __exit__(self, exc_type, exc_val, exc_tb):
+        self.__del__()
     def ocr(self, frame: Frame, api: PyTessBaseAPI) -> None:
         """Load in the frame for extracting text."""
         pass
@@ -24,8 +28,7 @@ class ScreenReader:
         self.Active = False
 
     def __del__(self):
-        if hasattr(self, 'framebuffer'):
-            del self.framebuffer
+        pass
 
     def consume_twitch_broadcast(self):
         with PyTessBaseAPI(path=tess_fast_dir, psm=PSM.SINGLE_COLUMN) as api:
