@@ -123,11 +123,13 @@ def trim(input_path, output_path, start=30, end=60, clip_length=30):
     s = to_hms(end)
     p = subprocess.Popen(
         ['ffmpeg', '-threads', '1', '-y', '-hide_banner', '-loglevel', 'error', '-nostdin', '-i', input_path, '-ss',
-         hms, '-to', s, '-async', '1', output_path])
+         hms, '-to', s, '-c', 'copy', output_path])
     p.wait()
     cloud_message(f"Ffmpeg said {p.returncode}")
-    return p.returncode == 0
 
-    # cmd = f'ffmpeg -threads 1 -y -hide_banner -loglevel error -nostdin  -i {input_path} -ss {hms} -to {s} -async 1  {output_path}'
-    # os.system(cmd)
-    # ffmpeg -i my_video -vf trim=10:25,setpts=PTS-STARTPTS clip.mp4
+
+    return p.returncode == 0
+#    cmd = f'ffmpeg -y -nostdin  -i {input_path} -ss {hms} -to {s} -c copy {output_path}'
+# cmd = f'ffmpeg -threads 1 -y -hide_banner -loglevel error -nostdin  -i {input_path} -ss {hms} -to {s} -async 1  {output_path}'
+# os.system(cmd)
+# ffmpeg -i my_video -vf trim=10:25,setpts=PTS-STARTPTS clip.mp4
