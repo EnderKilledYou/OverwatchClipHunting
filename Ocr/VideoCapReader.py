@@ -140,7 +140,7 @@ class VideoCapReader:
             if frame_number % self.sample_every_count == 0:
                 yield item
                 self.incr_items_read()
-                sleep(.25)
+
             frame_number = frame_number + 1
 
     def _acquire(self, url: str):
