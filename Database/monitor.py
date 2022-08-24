@@ -144,7 +144,7 @@ def add_stream_to_monitor(broadcaster: str):
             return True
 
     un_avoid_monitor(lower)
-    return False
+    return True
 
 
 def un_avoid_monitor(stream_name):
