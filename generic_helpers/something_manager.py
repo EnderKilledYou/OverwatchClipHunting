@@ -65,10 +65,7 @@ class ThreadedManager:
         try:
 
             job = self.buffer.get(False)
-            thread = threading.Thread(target=self._do_work, args=[job])
-            thread.start()
-            thread.join()
-            del thread
+            self._do_work(job)
         except Empty:
 
             if self._exit_on_empty:

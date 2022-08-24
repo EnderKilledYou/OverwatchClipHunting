@@ -80,7 +80,8 @@ class ReScanner(ThreadedManager):
             update_scan_job_in_deepfacequeue(job.id)
             # Timer(0, face_to_clip, (job.clip_id, path, job.id)).start()
             update_scan_job_percent(job.id, 1, True)
-            return
+            del clip
+            del job
 
         except BaseException as e:
             cloud_error_logger(e, file=sys.stderr)
