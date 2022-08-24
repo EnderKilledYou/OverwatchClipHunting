@@ -6,6 +6,10 @@ class VideoFrameBuffer:
     buffer: Queue
     _active: bool
 
+    def __enter__(self):
+        return self
+    def __exit__(self, exc_type, exc_val, exc_tb):
+        self.__del__()
     def get_one(self):
         return self.buffer.get(False)
 

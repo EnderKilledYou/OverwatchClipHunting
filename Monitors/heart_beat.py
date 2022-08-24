@@ -94,7 +94,7 @@ class HeartBeat:
         return True
 
     def _add_to_monitor_list(self, monitor: Monitor):
-        monitor.start(TwitchEater(monitor.broadcaster))
+        monitor.start()
         self._data_lock.acquire()
         try:
             self._active_monitors.append(monitor)
@@ -107,11 +107,15 @@ class HeartBeat:
             item_range_count = reversed(range(0, len(self._active_monitors)))
             for i in item_range_count:
                 monitor = self._active_monitors[i]
-                if monitor.broadcaster == streamer_name:
-                    monitor.stop()
-                    del self._active_monitors[i]
+                if monitor.broadcaster != streamer_name:
+                    continue
+                monitor.stop()
+                del self._active_monitors[i]
+                return
 
-                    break
+
+        except BaseException as e:
+            cloud_error_logger(e)
         finally:
             self._data_lock.release()
 
