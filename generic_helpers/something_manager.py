@@ -48,7 +48,6 @@ class ThreadedManager:
             thread = threading.Thread(target=self._do_work, args=[job])
             thread.start()
             thread.join()
-            del thread
         except Empty:
             if self._exit_on_empty:
                 return
@@ -59,21 +58,22 @@ class ThreadedManager:
             _thread.start()
 
     def _start(self):
-        while self._active:
-            try:
+        while self._active and self._do_one():
+            pass
 
-                job = self.buffer.get(False)
-                thread = threading.Thread(target=self._do_work, args=[job])
-                thread.start()
-                thread.join()
-                del thread
-            except Empty:
+    def _do_one(self):
+        try:
 
-                if self._exit_on_empty:
-                    return
-                sleep(2)
-            except BaseException as b:
-                cloud_error_logger(b, file=sys.stderr)
+            job = self.buffer.get(False)
+            self._do_work(job)
+        except Empty:
 
-            finally:
-                pass
+            if self._exit_on_empty:
+                return False
+            sleep(2)
+        except BaseException as b:
+            cloud_error_logger(b, file=sys.stderr)
+
+        finally:
+            pass
+        return True
