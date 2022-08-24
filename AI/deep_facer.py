@@ -1,4 +1,5 @@
 import os
+
 import sys
 import traceback
 from os.path import abspath
@@ -54,6 +55,7 @@ class DeepFacer(ThreadedManager):
         self._frame_count = 0
         self.matcher = OverwatchClipReader()
 
+    
     def _do_work(self, job_tuple):
         cloud_logger()
         wait_for_tesseract()
@@ -97,6 +99,7 @@ class DeepFacer(ThreadedManager):
             if frames is not None:
                 frames.clear()
 
+    
     def _calculate_emotion(self, clip_id, frames, emotion: str):
         if len(frames) == 0:
             return
@@ -119,20 +122,7 @@ class DeepFacer(ThreadedManager):
         min_frames.clear()
         happy.clear()
 
-    def _calculate_happy(self, clip_id, max_happy_frames, min_happy_frames):
-        max_happy_second = max(max_happy_frames, key=lambda x: x.frame.ts_second)
-        min_happy_second = min(min_happy_frames, key=lambda x: x.frame.ts_second)
-        happy_decreasing = False
-        emotion = "Happy"
-        tag_text = "%s Increasing" % emotion
-        if min_happy_second > max_happy_second:
-            happy_decreasing = True
-            tag_text = "%s Decreasing" % emotion
-        change_amount = abs(min_happy_second - max_happy_second)
-        if change_amount > 1:
-            add_twitch_clip_tag_request(clip_id, tag_text, change_amount, change_amount,
-                                        min(min_happy_second, max_happy_second))
-
+    
     def _scan_clip(self, scan_job_id: int, path: str, broadcaster: str, clip_id: int):
 
         with ClipVideoCapReader(broadcaster, clip_id) as reader:
@@ -170,6 +160,7 @@ class DeepFacer(ThreadedManager):
                 traceback.print_exc()
                 pass
 
+    
     def scanned_frame(self, itr, return_items):
         items = []
         try:
@@ -208,11 +199,13 @@ models = {}
 models['emotion'] = build_model('Emotion')
 
 
+
 def get_deep_result(frame):
     emotions = parse_emotions(frame.image)
     emotions["frame"] = frame
     frame.image = None
     return DeepFaceResult(emotions)
+
 
 
 def get_deep_results(frames):
@@ -234,10 +227,12 @@ def get_deep_results(frames):
 emotion_labels = ['angry', 'disgust', 'fear', 'happy', 'sad', 'surprise', 'neutral']
 
 
+
 def prep_images(numpy_image):
     return functions.preprocess_face(img=numpy_image, target_size=(48, 48), grayscale=True,
                                      enforce_detection=False, detector_backend='opencv',
                                      return_region=True)
+
 
 
 def parse_emotions(numpy_images, items):

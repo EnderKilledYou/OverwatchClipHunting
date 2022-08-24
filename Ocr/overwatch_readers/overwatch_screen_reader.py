@@ -1,3 +1,4 @@
+
 import sys
 
 import cv2 as cv
@@ -34,7 +35,7 @@ class OverwatchScreenReader(ScreenReader):
         self.ActionTextCropper = OverwatchActionScreenRegion()
         self.GameSearchCropper = OverwatchSearchingForGameScreenRegion()
         self.frame_watcher = OrderedFrameAggregator(overwatch_event)
-
+    
     def ocr(self, frame: Frame, api: PyTessBaseAPI) -> None:
 
         try:

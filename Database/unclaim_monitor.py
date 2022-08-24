@@ -1,5 +1,6 @@
 import datetime
 
+
 from Database.monitor import Monitor
 from config.db_config import db
 

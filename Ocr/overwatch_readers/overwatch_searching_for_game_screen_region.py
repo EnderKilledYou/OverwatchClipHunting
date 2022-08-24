@@ -1,5 +1,6 @@
 import os
 
+
 from PIL import Image
 from pytesseract import image_to_string
 from tesserocr import PyTessBaseAPI
@@ -14,6 +15,7 @@ from config.config import tess_fast_dir
 
 
 class OverwatchSearchingForGameScreenRegion(ScreenRegion):
+
     def process(self, pil: Image, frame: Frame, frame_watcher: FrameAggregator, frame_tester: FrameTester,
                 api: PyTessBaseAPI):
 

@@ -26,3 +26,4 @@ tesserocr
 cython
 waitress
 Deepface
+memory_profiler

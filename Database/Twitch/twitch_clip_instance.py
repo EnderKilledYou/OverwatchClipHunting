@@ -1,3 +1,4 @@
+
 from typing import Tuple
 
 from dateutil.parser import isoparse
@@ -82,6 +83,7 @@ def get_twitch_clip_instance_by_id(id: int) -> TwitchClipInstance:
     #db.session.expunge(first)
 
     return class_dict
+
 def get_twitch_clip_video_id_by_id(id: int) -> TwitchClipInstance:
     video_id = None
     with db.session.begin():

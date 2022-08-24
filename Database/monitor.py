@@ -1,5 +1,6 @@
 import datetime
 import json
+
 import threading
 from queue import Queue
 from typing import List, Dict
@@ -44,6 +45,7 @@ class Monitor(db.Model, SerializerMixin):
             print("Monitor convert to json failed")
             return str(self.to_dict())
 
+    
     def check_need_restart(self):
         if not hasattr(self, 'ocr') or self.ocr is None:
             return
@@ -101,6 +103,7 @@ class Monitor(db.Model, SerializerMixin):
         self.web_dict = web_dict
         self.ocr = None
 
+    
     def start(self):
         cloud_logger()
         has_started = hasattr(self, 'ocr')
@@ -111,6 +114,7 @@ class Monitor(db.Model, SerializerMixin):
         self.producer_thread = threading.Thread(target=self.ocr.buffer_broadcast, args=[self.matcher])
         self.producer_thread.start()
 
+    
     def dump(self):
         cloud_logger()
         tmp = self.ocr.buffer
@@ -121,6 +125,7 @@ class Monitor(db.Model, SerializerMixin):
             finally:
                 return
 
+    
     def stop(self):
         cloud_logger()
         if hasattr(self, 'ocr') and self.ocr is not None:
@@ -132,9 +137,11 @@ class Monitor(db.Model, SerializerMixin):
             del self.matcher
             self.matcher = None
 
+    
     def wait_for_stop(self, timeout=None):
         cloud_logger()
         self.producer_thread.join(timeout)
+
 
 
 def add_stream_to_monitor(broadcaster: str):
@@ -151,6 +158,7 @@ def add_stream_to_monitor(broadcaster: str):
         return False
 
 
+
 def get_all_monitors_dicts() -> List[Dict[str, any]]:
     items_out = []
     # cloud_logger()
@@ -159,6 +167,7 @@ def get_all_monitors_dicts() -> List[Dict[str, any]]:
         for item in items:
             items_out.append(item.to_dict())
     return items_out
+
 
 
 def get_all_monitors() -> List[Monitor]:
@@ -171,10 +180,12 @@ def get_all_monitors() -> List[Monitor]:
     return items_out
 
 
+
 def get_all_logins() -> List[str]:
     # cloud_logger()
     with db.session.begin():
         return list(map(lambda a: a[0], db.session.query(Monitor.broadcaster).filter_by(avoid=False)))
+
 
 
 def get_inactive_monitors() -> List[Monitor]:
@@ -182,10 +193,12 @@ def get_inactive_monitors() -> List[Monitor]:
     return list(Monitor.query.filter_by(is_active=False, avoid=False))
 
 
+
 def get_all_my_monitors() -> List[Monitor]:
     cloud_logger()
     with db.session.begin():
         return list(map(lambda x: Dict2Class(x.to_dict()), Monitor.query.filter_by(activated_by=self_id)))
+
 
 
 def get_all_my_monitors_names() -> List[Monitor]:
@@ -196,6 +209,7 @@ def get_all_my_monitors_names() -> List[Monitor]:
 
 class NotOursAnymoreError:
     pass
+
 
 
 def update_claim_on_monitor(stream_name, fields: Dict[str, any] = {}) -> Monitor:
@@ -212,9 +226,11 @@ def update_claim_on_monitor(stream_name, fields: Dict[str, any] = {}) -> Monitor
     return True
 
 
+
 def get_claimed_count() -> Monitor:
     with db.session.begin():
         return db.session.query(func.count(Monitor.id)).filter_by(activated_by=self_id).scalar()
+
 
 
 def reset_for_claim(stream_name):
@@ -232,6 +248,7 @@ def reset_for_claim(stream_name):
     db.session.flush()
 
 
+
 def release_monitors() -> bool:
     cloud_logger()
     with db.session.begin():
@@ -244,6 +261,7 @@ def release_monitors() -> bool:
         }
         return query.update(update_values
                             )
+
 
 
 def claim_monitor(stream_name) -> bool:
@@ -274,9 +292,11 @@ def claim_monitor(stream_name) -> bool:
         return False
 
 
+
 def assert_monitor_still_claimed(monitor_id: str):
     cloud_logger()
     return Monitor.query.filter_by(id=monitor_id, activated_by=self_id).first()
+
 
 
 def get_my_inactive_monitors() -> List[Monitor]:
@@ -284,14 +304,17 @@ def get_my_inactive_monitors() -> List[Monitor]:
     return list(Monitor.query.filter_by(is_active=False, activated_by=self_id))
 
 
+
 def get_my_active_monitors() -> List[Monitor]:
     cloud_logger()
     return list(Monitor.query.filter_by(is_active=True, activated_by=self_id))
 
 
+
 def get_active_monitors() -> List[Monitor]:
     cloud_logger()
     return list(Monitor.query.filter_by(is_active=True))
+
 
 
 def get_active_monitors_names() -> List[Monitor]:
@@ -301,9 +324,11 @@ def get_active_monitors_names() -> List[Monitor]:
     return list(map(lambda x: x[0], filter_by))
 
 
+
 def get_monitor_by_id(monitor_id: int) -> Monitor:
     cloud_logger()
     return Monitor.query.filter_by(id=monitor_id).first()
+
 
 
 def get_monitor_by_name(stream_name: str) -> Monitor:
@@ -317,9 +342,11 @@ def get_monitor_by_name(stream_name: str) -> Monitor:
     return item
 
 
+
 def get_monitor_exists(stream_name: str) -> Monitor:
     cloud_logger()
     return Monitor.query.filter_by(broadcaster=stream_name).count()
+
 
 
 def cancel_stream_to_monitor(stream_name):
@@ -331,6 +358,7 @@ def cancel_stream_to_monitor(stream_name):
         monitor.cancel_request = True
 
     db.session.flush()
+
 
 
 def remove_stream_to_monitor(stream_name):
@@ -353,6 +381,7 @@ default = {
     'stream_resolution': '',
 
 }
+
 
 
 def get_monitor_stats(monitor: Monitor) -> Dict[str, str]:

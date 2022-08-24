@@ -1,6 +1,7 @@
 import json
 import os.path
 
+
 from Events.flask_events import flask_event
 from Ocr.frames.frame import Frame
 

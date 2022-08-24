@@ -1,3 +1,5 @@
+
+
 from Ocr.overwatch_matchers.assist_matcher import if_assist
 from Ocr.overwatch_matchers.eliminated_matcher import if_got_elimed, if_menu, if_objective_defense, if_orb_gain, \
     if_blocking
@@ -14,6 +16,7 @@ class FrameTester:
         A text testing class for text ocr'd out of frames
     """
 
+    
     def is_elimed_frame(self, text: str) -> bool:
         """
 
@@ -22,6 +25,7 @@ class FrameTester:
         """
         return if_got_elimed(text)
 
+    
     def is_first_menu_frame(self, text: str) -> bool:
         """
 
@@ -30,6 +34,7 @@ class FrameTester:
         """
         return if_menu(text);
 
+    
     def is_elim_frame(self, text: str) -> bool:
         """
 
@@ -38,6 +43,7 @@ class FrameTester:
         """
         return if_got_elim(text)
 
+    
     def is_defense(self, text: str) -> bool:
         """
 
@@ -46,6 +52,7 @@ class FrameTester:
         """
         return if_objective_defense(text)
 
+    
     def is_orb_gained(self, text: str) -> bool:
         """
 
@@ -54,6 +61,7 @@ class FrameTester:
         """
         return if_orb_gain(text)
 
+    
     def is_blocking(self, text: str) -> bool:
         """
 
@@ -62,6 +70,7 @@ class FrameTester:
         """
         return if_blocking(text)
 
+    
     def is_elim_frame(self, text: str) -> bool:
         """
 
@@ -70,6 +79,7 @@ class FrameTester:
         """
         return if_got_elim(text)
 
+    
     def is_spawn_room_frame(self, text: str) -> bool:
         """
 
@@ -78,6 +88,7 @@ class FrameTester:
         """
         return if_in_hero_room(text)
 
+    
     def is_in_queue(selfself, text: str) -> bool:
         """
 
@@ -86,6 +97,7 @@ class FrameTester:
         """
         return if_in_queue(text)
 
+    
     def is_heal_frame(self, text) -> bool:
         """
 
@@ -94,6 +106,7 @@ class FrameTester:
         """
         return if_healing(text)
 
+    
     def is_slept_frame(self, text) -> bool:
         """
 
@@ -102,6 +115,7 @@ class FrameTester:
         """
         return if_slept(text)
 
+    
     def is_assist_frame(self, text) -> bool:
         """
 
@@ -110,6 +124,7 @@ class FrameTester:
         """
         return if_assist(text)
 
+    
     def count_elim_frame(self, text) -> int:
         """
 
@@ -118,6 +133,7 @@ class FrameTester:
         """
         return count_elim_on_frame(text)
 
+    
     def is_in_prepare_attack(self, text) -> bool:
         """
 
@@ -126,6 +142,7 @@ class FrameTester:
         """
         return if_prepare_attack(text)
 
+    
     def is_in_escort(self, text) -> bool:
         """
 
@@ -134,6 +151,7 @@ class FrameTester:
            """
         return if_escort(text)
 
+    
     def is_in_contested(self, text) -> bool:
         """
 
@@ -142,6 +160,7 @@ class FrameTester:
            """
         return if_contested(text)
 
+    
     def is_in_prepare_defense(self, text) -> bool:
         """
 

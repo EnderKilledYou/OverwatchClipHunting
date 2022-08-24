@@ -1,4 +1,5 @@
 import os
+
 from os.path import abspath
 
 from google.cloud import storage
@@ -18,6 +19,8 @@ def copy_to_cloud(local_file, remote_file):
         local_data = local.read()
         with blob.open('wb') as writer:
             writer.write(local_data)
+
+
 
 
 def read_db_from_cloud():

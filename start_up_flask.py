@@ -1,5 +1,6 @@
 
 import atexit
+
 import threading
 from Database.Twitch.tag_clipper_job import reset_twitch_clip_job_state, requeue_twitch_clip_jobs
 from Monitors.heart_beat import HeartBeat
@@ -11,6 +12,7 @@ nothing = ""
 alli = HeartBeat()
 facer = DeepFacer()
 rescanner = ReScanner()
+
 def start_workers():
     threading.Thread(target=install, args=[]).start()
     rescanner.start()

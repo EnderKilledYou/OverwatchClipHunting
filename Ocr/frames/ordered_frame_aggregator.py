@@ -1,3 +1,4 @@
+
 import threading
 
 from Ocr.frames.frame import Frame
@@ -15,6 +16,7 @@ class OrderedFrameAggregator(FrameAggregator):
             del self.lock
             self.lock = None
 
+    
     def set_in_prepare(self, frame, mode):
         self.lock.acquire()
         try:
@@ -24,6 +26,7 @@ class OrderedFrameAggregator(FrameAggregator):
         finally:
             self.lock.release()
 
+    
     def add_assist_frame(self, frame):
         self.lock.acquire()
         try:
@@ -33,6 +36,7 @@ class OrderedFrameAggregator(FrameAggregator):
         finally:
             self.lock.release()
 
+    
     def add_escort_frame(self, frame):
         self.lock.acquire()
         try:
@@ -42,6 +46,7 @@ class OrderedFrameAggregator(FrameAggregator):
         finally:
             self.lock.release()
 
+    
     def add_contested_frame(self, frame):
         self.lock.acquire()
         try:
@@ -51,6 +56,7 @@ class OrderedFrameAggregator(FrameAggregator):
         finally:
             self.lock.release()
 
+    
     def add_defense_frame(self, frame):
         self.lock.acquire()
         try:
@@ -60,6 +66,7 @@ class OrderedFrameAggregator(FrameAggregator):
         finally:
             self.lock.release()
 
+    
     def add_elim_frame(self, frame: Frame, elimination_appears_times: int):
         self.lock.acquire()
         try:
@@ -69,6 +76,7 @@ class OrderedFrameAggregator(FrameAggregator):
         finally:
             self.lock.release()
 
+    
     def add_orb_gained_frame(self, frame):
         self.lock.acquire()
         try:
@@ -78,6 +86,7 @@ class OrderedFrameAggregator(FrameAggregator):
         finally:
             self.lock.release()
 
+    
     def add_blocking_frame(self, frame):
         self.lock.acquire()
         try:
@@ -87,6 +96,7 @@ class OrderedFrameAggregator(FrameAggregator):
         finally:
             self.lock.release()
 
+    
     def add_elimed_frame(self, frame):
         self.lock.acquire()
         try:
@@ -96,6 +106,7 @@ class OrderedFrameAggregator(FrameAggregator):
         finally:
             self.lock.release()
 
+    
     def add_spawn_room_frame(self, frame):
         self.lock.acquire()
         try:
@@ -105,6 +116,7 @@ class OrderedFrameAggregator(FrameAggregator):
         finally:
             self.lock.release()
 
+    
     def add_healing_frame(self, frame):
         self.lock.acquire()
         try:
@@ -114,6 +126,7 @@ class OrderedFrameAggregator(FrameAggregator):
         finally:
             self.lock.release()
 
+    
     def add_slepting_frame(self, frame):
         self.lock.acquire()
         try:
@@ -123,6 +136,7 @@ class OrderedFrameAggregator(FrameAggregator):
         finally:
             self.lock.release()
 
+    
     def set_in_queue(self, frame):
         self.lock.acquire()
         try:

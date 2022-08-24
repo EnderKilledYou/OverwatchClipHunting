@@ -1,4 +1,5 @@
 import datetime
+
 from typing import List
 
 from sqlalchemy_serializer import SerializerMixin

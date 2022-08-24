@@ -1,3 +1,4 @@
+
 from queue import Queue
 
 
@@ -5,7 +6,7 @@ class VideoFrameBuffer:
     Capturing: bool
     buffer: Queue
     _active: bool
-
+    
     def get_one(self):
         return self.buffer.get(False)
 

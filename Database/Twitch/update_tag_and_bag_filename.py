@@ -1,6 +1,10 @@
+from app import app
+
+
 from Database.MissingRecordError import MissingRecordError
 from Database.Twitch.twitch_clip_tag import TwitchClipTag
 from config.db_config import db
+
 
 
 def update_tag_and_bag_filename(id: int, filename_str) -> TwitchClipTag:

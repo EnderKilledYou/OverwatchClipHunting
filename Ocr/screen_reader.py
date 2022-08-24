@@ -1,4 +1,5 @@
 import os
+
 from time import sleep
 
 from tesserocr import PyTessBaseAPI, PSM
@@ -15,6 +16,7 @@ class ScreenReader:
         self.framebuffer = framebuffer
         self._gathered = 0
 
+    
     def ocr(self, frame: Frame, api: PyTessBaseAPI) -> None:
         """Load in the frame for extracting text."""
         pass
@@ -23,12 +25,13 @@ class ScreenReader:
         self.Active = False
     def __del__(self):
         del self.framebuffer
-        
+
+    
     def consume_twitch_broadcast(self):
         with PyTessBaseAPI(path=tess_fast_dir, psm=PSM.SINGLE_COLUMN) as api:
             while self.Active and self.framebuffer.active and self.next_frame(api):
                 pass
-
+    
     def next_frame(self, api):
         frame = self.wait_next_frame()
         if frame is None:
@@ -38,7 +41,7 @@ class ScreenReader:
         self.ocr(frame, api)
         frame.image = None
         return True
-
+    
     def wait_next_frame(self):
         try:
             if self.framebuffer.reader.count() == 0:

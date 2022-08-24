@@ -1,4 +1,5 @@
 import os
+
 import sys
 import tempfile
 import traceback
@@ -49,7 +50,7 @@ class ReScanner(ThreadedManager):
         self._reader = None
         self._frame_count = 0
         self.matcher = OverwatchClipReader()
-
+    
     def _do_work(self, job_id: int):
         cloud_logger()
         wait_for_tesseract()
@@ -79,17 +80,17 @@ class ReScanner(ThreadedManager):
             traceback.print_exc()
             if job is not None:
                 update_scan_job_error(job.id, str(e))
-
+    
     def _get_url(self, job: TwitchClipInstanceScanJob):
         video_id = get_twitch_clip_video_id_by_id(job.clip_id)
         if video_id is None:
             return None
         return video_id
-
+    
     def _stop(self):
         if self._reader is not None:
             self._reader.stop()
-
+    
     def match_frame(self, itr, api):
 
         try:
@@ -102,7 +103,7 @@ class ReScanner(ThreadedManager):
         except BaseException as b:
             return False
         return True
-
+    
     def _scan_clip(self, job: TwitchClipInstanceScanJob, path: str):
         with ClipVideoCapReader(job.broadcaster, job.clip_id) as reader:
             # size = len(reader_list)
@@ -123,7 +124,7 @@ class ReScanner(ThreadedManager):
                 pass
 
         update_scan_job_percent(job.id, 1)
-
+    
     def _update_percentage_in_row(self, frame_number, job, size):
         if frame_number < size:
             percent_done = frame_number / size

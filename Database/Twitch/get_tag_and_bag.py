@@ -1,3 +1,4 @@
+
 from typing import List
 
 from Database.Twitch.dict_to_class import Dict2Class

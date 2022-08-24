@@ -1,4 +1,5 @@
 import os
+
 import sys
 import threading
 import traceback
@@ -70,9 +71,14 @@ class TwitchEater(VideoFrameBuffer):
             consumer_thread.start()
 
     def stop(self):
-        if self.reader:
+        try:
+            while True:
+                self.buffer.get(False)
+        except:
+            pass
+        if hasattr(self, 'reader') and self.reader is not None:
             self.reader.stop()
-        if self.matcher:
+        if hasattr(self, 'matcher') and self.matcher is not None:
             self.matcher.stop()
 
     def __del__(self):

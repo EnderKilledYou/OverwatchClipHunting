@@ -1,3 +1,4 @@
+
 import threading
 from queue import Queue, Empty
 from time import sleep
@@ -23,6 +24,7 @@ class ScannerMonitor(ThreadedManager):
         self._threads.append(thread)
         self._gathered = 0
 
+    
     def _get_one_ret_queue(self):
         try:
 
@@ -33,19 +35,21 @@ class ScannerMonitor(ThreadedManager):
         finally:
             pass
         return None
-
+    
     def _do_work(self, job):
         cloud_logger()
         # reset_twitch_clip_job_state()  # reset the jobs that dies half if server crash
         request = self._make_request_from_job(job)
         self.tag_clipper.add_job(request)
 
+    
     def _make_request_from_job(self, job):
         clip = get_twitch_clip_instance_by_id(job.clip_id)
         request = TagClipperRequest(job.clip_id, get_tag_and_bag_by_clip_id(job.clip_id), clip.broadcaster_name,
                                     clip.video_id, self.return_queue)
         return request
 
+    
     def check_return_queue(self):
 
         while self._active:

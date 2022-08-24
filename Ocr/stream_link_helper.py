@@ -1,3 +1,4 @@
+
 import traceback
 
 from streamlink import NoPluginError, Streamlink
@@ -11,6 +12,7 @@ class StreamLinkHelper:
     sl_session = Streamlink()
 
     @staticmethod
+    
     def get_best_stream(broadcaster: str) -> TwitchHLSStream:
         try:
             streams = StreamLinkHelper.sl_session.streams('https://www.twitch.tv/{0}'.format(broadcaster))
@@ -26,6 +28,7 @@ class StreamLinkHelper:
         return StreamLinkHelper._parse_best_stream(streams)
 
     @staticmethod
+    
     def _parse_best_stream(streams: Dict[str, TwitchHLSStream]) -> Tuple[TwitchHLSStream, str]:
         cloud_logger()
         ocr_stream = streams['best']

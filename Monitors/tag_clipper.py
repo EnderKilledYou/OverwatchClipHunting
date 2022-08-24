@@ -1,5 +1,7 @@
+from app import app
 import json
 import os
+
 import sys
 
 import time
@@ -38,7 +40,7 @@ class TagClipper(ThreadedManager):
         except:
             print("TagClipper convert to json failed")
             return json.dumps(['TagClipper'])
-
+    
     def _do_work(self, job):
         cloud_logger()
         (clip_id, file, scan_job_id) = job

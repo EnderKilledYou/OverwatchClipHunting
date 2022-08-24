@@ -1,3 +1,4 @@
+
 from datetime import datetime
 from enum import IntEnum
 
@@ -139,6 +140,7 @@ def update_scan_job_in_deepface(scan_job_id: int):
         item.state = TwitchClipJobState.DeepFacing
         item.percent = 0
     db.session.flush()
+
 def update_scan_job_in_deepfacequeue(scan_job_id: int):
     with db.session.begin():
         item: TwitchClipInstanceScanJob = TwitchClipInstance.query.filter_by(id=scan_job_id).first()

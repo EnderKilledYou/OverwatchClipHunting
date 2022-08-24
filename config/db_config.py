@@ -49,8 +49,8 @@ def config_mysql(app):
 
 db = config_db()
 
-from Database import *
-from Database.Twitch import *
+# from Database import *
+# from Database.Twitch import *
 
 def init_db():
     from Database.Twitch.twitch_clip_instance_scan_job import TwitchClipInstanceScanJob
