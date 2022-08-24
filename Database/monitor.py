@@ -142,9 +142,9 @@ def add_stream_to_monitor(broadcaster: str):
             monitor2.is_active = True
             db.session.add(monitor2)
             return True
-        else:
-            un_avoid_monitor(lower)
-        return False
+
+    un_avoid_monitor(lower)
+    return False
 
 
 def un_avoid_monitor(stream_name):
