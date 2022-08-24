@@ -68,6 +68,7 @@ class VideoCapReader:
 
         if frame_number % self.sample_every_count == 0:
             return Frame(frame_number, frame, frame_number // fps, self.streamer_name)
+        del frame
         return None
 
     def read(self, url, buffer):
