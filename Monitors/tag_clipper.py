@@ -1,3 +1,5 @@
+import subprocess
+
 from app import app
 import json
 import os
@@ -17,7 +19,7 @@ from Database.Twitch.twitch_clip_instance import get_twitch_clip_instance_by_id,
 from Database.Twitch.get_tag_and_bag import get_tag_and_bag_by_clip_id
 from Database.Twitch.twitch_clip_instance_scan_job import update_scan_job_percent, update_scan_job_error, \
     update_scan_job_in_subclip, update_scan_job_in_deepface, update_scan_job_in_deepfacequeue
-from cloud_logger import cloud_logger, cloud_error_logger
+from cloud_logger import cloud_logger, cloud_error_logger, cloud_message
 from generic_helpers.get_unix_time import temp_name
 
 from generic_helpers.something_manager import ThreadedManager
@@ -25,7 +27,7 @@ from generic_helpers.something_manager import ThreadedManager
 
 class TagClipper(ThreadedManager):
     def __init__(self):
-        super(TagClipper, self).__init__(3, False)
+        super(TagClipper, self).__init__(1, False)
 
     def __str__(self):
         return f"TagClipper "
@@ -40,7 +42,7 @@ class TagClipper(ThreadedManager):
         except:
             print("TagClipper convert to json failed")
             return json.dumps(['TagClipper'])
-    
+
     def _do_work(self, job):
         cloud_logger()
         (clip_id, file, scan_job_id) = job
@@ -61,10 +63,11 @@ class TagClipper(ThreadedManager):
                 file_name = temp_name() + '.mp4'
                 out_file = storage_path + os.sep + file_name
                 gloud_file = get_clip_path(clip) + file_name
-                trim(file, out_file, section.clip_start, section.clip_end)
-                update_tag_and_bag_filename(section.id, gloud_file)
-                copy_to_cloud(out_file, gloud_file)
-                os.unlink(out_file)
+                if trim(file, out_file, section.clip_start, section.clip_end):
+                    update_tag_and_bag_filename(section.id, gloud_file)
+                    copy_to_cloud(out_file, gloud_file)
+                    os.unlink(out_file)
+
 
             update_twitch_clip_instance_filename(clip_id, None)
             clip_parts.clear()
@@ -118,5 +121,13 @@ def trim(input_path, output_path, start=30, end=60, clip_length=30):
 
     hms = to_hms(start)
     s = to_hms(end)
-    cmd = f'ffmpeg -threads 1 -y -hide_banner -loglevel error -nostdin  -i {input_path} -ss {hms} -to {s} -async 1  {output_path}'
-    os.system(cmd)
+    p = subprocess.Popen(
+        ['ffmpeg', '-threads', '1', '-y', '-hide_banner', '-loglevel', 'error', '-nostdin', '-i', input_path, '-ss',
+         hms, '-to', s, '-async', '1', output_path])
+    p.wait()
+    cloud_message(f"Ffmpeg said {p.returncode}")
+    return p.returncode == 0
+
+    # cmd = f'ffmpeg -threads 1 -y -hide_banner -loglevel error -nostdin  -i {input_path} -ss {hms} -to {s} -async 1  {output_path}'
+    # os.system(cmd)
+    # ffmpeg -i my_video -vf trim=10:25,setpts=PTS-STARTPTS clip.mp4
