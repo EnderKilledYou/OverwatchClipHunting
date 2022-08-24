@@ -9,6 +9,7 @@ from typing import List
 from Database.live_twitch_instance import LiveTwitchInstance
 from Database.unclaim_monitor import unclaim_monitor
 from Monitors.heart_beat_helpers import claim_one_monitor
+from Ocr.twitch_video_frame_buffer import TwitchEater
 from cloud_logger import cloud_logger, cloud_error_logger
 from twitch_helpers.get_monitored_streams import get_monitored_streams
 from twitch_helpers.twitch_helpers import get_twitch_api
@@ -100,7 +101,7 @@ class HeartBeat:
 
     
     def _add_to_monitor_list(self, monitor: Monitor):
-        monitor.start()
+        monitor.start(TwitchEater(monitor.broadcaster))
         self._data_lock.acquire()
         try:
             self._active_monitors.append(monitor)

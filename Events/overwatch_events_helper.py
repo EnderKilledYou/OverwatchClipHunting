@@ -1,12 +1,12 @@
 import json
 import os.path
 
-
+from Database.avoid_monitor import avoid_monitor
 from Events.flask_events import flask_event
 from Ocr.frames.frame import Frame
 
 from config.streamer_configs import get_streamer_config
-from routes.monitor import avoid_user
+
 from twitch_helpers.twitch_helpers import get_twitch_api, get_broadcaster_id
 
 last_clip_time = {}
@@ -26,7 +26,8 @@ def create_clip(frame: Frame, clip_type: str):
 
     if 'status' in created and created['status'] == 403:
         print("can't clip this channel no perms")
-        avoid_user(frame.source_name)
+        avoid_monitor(frame.source_name)
+
 
     if 'data' in created:
         flask_event.emit('clip', created['data'], clip_type)

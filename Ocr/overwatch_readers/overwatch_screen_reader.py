@@ -14,7 +14,7 @@ from Ocr.screen_reader import ScreenReader
 from Ocr.video_frame_buffer import VideoFrameBuffer
 from cloud_logger import cloud_error_logger
 
-
+from Events.overwatch_events import overwatch_event
 class OverwatchScreenReader(ScreenReader):
     def __del__(self):
         if hasattr(self, 'frame_tester'):
@@ -27,7 +27,7 @@ class OverwatchScreenReader(ScreenReader):
             del self.frame_watcher
 
     def __init__(self, framebuffer: VideoFrameBuffer):
-        from Events.overwatch_events import overwatch_event
+
         super(OverwatchScreenReader, self).__init__(framebuffer)
         self.skip_frames = 0
 

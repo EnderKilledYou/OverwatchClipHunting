@@ -1,4 +1,3 @@
-
 from queue import Queue
 
 
@@ -6,13 +5,19 @@ class VideoFrameBuffer:
     Capturing: bool
     buffer: Queue
     _active: bool
-    
+
     def get_one(self):
         return self.buffer.get(False)
 
     def __del__(self):
-        self.buffer = None
+        while True:
+            try:
+                buffer_get = self.buffer.get(False)
+                del buffer_get
+            except:
+                pass
         del self.buffer
+        self.buffer = None
 
     def __init__(self):
         self.reader = None

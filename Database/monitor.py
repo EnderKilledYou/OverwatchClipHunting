@@ -11,9 +11,8 @@ from sqlalchemy.orm import validates
 from sqlalchemy_serializer import SerializerMixin
 
 from Database.Twitch.dict_to_class import Dict2Class
-from Ocr.overwatch_readers.overwatch_screen_reader import OverwatchScreenReader
-from Ocr.screen_reader import ScreenReader
-from Ocr.twitch_video_frame_buffer import TwitchEater
+
+
 from Ocr.video_frame_buffer import VideoFrameBuffer
 from cloud_logger import cloud_logger, cloud_message
 
@@ -96,7 +95,7 @@ class Monitor(db.Model, SerializerMixin):
     queue_size = db.Column(db.Integer, default=-1)
     stream_resolution = db.Column(db.String(30))
 
-    ocr: TwitchEater
+
 
     def __init__(self, broadcaster: str, web_dict={}):
         self.broadcaster = broadcaster
@@ -104,12 +103,12 @@ class Monitor(db.Model, SerializerMixin):
         self.ocr = None
 
     
-    def start(self):
+    def start(self,ocr):
         cloud_logger()
         has_started = hasattr(self, 'ocr')
         if has_started:
             return
-        self.ocr = TwitchEater(self.broadcaster)
+        self.ocr = ocr
 
         self.producer_thread = threading.Thread(target=self.ocr.buffer_broadcast, args=[])
         self.producer_thread.start()
@@ -131,7 +130,7 @@ class Monitor(db.Model, SerializerMixin):
         if hasattr(self, 'ocr') and self.ocr is not None:
             self.ocr.stop()
             del self.ocr
-            self.ocr = None
+
 
 
     
