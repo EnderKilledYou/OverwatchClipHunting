@@ -42,7 +42,7 @@ class ScreenReader:
         if frame is None:
             sleep(1)
             return True
-        if frame.frame_number % 10 == 0:
+        if frame.frame_number % 100 == 0:
             sleep(1)
         self.ocr(frame, api)
         frame.image = None
