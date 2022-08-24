@@ -63,7 +63,7 @@ class HeartBeat:
         cloud_logger()
         for monitor in monitors:
             stats = get_monitor_stats(monitor)
-            print(f"checking claim {monitor.broadcaster}")
+
             if update_claim_on_monitor(monitor.broadcaster, stats):
                 continue
             print(f"Releasing {monitor.broadcaster}")
