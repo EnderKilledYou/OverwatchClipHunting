@@ -1,4 +1,5 @@
 import sys
+from time import sleep
 
 import cv2 as cv
 from PIL import Image

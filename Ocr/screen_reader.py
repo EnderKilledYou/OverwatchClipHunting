@@ -15,11 +15,13 @@ class ScreenReader:
         self.Active = True
         self.framebuffer = framebuffer
         self._gathered = 0
+
     def __enter__(self):
         return self
 
     def __exit__(self, exc_type, exc_val, exc_tb):
         self.__del__()
+
     def ocr(self, frame: Frame, api: PyTessBaseAPI) -> None:
         """Load in the frame for extracting text."""
         pass
@@ -40,7 +42,8 @@ class ScreenReader:
         if frame is None:
             sleep(1)
             return True
-
+        if frame.frame_number % 100 == 0:
+            sleep(1)
         self.ocr(frame, api)
         frame.image = None
         return True

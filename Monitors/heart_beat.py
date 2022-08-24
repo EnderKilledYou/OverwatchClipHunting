@@ -110,8 +110,9 @@ class HeartBeat:
                 if monitor.broadcaster != streamer_name:
                     continue
                 monitor.stop()
-                del self._active_monitors[i]
+                tmp = self._active_monitors.pop(i)
                 del monitor
+                del tmp
                 i = i + 1
                 return
 
