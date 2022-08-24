@@ -50,7 +50,7 @@
             <p class="card-text">{{ item[0].title }}</p>
             <div class="row" v-for="tag in ordered_tags(item[1])">
               {{ tag.tag }} betweens {{ tag.clip_start }} {{ tag.clip_end }} ({{ tag.tag_amount }})<a
-                v-if="tag.has_file"
+
                 :href="`/video/${tag.id}`"><span
                 class="small"> view</span></a>
 

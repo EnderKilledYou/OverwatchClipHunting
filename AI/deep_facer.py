@@ -55,7 +55,6 @@ class DeepFacer(ThreadedManager):
         self._frame_count = 0
         self.matcher = OverwatchClipReader()
 
-    
     def _do_work(self, job_tuple):
         cloud_logger()
         wait_for_tesseract()
@@ -82,12 +81,14 @@ class DeepFacer(ThreadedManager):
             self._calculate_emotion(clip_id, frames, 'disgust')
             for item in frames:
                 with item:
-                    pass
+                    with item.frame:
+                        pass
 
             frames.clear()
+
             update_scan_job_in_subclip(scan_job_id)
-            Timer(8, clip_tag_to_clip, (clip_id, file, scan_job_id)).start()
-            # update_scan_job_percent(scan_job_id, 1, True)
+            # Timer(8, clip_tag_to_clip, (clip_id, file, scan_job_id)).start()
+            update_scan_job_percent(scan_job_id, 1, True)
 
 
 
@@ -99,7 +100,6 @@ class DeepFacer(ThreadedManager):
             if frames is not None:
                 frames.clear()
 
-    
     def _calculate_emotion(self, clip_id, frames, emotion: str):
         if len(frames) == 0:
             return
@@ -122,7 +122,6 @@ class DeepFacer(ThreadedManager):
         min_frames.clear()
         happy.clear()
 
-    
     def _scan_clip(self, scan_job_id: int, path: str, broadcaster: str, clip_id: int):
 
         with ClipVideoCapReader(broadcaster, clip_id) as reader:
@@ -160,7 +159,6 @@ class DeepFacer(ThreadedManager):
                 traceback.print_exc()
                 pass
 
-    
     def scanned_frame(self, itr, return_items):
         items = []
         try:
@@ -199,13 +197,11 @@ models = {}
 models['emotion'] = build_model('Emotion')
 
 
-
 def get_deep_result(frame):
     emotions = parse_emotions(frame.image)
     emotions["frame"] = frame
     frame.image = None
     return DeepFaceResult(emotions)
-
 
 
 def get_deep_results(frames):
@@ -227,12 +223,10 @@ def get_deep_results(frames):
 emotion_labels = ['angry', 'disgust', 'fear', 'happy', 'sad', 'surprise', 'neutral']
 
 
-
 def prep_images(numpy_image):
     return functions.preprocess_face(img=numpy_image, target_size=(48, 48), grayscale=True,
                                      enforce_detection=False, detector_backend='opencv',
                                      return_region=True)
-
 
 
 def parse_emotions(numpy_images, items):

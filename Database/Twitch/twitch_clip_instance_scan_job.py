@@ -1,4 +1,3 @@
-
 from datetime import datetime
 from enum import IntEnum
 
@@ -18,7 +17,7 @@ class TwitchClipJobState(IntEnum):
     Scanning = 6
     Yielding = 7
     DeepFacing = 8
-    DeepFacingQueue =9
+    DeepFacingQueue = 9
 
 
 class TwitchClipInstanceScanJob(db.Model, SerializerMixin):
@@ -69,6 +68,15 @@ def get_twitch_clip_scan_by_page(page: int, page_count: int = 25):
     return output
 
 
+def get_twitch_clip_tag_by_id(tag_id) ->TwitchClipTag:
+    with db.session.begin():
+        first = TwitchClipTag.query.filter_by(id=tag_id).first()
+        if first is None:
+            return first
+        data = first.to_dict()
+    return data
+
+
 def add_twitch_clip_scan(clip_id: str, broadcaster: str) -> TwitchClipInstanceScanJob:
     with db.session.begin():
         log = TwitchClipInstanceScanJob.query.filter_by(clip_id=clip_id).first()
@@ -83,7 +91,6 @@ def add_twitch_clip_scan(clip_id: str, broadcaster: str) -> TwitchClipInstanceSc
         db.session.add(log)
         db.session.flush()
         id = log.id
-
 
     return id
 
@@ -140,6 +147,7 @@ def update_scan_job_in_deepface(scan_job_id: int):
         item.state = TwitchClipJobState.DeepFacing
         item.percent = 0
     db.session.flush()
+
 
 def update_scan_job_in_deepfacequeue(scan_job_id: int):
     with db.session.begin():
