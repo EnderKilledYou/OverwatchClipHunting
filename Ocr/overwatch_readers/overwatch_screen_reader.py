@@ -15,6 +15,8 @@ from Ocr.video_frame_buffer import VideoFrameBuffer
 from cloud_logger import cloud_error_logger
 
 from Events.overwatch_events import overwatch_event
+
+
 class OverwatchScreenReader(ScreenReader):
     def __del__(self):
         if hasattr(self, 'frame_tester'):
@@ -47,26 +49,10 @@ class OverwatchScreenReader(ScreenReader):
 
             self.ActionTextCropper.process(pil_grey, frame, self.frame_watcher,
                                            self.frame_tester, api)
+            if frame.empty:
+                del frame
 
-            return
-            if not frame.empty:
-                self.last_action_second = frame.ts_second
-                return
-            if self.last_queue_check != frame.ts_second and frame.ts_second % 30 == 0:
-                self.last_queue_check = frame.ts_second
-                self.GameSearchCropper.process(pil_grey, frame, self.frame_watcher,
-                                               self.frame_tester, api)
-                if not frame.empty:
-                    self.last_action_second = frame.ts_second
-                if self.frame_watcher.in_queue:
-                    # import start_up_flask
-                    print("In queue " + frame.source_name)
-                    # start_up_flask.alli.stop_streamer(frame.source_name)
-                    self.skip_frames += 2
-                    return
-                if frame.ts_second - self.last_action_second > 45 and frame.empty:
-                    print("In queue or full screen " + frame.source_name)
-                    self.skip_frames += 2
+
 
         except BaseException as e:
             cloud_error_logger(e, file=sys.stderr)

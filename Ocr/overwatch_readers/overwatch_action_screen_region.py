@@ -29,6 +29,7 @@ class OverwatchActionScreenRegion(ScreenRegion):
         #     img_crop)  # image_to_string(img_crop, config=f'--tessdata-dir "{tess_fast_dir}"', lang='eng')  # , lang='eng')
         frame.empty = True
         if len(text) < 4:
+
             return
         if frame_tester.is_first_menu_frame(text):
             return  # later

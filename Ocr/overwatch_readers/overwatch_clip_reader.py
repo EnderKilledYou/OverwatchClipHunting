@@ -36,3 +36,5 @@ class OverwatchClipReader(ScreenReader):
         pil_grey = Image.fromarray(img_grey)
         self.ActionTextCropper.process(pil_grey, frame, self.frame_watcher,
                                        self.frame_tester, api)
+        if frame.empty:
+            del frame
