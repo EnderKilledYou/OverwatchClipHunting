@@ -1,4 +1,3 @@
-
 import threading
 from queue import Queue
 from time import sleep
@@ -25,10 +24,13 @@ class VideoCapReader:
         self.items_read = 0
         self.items_drained = 0
         self.fps = 1
+        self.video_capture = None
 
     def __del__(self):
         self._count_lock = None
-    
+        if hasattr(self, 'video_capture') and self.video_capture is not None:
+            del self.video_capture
+
     def count(self):
         try:
             self._count_lock.acquire()
@@ -36,7 +38,7 @@ class VideoCapReader:
         finally:
             self._count_lock.release()
             pass
-    
+
     def incr_items_drained(self):
         try:
             self._count_lock.acquire()
@@ -44,7 +46,7 @@ class VideoCapReader:
         finally:
             self._count_lock.release()
             pass
-    
+
     def incr_items_read(self):
         try:
             self._count_lock.acquire()
@@ -52,7 +54,7 @@ class VideoCapReader:
         finally:
             self._count_lock.release()
             pass
-    
+
     def _read_one(self, frame_number, fps, loose_buffer=False):
         ret, frame = self.video_capture.read()
         if not ret:
@@ -63,7 +65,7 @@ class VideoCapReader:
                 return None
             return Frame(frame_number, frame, frame_number // fps, self.streamer_name)
         return None
-    
+
     def read(self, url, buffer):
         self.Active = True
         self._acquire(url)
@@ -72,14 +74,13 @@ class VideoCapReader:
         except StreamEndedError:
             pass
         self._release()
-    
+
     def readYield(self, url):
         self.Active = True
         self._acquire(url)
         try:
-            video_capture = self.video_capture
 
-            fps = int(video_capture.get(cv.CAP_PROP_FPS))
+            fps = int(self.video_capture.get(cv.CAP_PROP_FPS))
             if fps > 500:
                 fps = 60
             if fps < 10:
@@ -96,7 +97,7 @@ class VideoCapReader:
 
     def stop(self):
         self.Active = False
-    
+
     def _read(self, buffer: Queue):
 
         fps = int(self.video_capture.get(cv.CAP_PROP_FPS))
@@ -112,7 +113,7 @@ class VideoCapReader:
             f"Starting sampling.. sampling {fps} /  {sample_frame_rate} = {self.sample_every_count}")
         while self.Active and self._next_frame(frame_number, buffer):
             frame_number = frame_number + 1
-    
+
     def _next_frame(self, frame_number, buffer: Queue):
         item = self._read_one(frame_number, self.fps)
 
@@ -123,7 +124,7 @@ class VideoCapReader:
 
         self.incr_items_read()
         return True
-    
+
     def _yield_frames(self, fps, loose_buffer=False):
         frame_number = 0
         while self.Active:
@@ -138,7 +139,7 @@ class VideoCapReader:
                 yield item
                 self.incr_items_read()
             frame_number = frame_number + 1
-    
+
     def _acquire(self, url: str):
         self.video_capture = cv2.VideoCapture(url)
         self.video_capture.set(cv2.CAP_PROP_BUFFERSIZE, 2)
@@ -155,7 +156,7 @@ class VideoCapReader:
 
     def __del__(self):
         self._release()
-    
+
     def _release(self):
         if self.video_capture is None:
             return
@@ -168,7 +169,7 @@ class ClipVideoCapReader(VideoCapReader):
         super(ClipVideoCapReader, self).__init__(streamer_name)
         self.clip_id = clip_id
         self.sample_every_count = 30
-    
+
     def _read_one(self, frame_number, fps, loose_buffer=False):
         ret, frame = self.video_capture.read()
         if not ret:
