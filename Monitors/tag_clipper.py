@@ -118,5 +118,5 @@ def trim(input_path, output_path, start=30, end=60, clip_length=30):
 
     hms = to_hms(start)
     s = to_hms(end)
-    cmd = f'ffmpeg -y -hide_banner -loglevel error -nostdin  -i {input_path} -ss {hms} -to {s} -async 1  {output_path}'
+    cmd = f'ffmpeg -threads 1 -y -hide_banner -loglevel error -nostdin  -i {input_path} -ss {hms} -to {s} -async 1  {output_path}'
     os.system(cmd)
