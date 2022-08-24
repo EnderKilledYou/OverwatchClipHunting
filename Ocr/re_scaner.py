@@ -78,8 +78,8 @@ class ReScanner(ThreadedManager):
             self._scan_clip(job_id, job.broadcaster, job.clip_id, path)
 
             update_scan_job_in_deepfacequeue(job.id)
-            # Timer(0, face_to_clip, (job.clip_id, path, job.id)).start()
-            update_scan_job_percent(job.id, 1, True)
+            Timer(0, face_to_clip, (job.clip_id, path, job.id)).start()
+            #update_scan_job_percent(job.id, 1, True)
             del clip
             del job
 
