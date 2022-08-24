@@ -128,7 +128,8 @@ class VideoCapReader:
         if self.count() > 50:
             try:
                 buffer.get(False)
-            finally:
+                self.incr_items_drained()
+            except:
                 pass
         buffer.put(item)
 
