@@ -1,4 +1,3 @@
-
 import re
 
 from flask import request, Response, Blueprint
@@ -6,6 +5,7 @@ from flask import request, Response, Blueprint
 from Database.MissingRecordError import MissingRecordError
 from Database.Twitch.twitch_clip_tag import TwitchClipTag, get_tag_and_bag_by_id
 from google_cloud_helpers.google_cloud_helper import get_blob_by_path
+from routes.route_cache import cache
 
 video = Blueprint('video', __name__)
 
@@ -32,6 +32,33 @@ def get_chunk(full_path, byte1=None, byte2=None):
         f.seek(start)
         chunk = f.read(length)
     return chunk, start, length, file_size
+
+
+@video.route('/clip/<clip_id>')
+def get_clip(clip_id: int):
+    id_url = f'clip{clip_id}url'
+    if cache.has(id_url):
+        url = cache.get(id_url)
+    else:
+        video_id = get_twitch_clip_video_id_by_id(clip_id)
+        url = get_clip_authenticated_url(video_id, "source")
+        cache.set(id_url, url, 1000)
+
+    range_header = request.headers.get('Range', None)
+    byte1, byte2 = 0, None
+    headers = {}
+    if range_header:
+        match = re.search(r'(\d+)-(\d*)', range_header)
+        groups = match.groups()
+
+        if groups[0]:
+            byte1 = int(groups[0])
+        if groups[1]:
+            byte2 = int(groups[1])
+        headers = {"Range": f"bytes={byte1}-{byte2}"}
+
+    with requests.get(url, headers=headers, stream=True) as r:
+        return r.content
 
 
 @video.route('/tag_video/<tag_id>')

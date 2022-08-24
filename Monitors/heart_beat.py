@@ -35,7 +35,6 @@ class HeartBeat:
 
         self._active_monitor_count = 0
 
-    
     def update_monitor_healths(self):
         return
         monitors = self.get_copy_active_monitors()
@@ -46,14 +45,12 @@ class HeartBeat:
             unclaim_monitor(monitor.broadcaster)
             self._remove_monitor_from_list(monitor.broadcaster)
 
-    
     def start(self):
         cloud_logger()
         self._active = True
         self._thread_timer = threading.Thread(target=self._heart_beat_thread, )
         self._thread_timer.start()
 
-    
     def stop_streamer(self, streamer_name):
         streamer_names = self.get_copy_active_monitors()
         for active_stream in streamer_names:
@@ -62,16 +59,15 @@ class HeartBeat:
                 unclaim_monitor(streamer_name)
                 break
 
-    
     def reassert_claim(self, monitors: List[Monitor]):
         cloud_logger()
         for monitor in monitors:
             stats = get_monitor_stats(monitor)
             if update_claim_on_monitor(monitor.broadcaster, stats):
                 continue
+            print(f"Releasing {monitor.broadcaster}")
             self._remove_monitor_from_list(monitor.broadcaster)
 
-    
     def stop(self):
         cloud_logger()
         self._active = False
@@ -79,14 +75,12 @@ class HeartBeat:
         for monitor in active_monitors:
             unclaim_monitor(monitor.broadcaster)
 
-    
     def _heart_beat_thread(self):
         cloud_logger()
         twitch_api = get_twitch_api()
         while self._one(twitch_api):
             pass
 
-    
     def _one(self, twitch_api):
         if not self._active:
             return False
@@ -99,7 +93,6 @@ class HeartBeat:
         sleep(10)
         return True
 
-    
     def _add_to_monitor_list(self, monitor: Monitor):
         monitor.start(TwitchEater(monitor.broadcaster))
         self._data_lock.acquire()
@@ -108,7 +101,6 @@ class HeartBeat:
         finally:
             self._data_lock.release()
 
-    
     def _remove_monitor_from_list(self, streamer_name: str):
         self._data_lock.acquire()
         try:
@@ -123,7 +115,6 @@ class HeartBeat:
         finally:
             self._data_lock.release()
 
-    
     def delete_monitor_index(self, index) -> List[Monitor]:
         self._data_lock.acquire(True)
         try:
@@ -132,7 +123,6 @@ class HeartBeat:
             self._data_lock.release()
             pass
 
-    
     def get_copy_active_monitors(self) -> List[Monitor]:
         self._data_lock.acquire(True)
         try:
@@ -141,7 +131,6 @@ class HeartBeat:
             self._data_lock.release()
             pass
 
-    
     def _heart_beat(self, twitch_api):
         cloud_logger()
         release_monitors()
@@ -161,7 +150,6 @@ class HeartBeat:
             self._add_to_monitor_list(monitor)
         self.update_monitor_healths()
 
-    
     def size(self):
         self._data_lock.acquire(True)
         try:
@@ -170,7 +158,6 @@ class HeartBeat:
             self._data_lock.release()
             pass
 
-    
     def _prod_monitors(self, streams):
         monitors = self.get_copy_active_monitors()
         for monitor in monitors:
