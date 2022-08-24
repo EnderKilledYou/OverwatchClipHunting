@@ -28,9 +28,12 @@ class OverwatchClipReader(ScreenReader):
 
     def __del__(self):
         super().__del__()
-        del self.frame_tester
-        del self.ActionTextCropper
-        del self.frame_watcher
+        if hasattr(self, 'frame_tester'):
+            del self.frame_tester
+        if hasattr(self, 'ActionTextCropper'):
+            del self.ActionTextCropper
+        if hasattr(self, 'frame_watcher'):
+            del self.frame_watcher
 
     def ocr(self, frame: Frame, api: PyTessBaseAPI) -> None:
         img_grey = cv.cvtColor(frame.image, cv.COLOR_RGB2GRAY)
