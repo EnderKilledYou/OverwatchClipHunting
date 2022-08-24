@@ -11,7 +11,7 @@ from queue import Empty, Queue
 from tesserocr import PyTessBaseAPI
 
 from Database.Twitch.twitch_clip_instance import update_twitch_clip_instance_filename, \
-    get_twitch_clip_video_id_by_id
+    get_twitch_clip_video_id_by_id, get_twitch_clip_instance_by_video_id
 from Database.Twitch.twitch_clip_instance_scan_job import TwitchClipInstanceScanJob, update_scan_job_error, \
     update_scan_job_percent, update_scan_job_started, update_scan_job_in_scanning, update_scan_job_in_deepfacequeue
 from Ocr.ocr_helpers import get_length, clip_tag_to_clip, face_to_clip
