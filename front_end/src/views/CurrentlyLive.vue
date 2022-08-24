@@ -25,9 +25,13 @@
         watcher.activated_by
       }} last seen :(  <span class="small text-muted">{{ watcher.activated_at }} )</span> </span>
 
-      <button class="btn btn-danger btn-block btn-outline-dark" @click="Avoid(watcher)">Avoid Watching</button>
+      <button v-if="HasRole('admin')" class="btn btn-danger btn-block btn-outline-dark" @click="Avoid(watcher)">Avoid
+        Watching
+      </button>
 
-      <button class="btn btn-success btn-block btn-outline-dark" @click="Requeue(watcher)">Requeue</button>
+      <button v-if="HasRole('admin')" class="btn btn-success btn-block btn-outline-dark" @click="Requeue(watcher)">
+        Requeue
+      </button>
 
     </div>
 
@@ -38,6 +42,9 @@ import Monitor, {API, StreamerMonitorState, TwitchLiveStreamData} from "@/api";
 
 import {Component, Emit, Prop, Vue, Watch} from "vue-facing-decorator";
 import prettyMilliseconds from 'pretty-ms';
+import {HasRole} from "@/views/has_role";
+
+
 
 @Component
 export default class CurrentlyLive extends Vue {
@@ -52,7 +59,9 @@ export default class CurrentlyLive extends Vue {
     await this.update_monitor()
 
   }
-
+  HasRole(role:string){
+    return HasRole(role)
+  }
   WatcherClaimed(watcher: Monitor) {
     return watcher.activated_by && watcher.activated_by.length > 0
   }
@@ -81,6 +90,7 @@ export default class CurrentlyLive extends Vue {
     return watcher.is_active
   }
 
+  @Prop Me?: any
   @Prop show_inactive?: boolean
 
   async Avoid(watcher: Monitor) {
@@ -99,12 +109,14 @@ export default class CurrentlyLive extends Vue {
 
   }
 
+
+
   @Watch('items') items_changed(streamerResponse: [Monitor[], TwitchLiveStreamData[]]) {
     this.update_from_props();
   }
 
   private update_from_props() {
-    debugger
+
     if (!this.items) return
     let item = this.items[0];
     if (item) {

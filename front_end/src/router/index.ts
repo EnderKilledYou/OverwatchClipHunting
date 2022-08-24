@@ -1,6 +1,7 @@
 import {createRouter, createWebHashHistory, createWebHistory, RouteRecordRaw} from 'vue-router'
 import HomeView from '../views/HomeView.vue'
 
+// @ts-ignore
 const routes: Array<RouteRecordRaw> = [
     {
         path: '/',

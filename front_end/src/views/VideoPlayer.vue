@@ -23,7 +23,7 @@ export default class VideoPlayer extends Vue {
 
   onVideoPlayer( player: any) {
     player.seek(this.tag_start)
-    debugger
+
   }
 
   OnPlay(player:any) {

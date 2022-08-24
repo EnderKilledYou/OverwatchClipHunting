@@ -24,7 +24,7 @@ def register_blueprints(app: Flask):
     from config.db_config import init_db
     from routes.twitch import twitch as twitch_blueprint
     from routes.monitor import monitor as monitor_blueprint
-
+    from routes.users import users as user_blueprint
     from routes.clips.clips import clips as clips_blueprint
     from routes.clips import search_twitch_clips, add_clip, add_clip_scan, all_clips, clips_search, delete_clips, \
         get_clip_scan_jobs, get_game_ids, list_twitch_clips, store_clip, tags_job
@@ -32,7 +32,7 @@ def register_blueprints(app: Flask):
     from routes.streamer import streamer as streamer_blueprint
 
     from routes.zombie import zombie_route as zombie_callback_blueprint
-
+    app.register_blueprint(user_blueprint)
     app.register_blueprint(zombie_callback_blueprint)
     app.register_blueprint(clips_blueprint)
     app.register_blueprint(streamer_blueprint)

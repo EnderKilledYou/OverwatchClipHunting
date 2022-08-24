@@ -1,6 +1,12 @@
+import sys
 
 
-from flask import session, redirect, request, url_for, jsonify, Blueprint
+from flask import session, redirect, request, url_for, jsonify, Blueprint, abort
+
+from Database.Twitch.dict_to_class import Dict2Class
+from cloud_logger import cloud_error_logger
+from config.config import admin_users
+from routes.route_cache import config
 
 twitch = Blueprint('twitch', __name__)
 
@@ -30,27 +36,20 @@ def authorized():
                 request.args['error'],
                 request.args['error_description']
             )
+        me: TwitchUser = get_current_user(resp)
+        if me.display_name not in admin_users:
+            abort(401)
         session['twitch_resp'] = resp
 
-        me: TwitchUser = get_current_user(TwitchResponse(resp))
         session['me'] = me
         twitch_response = get_twitch_user_by_twitch_id(me)
 
-        if twitch_response is None:
-            twitch_response = TwitchResponse(resp)
-
-            db.session.commit()
-            db.session.flush()
-            pass
+        if twitch_response is not None:
+            update_from_api(twitch_response.id, resp)
         else:
-            twitch_response.update_from(resp)
-            db.session.commit()
-            db.session.flush()
-        return 'Access Granted (you can paste these into config.py in config): <br />access_token=\'%s\' <br /> refresh_token=\'%s\'' % (
-            resp['access_token'],
-            resp['refresh_token']
-        )
-        return jsonify(resp)
+            twitch_response = create_from_api(resp,me.display_name)
+
+        return redirect("/")
     except BaseException as e:
         cloud_error_logger(e, file=sys.stderr)
         import traceback
@@ -58,9 +57,35 @@ def authorized():
         return jsonify({})
 
 
+def create_from_api(api_resp,twitch_user_id):
+    with db.session.begin():
+        twitch_response = TwitchResponse()
+        twitch_response.update_from(api_resp)
+        twitch_response.twitch_user_id = twitch_user_id
+        db.session.commit()
+        db.session.flush()
+        dict_class = Dict2Class(twitch_response.to_dict())
+    return dict_class
+
+
+def update_from_api(id, api_resp):
+    with db.session.begin():
+        twitch_response = TwitchResponse.query.filter_by(id=id).first()
+        twitch_response.update_from(api_resp)
+
+        db.session.commit()
+        db.session.flush()
+        dict_class = Dict2Class(twitch_response.to_dict())
+    return dict_class
+
+
 def get_twitch_user_by_twitch_id(me):
-    twitch_response = TwitchResponse.query.filter_by(twitch_user_id=me.twitch_user_id).first()
-    return twitch_response
+    with db.session.begin():
+        twitch_response = TwitchResponse.query.filter_by(twitch_user_id=me.display_name).first()
+        if twitch_response is None:
+            return None
+        dict_class = Dict2Class(twitch_response.to_dict())
+    return dict_class
 
 
 @twitch.route('/logout')

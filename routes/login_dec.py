@@ -1,11 +1,18 @@
 from functools import wraps
 from flask import abort, session, request
 
-import config.config
 
 from Database.Twitch.twitch_user import TwitchUser
+from config.config import admin_users
 
 
+def check_admin():
+    if 'me' not in session:
+        abort(401)
+
+    me = session['me']
+    if me['display_name'] not in admin_users:
+        abort(401)
 def requires_admin_user():
     def requires_admin_user_helper(f):
         @wraps(f)
@@ -14,7 +21,7 @@ def requires_admin_user():
                 abort(401)
 
             me: TwitchUser = session['me']
-            if me.display_name not in config.config.admin_user:
+            if me.display_name not in admin_users:
                 abort(401)
             return f(*args, **kws)
 

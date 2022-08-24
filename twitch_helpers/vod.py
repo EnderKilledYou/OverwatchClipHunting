@@ -1,18 +1,21 @@
+from typing import Dict
+
 from twitchAPI.twitch import Twitch
 
+from Database.Twitch.dict_to_class import Dict2Class
 from Database.Twitch.twitch_user import TwitchUser
 from config.config import consumer_secret, consumer_key
 from Database.Twitch.twitch_response import TwitchResponse
 from Database.Twitch.twitch_video import TwitchVideo
 
 
-def get_current_user(resp: TwitchResponse) -> TwitchUser:
+def get_current_user(resp: Dict[str,str]) -> TwitchUser:
     twitch = Twitch(app_id=consumer_key, app_secret=consumer_secret)
-    twitch.set_user_authentication(resp.access_token, [], resp.refresh_token)
+    twitch.set_user_authentication(resp['access_token'], [], ['resp.refresh_token'])
 
     users = twitch.get_users()
     user_dict = users['data'][0]
-    return TwitchUser(user_dict)
+    return Dict2Class(user_dict)
 
 
 def get_user_vods(resp: TwitchResponse, user_id):

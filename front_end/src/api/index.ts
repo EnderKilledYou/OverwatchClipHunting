@@ -39,7 +39,7 @@ export class TwitchLiveStreamData {
     thumbnail_url: string = ''
 
     constructor(part: Partial<TwitchLiveStreamData>) {
-        debugger;
+
         Object.assign(this, part)
 
     }
@@ -47,7 +47,7 @@ export class TwitchLiveStreamData {
 
 export default class Monitor {
     constructor(part: Partial<Monitor>) {
-        debugger
+
         Object.assign(this, part)
     }
 

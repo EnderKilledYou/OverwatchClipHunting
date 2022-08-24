@@ -2,13 +2,13 @@
 
   <div>
     <div class="col-md-12">
-      <div class="col-md-4">
+      <div class="col-md-4" v-if="HasRole('admin')">
         <label for="streamer_name"> Add Streamer
           <input class="text-info" id="streamer_name" type="text" v-model="streamerName">
           <button @click="Watch()" class="btn btn-block">Add</button>
         </label>
       </div>
-      <div class="row">
+      <div class="row" v-if="HasRole('admin')">
         <div class="btn-group-justified">
 
           <button @click="Twitch()" class="btn btn-block" v-show="twitch_streams.length ===0">Look at Twitch
@@ -34,14 +34,14 @@
 </template>
 
 <script lang="ts">
-import Monitor, {API, StreamerMonitorState, TwitchLiveStreamData} from "@/api";
+import Monitor, {API, TwitchLiveStreamData} from "@/api";
 import OnTwitchNow from "@/views/OnTwitchNow.vue";
 import CurrentlyLive from "@/views/CurrentlyLive.vue"; // @ is an alias to /src
+import {Component, Vue} from "vue-facing-decorator";
+import {HasRole} from "@/views/has_role";
 
 let interval: number | null | undefined = null
 
-
-import {Component, Prop, Vue} from "vue-facing-decorator";
 
 @Component({
   components: {
@@ -59,17 +59,22 @@ export default class HomeView extends Vue {
 
   private interval: number = 0;
   private twitch_streams: any[] = [];
+  private Me: any;
+  private logged_in: boolean = false
 
 
   async HideTwitch() {
     this.twitch_streams = []
     this.showTwitchers = false
   }
-
+  HasRole(role:string){
+    return HasRole(role)
+  }
   async Twitch() {
     this.twitch_streams = await API.get_live_streamers()
     this.showTwitchers = true
   }
+
 
   async AutoTwitch() {
     await API.start_farm_twitch()
@@ -103,10 +108,12 @@ export default class HomeView extends Vue {
 
   created() {
 
+
     this.list_items()
     if (interval)
       clearInterval(interval)
     interval = setInterval(this.list_items.bind(this), 35000)
+
   }
 
 
@@ -130,4 +137,5 @@ export default class HomeView extends Vue {
   }
 
 }
+
 </script>

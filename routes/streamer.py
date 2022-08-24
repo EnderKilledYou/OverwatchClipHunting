@@ -2,9 +2,12 @@ import json
 
 import json_fix
 from flask import Blueprint
+
+from Database.avoid_monitor import avoid_monitor
 from Database.monitor import remove_stream_to_monitor, add_stream_to_monitor, get_all_my_monitors, get_all_monitors, \
     get_all_monitors_dicts
 from cloud_logger import cloud_error_logger
+from routes.login_dec import check_admin
 from routes.route_cache import cache
 from start_up_flask import alli
 from twitch_helpers.get_monitored_streams import get_monitored_streams, get_monitored_streams_dicts
@@ -18,6 +21,7 @@ sharp = api_generator
 
 @sharp.function()
 def add(stream_name: str):
+    check_admin()
     if add_stream_to_monitor(stream_name):
         cache.delete('my_monitors')
         cache.delete('get_monitored_streams')
@@ -57,6 +61,6 @@ def list_obj_to_list_dicts(my_monitors):
 
 @sharp.function()
 def remove(stream_name: str):
-    avoid_monitor(stream_namel)
-
+    check_admin()
+    avoid_monitor(stream_name)
     return {"success": True, 'items': []}

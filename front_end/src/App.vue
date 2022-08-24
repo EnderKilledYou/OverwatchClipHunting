@@ -1,7 +1,11 @@
 <template>
   <nav class="navbar navbar-expand-lg navbar-light bg-light">
 
-    <a class="navbar-brand" href="#/">Clip Hunta</a>
+    <a class="navbar-brand" href="#/">Clip Hunta
+      <img v-if="isLoggedIn()" :src="profileImage" width="30" height="30" class="d-inline-block align-top"
+           alt="">
+      {{ displayName() }}
+    </a>
     <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav"
             aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
       <span class="navbar-toggler-icon"></span>
@@ -25,7 +29,12 @@
         <li class="nav-item">
           <router-link class="nav-link" to="/ListClipsMade/">clips</router-link>
         </li>
-
+        <li class="nav-item" v-if="!isLoggedIn()">
+          <a class="nav-link" href="/login" >login</a>
+        </li>
+        <li class="nav-item" v-else>
+          <a class="nav-link" href="/logout"  >logout</a>
+        </li>
       </ul>
     </div>
   </nav>
@@ -34,3 +43,38 @@
     <router-view/>
   </div>
 </template>
+<script lang="ts">
+
+import {Component, Vue} from "vue-facing-decorator";
+import {DisplayName, HasRole, IsLoggedIn, ProfileImage} from "@/views/has_role";
+
+
+@Component({
+  components: {},
+})
+export default class AppView extends Vue {
+  profileImage() {
+    return ProfileImage()
+  }
+  Login(){
+    //@ts-ignore
+    window.location = '/login'
+  }
+    Logout(){
+    //@ts-ignore
+    window.location = '/login'
+  }
+  isLoggedIn() {
+    return IsLoggedIn()
+  }
+
+  hasRole(role: string) {
+    return HasRole(role)
+  }
+
+  displayName() {
+        debugger
+    return DisplayName()
+  }
+}
+</script>

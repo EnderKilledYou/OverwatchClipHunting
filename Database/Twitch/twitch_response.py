@@ -22,7 +22,10 @@ class TwitchResponse(db.Model, SerializerMixin, EncryptedFields):
     refresh_token = db.Column(db.String(900))
     token_type = db.Column(db.String(900))
 
-    
+
+
+
+
     def update_from(self, resp) -> None:
         self.access_token = self.encrypt(resp['access_token'])
         self.expires_in = resp['expires_in']
