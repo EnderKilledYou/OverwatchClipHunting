@@ -57,7 +57,13 @@ class VideoCapReader:
             pass
 
     def _read_one(self, frame_number, fps, loose_buffer=False):
-        ret, frame = self.video_capture.read()
+        grabbed = self.video_capture.grab()
+        if not grabbed:
+            sleep(.5)
+            return None
+
+
+        ret, frame = self.video_capture.retrieve()
         if not ret:
             raise StreamEndedError("Could not read frame")
 
