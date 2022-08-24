@@ -10,6 +10,8 @@ from Ocr.overwatch_readers.tesseract_instance import TesseractInstance
 class ScreenRegion:
     def __del__(self):
         pass
+    def __del__(self):
+        pass
     def crop(self, img):
         """crops this specific screen region."""
         pass

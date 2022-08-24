@@ -1,5 +1,3 @@
-
-
 import cv2 as cv
 from PIL import Image
 from tesserocr import PyTessBaseAPI
@@ -22,10 +20,14 @@ class OverwatchClipReader(ScreenReader):
         self.ActionTextCropper = OverwatchActionScreenRegion()
         self.frame_watcher = OrderedFrameAggregator(overwatch_clips_event)
 
-    
+    def __del__(self):
+        super().__del__()
+        del self.frame_tester
+        del self.ActionTextCropper
+        del self.frame_watcher
+
     def ocr(self, frame: Frame, api: PyTessBaseAPI) -> None:
         img_grey = cv.cvtColor(frame.image, cv.COLOR_RGB2GRAY)
         pil_grey = Image.fromarray(img_grey)
         self.ActionTextCropper.process(pil_grey, frame, self.frame_watcher,
-                                       self.frame_tester,api)
-
+                                       self.frame_tester, api)

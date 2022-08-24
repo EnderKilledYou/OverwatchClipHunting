@@ -49,12 +49,12 @@ class ReScanner(ThreadedManager):
         super(ReScanner, self).__init__(1)
         self._reader = None
         self._frame_count = 0
-        self.matcher = OverwatchClipReader()
 
     def _do_work(self, job_id: int):
         cloud_logger()
         wait_for_tesseract()
         job = None
+
         try:
 
             job: TwitchClipInstanceScanJob = update_scan_job_started(job_id)
@@ -102,10 +102,11 @@ class ReScanner(ThreadedManager):
     def match_frame(self, itr, api):
 
         try:
-            frame = next(itr)
-            if frame is not None:
-                with frame as frame__:
-                    self.matcher.ocr(frame__, api)
+            with OverwatchClipReader() as matcher:
+                frame = next(itr)
+                if frame is not None:
+                    with frame as frame__:
+                        matcher.ocr(frame__, api)
         except StopIteration as st:
             return False
         except BaseException as b:
