@@ -36,18 +36,18 @@ def authorized():
                 request.args['error'],
                 request.args['error_description']
             )
-        me: TwitchUser = get_current_user(resp)
-        if me.display_name not in admin_users:
+        me = get_current_user(resp)
+        if me["display_name"] not in admin_users:
             abort(401)
         session['twitch_resp'] = resp
 
         session['me'] = me
-        twitch_response = get_twitch_user_by_twitch_id(me)
+        twitch_response = get_twitch_user_by_twitch_display_name(me["display_name"])
 
         if twitch_response is not None:
             update_from_api(twitch_response.id, resp)
         else:
-            twitch_response = create_from_api(resp,me.display_name)
+            twitch_response = create_from_api(resp,me["display_name"])
 
         return redirect("/")
     except BaseException as e:
@@ -79,9 +79,9 @@ def update_from_api(id, api_resp):
     return dict_class
 
 
-def get_twitch_user_by_twitch_id(me):
+def get_twitch_user_by_twitch_display_name(display_name):
     with db.session.begin():
-        twitch_response = TwitchResponse.query.filter_by(twitch_user_id=me.display_name).first()
+        twitch_response = TwitchResponse.query.filter_by(twitch_user_id=display_name).first()
         if twitch_response is None:
             return None
         dict_class = Dict2Class(twitch_response.to_dict())

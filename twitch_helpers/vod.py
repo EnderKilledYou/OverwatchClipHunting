@@ -15,7 +15,7 @@ def get_current_user(resp: Dict[str,str]) -> TwitchUser:
 
     users = twitch.get_users()
     user_dict = users['data'][0]
-    return Dict2Class(user_dict)
+    return user_dict
 
 
 def get_user_vods(resp: TwitchResponse, user_id):
