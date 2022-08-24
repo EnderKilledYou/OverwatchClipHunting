@@ -92,7 +92,7 @@ class VideoCapReader:
                 fps = 60
             self.fps = fps
             self.sample_every_count = fps // sample_frame_rate
-            return self._yield_frames(fps, True)
+            return self._yield_frames(fps)
         except StreamEndedError:
             try:
                 self._release()
