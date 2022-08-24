@@ -112,8 +112,6 @@ class Monitor(db.Model, SerializerMixin):
             self.ocr = ocr
             ocr.buffer_broadcast()
 
-
-
     def dump(self):
         cloud_logger()
         tmp = self.ocr.buffer
@@ -128,7 +126,6 @@ class Monitor(db.Model, SerializerMixin):
         cloud_logger()
         if hasattr(self, 'ocr') and self.ocr is not None:
             self.ocr.stop()
-
 
     def wait_for_stop(self, timeout=None):
         cloud_logger()
@@ -145,8 +142,19 @@ def add_stream_to_monitor(broadcaster: str):
             monitor2.is_active = True
             db.session.add(monitor2)
             return True
-
+        else:
+            un_avoid_monitor(lower)
         return False
+
+
+def un_avoid_monitor(stream_name):
+    cloud_logger()
+    with db.session.begin():
+        monitor = Monitor.query.filter_by(broadcaster=stream_name).first()
+        if not monitor:
+            return
+        monitor.activated_by = ""
+        monitor.avoid = False
 
 
 def get_all_monitors_dicts() -> List[Dict[str, any]]:
