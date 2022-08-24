@@ -29,6 +29,7 @@ class VideoCapReader:
     def __del__(self):
         self._count_lock = None
         if hasattr(self, 'video_capture') and self.video_capture is not None:
+            self._release()
             del self.video_capture
 
     def count(self):
@@ -154,8 +155,7 @@ class VideoCapReader:
     def __exit__(self, exc_type, exc_val, exc_tb):
         self._release()
 
-    def __del__(self):
-        self._release()
+
 
     def _release(self):
         if self.video_capture is None:
