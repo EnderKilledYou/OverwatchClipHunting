@@ -58,7 +58,7 @@ export default class CurrentlyLive extends Vue {
   }
 
   Requeue(monitor: Monitor) {
-    API.remove(monitor.broadcaster)
+    API.add(monitor.broadcaster)
   }
 
   GetLiveStream(monitor: Monitor) {

@@ -57,6 +57,6 @@ def list_obj_to_list_dicts(my_monitors):
 
 @sharp.function()
 def remove(stream_name: str):
-    alli.stop_streamer(stream_name)
+    avoid_monitor(stream_namel)
 
     return {"success": True, 'items': []}

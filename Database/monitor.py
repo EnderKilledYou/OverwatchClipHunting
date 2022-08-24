@@ -154,6 +154,7 @@ def un_avoid_monitor(stream_name):
         if not monitor:
             return
         monitor.activated_by = ""
+        monitor.is_active = True
         monitor.avoid = False
 
 
