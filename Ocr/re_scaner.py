@@ -60,7 +60,7 @@ class ReScanner(ThreadedManager):
             job: TwitchClipInstanceScanJob = update_scan_job_started(job_id)
             if job is None:
                 return
-            clip = get_twitch_clip_video_id_by_id(job.clip_id)
+            clip = get_twitch_clip_instance_by_video_id(get_twitch_clip_video_id_by_id(job.clip_id))
 
             path = tmp_path + os.sep + next(tempfile._get_candidate_names()) + '.mp4'
             url = self._get_url(job)
