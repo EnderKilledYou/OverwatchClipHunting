@@ -5,6 +5,7 @@ import tempfile
 import traceback
 from os.path import abspath
 from queue import Empty, Queue
+from time import sleep
 
 from tesserocr import PyTessBaseAPI
 from twitchdl.twitch import GQLError
@@ -14,7 +15,7 @@ from Database.Twitch.twitch_clip_instance import update_twitch_clip_instance_fil
 from Database.Twitch.delete_twitch_clip import delete_clip
 from Database.Twitch.twitch_clip_instance_scan_job import TwitchClipInstanceScanJob, update_scan_job_error, \
     update_scan_job_percent, update_scan_job_started, update_scan_job_in_scanning, update_scan_job_in_deepfacequeue
-from Ocr.ocr_helpers import get_length,  face_to_clip
+from Ocr.ocr_helpers import get_length, face_to_clip
 
 from Ocr.twitch_dl_args import Args
 
@@ -133,7 +134,8 @@ class ReScanner(ThreadedManager):
                             self._frame_count += 1
                             frame_number = frame_number + 1
                             self._update_percentage_in_row(frame_number, job_id, size)
-
+                            if frame_number % 10 == 0:
+                                sleep(1)
             except BaseException as b:
                 traceback.print_exc()
                 pass
