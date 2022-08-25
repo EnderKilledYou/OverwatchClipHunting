@@ -68,7 +68,7 @@ export default class AppView extends Vue {
   }
 
   get isLoggedIn() {
-    return IsLoggedIn()
+    return HasRole('')
   }
 
   hasRole(role: string) {

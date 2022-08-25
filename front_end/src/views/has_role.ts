@@ -17,18 +17,22 @@ export function HasRole(role_name: string) {
     if (Me === null) {
         return false
     }
-    debugger
+
     for (const role of Me.roles) {
         if (role_name === role)
             return true
     }
+    if (role_name.trim().length === 0)
+        return true // no role checks login
 
     return false
 }
+
 export function IsLoggedIn() {
-    return Me == null
+    return Me !== null
 
 }
+
 export function DisplayName() {
 
     if (Me === null) return ""
