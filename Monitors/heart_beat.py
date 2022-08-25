@@ -27,7 +27,7 @@ class HeartBeat:
 
     def __init__(self, max_active_monitors=os.cpu_count()):
         self._data_lock = threading.Lock()
-        self.max_active_monitors = max_active_monitors
+        self.max_active_monitors = max_active_monitors + 2
         self._thread_timer = None
         self._claim_timer = None
         self._active = False
@@ -143,16 +143,19 @@ class HeartBeat:
         streams: List[LiveTwitchInstance] = get_monitored_streams(twitch_api)
         self._prod_monitors(streams)
 
-        active_monitors = list(map(lambda x: x.broadcaster, self.get_copy_active_monitors()))
+        monitors = self.get_copy_active_monitors()
+        active_monitors = list(map(lambda x: x.broadcaster, monitors))
         already_claimed = list(map(lambda x: x.broadcaster, get_all_my_monitors()))
 
         not_monitored = list(filter(lambda stream: stream.user_login not in active_monitors, streams))
         not_monitored2 = list(filter(lambda stream: stream.user_login not in already_claimed, not_monitored))
 
-        claim = claim_one_monitor(not_monitored2, self.size())
-        if claim is not None:
-            monitor, game = claim
-            self._add_to_monitor_list(monitor)
+        active_count = len(monitors)
+        if active_count < self.max_active_monitors:
+            claim = claim_one_monitor(not_monitored2, self.size())
+            if claim is not None:
+                monitor, game = claim
+                self._add_to_monitor_list(monitor)
         self.update_monitor_healths()
 
     def size(self):
