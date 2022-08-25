@@ -149,9 +149,9 @@ class HeartBeat:
         already_claimed = list(map(lambda x: x.broadcaster, get_all_my_monitors()))
 
         not_monitored = list(filter(lambda stream: stream.user_login not in active_monitors, streams))
-        not_monitored = list(filter(lambda stream: stream.user_login not in already_claimed, not_monitored))
+        not_monitored2 = list(filter(lambda stream: stream.user_login not in already_claimed, not_monitored))
 
-        claim = claim_one_monitor(not_monitored, self.size())
+        claim = claim_one_monitor(not_monitored2, self.size())
         if claim is not None:
             monitor, game = claim
             self._add_to_monitor_list(monitor)
