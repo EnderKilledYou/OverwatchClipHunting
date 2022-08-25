@@ -26,6 +26,7 @@ class VideoCapReader:
         self.fps = 1
         self.video_capture = None
         self.error_count = 0
+        self.clip_id = -1
 
     def __del__(self):
         print(f"VideoCapReader Del")
@@ -66,7 +67,7 @@ class VideoCapReader:
             raise StreamEndedError("Could not read frame")
 
         if frame_number % self.sample_every_count == 0:
-            return Frame(frame_number, frame, frame_number // fps, self.streamer_name)
+            return Frame(frame_number, frame, frame_number // fps, self.streamer_name, self.clip_id)
         del frame
         return None
 
