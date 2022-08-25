@@ -1,4 +1,5 @@
 import os
+from queue import Empty
 
 from time import sleep
 
@@ -31,13 +32,14 @@ class ScreenReader:
         self.Active = False
 
     def __del__(self):
+        self.Active = False
         pass
 
     def consume_twitch_broadcast(self):
-        while self.framebuffer.active:
+        while self.Active:
             with PyTessBaseAPI(path=tess_fast_dir, psm=PSM.SINGLE_COLUMN) as api:
                 try:
-                    while self.Active and self.next_frame(api):
+                    while self.next_frame(api):
                         pass
                 except BaseException as b:
                     cloud_error_logger(b)
@@ -55,7 +57,11 @@ class ScreenReader:
     def wait_next_frame(self):
         try:
             if self.framebuffer.reader.count() == 0:
+                print(f"Couldn't consume one for {self.framebuffer.broadcaster}")
                 return None
             return self.framebuffer.get_one()
-        except:
+        except Empty:
+            pass
+        except BaseException as b:
+            print(f"Couldn't consume one for {self.framebuffer.broadcaster} : {str(b)}")
             return None
