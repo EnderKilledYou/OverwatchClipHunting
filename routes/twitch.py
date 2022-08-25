@@ -61,7 +61,7 @@ def create_from_api(api_resp, twitch_user_id):
         twitch_response = TwitchResponse()
         twitch_response.update_from(api_resp)
         twitch_response.twitch_user_id = twitch_user_id
-
+        db.session.add(twitch_response)
 
         dict_class = Dict2Class(twitch_response.to_dict())
     return dict_class
@@ -72,8 +72,7 @@ def update_from_api(id, api_resp):
         twitch_response = TwitchResponse.query.filter_by(id=id).first()
         twitch_response.update_from(api_resp)
 
-        db.session.commit()
-        db.session.flush()
+
         dict_class = Dict2Class(twitch_response.to_dict())
     return dict_class
 
