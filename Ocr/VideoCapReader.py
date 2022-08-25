@@ -25,6 +25,7 @@ class VideoCapReader:
         self.items_drained = 0
         self.fps = 1
         self.video_capture = None
+        self.error_count = 0
 
     def __del__(self):
         self._count_lock = None
@@ -61,6 +62,10 @@ class VideoCapReader:
         if not grabbed:
             print(f"grab failed {self.streamer_name}")
             sleep(2)
+            self.error_count = self.error_count +1
+            if self.error_count > 10:
+                raise StreamEndedError("Could not read frame")
+
             return None
 
         ret, frame = self.video_capture.retrieve()
