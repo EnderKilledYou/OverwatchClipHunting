@@ -40,22 +40,7 @@ class ThreadedManager:
     def _do_work(self, item):
         pass
 
-    def _repeat(self):
-        if not self._active:
-            return
-        try:
-            job = self.buffer.get(False)
-            thread = threading.Thread(target=self._do_work, args=[job])
-            thread.start()
-            thread.join()
-        except Empty:
-            if self._exit_on_empty:
-                return
-        except BaseException as b:
-            cloud_error_logger(b, file=sys.stderr)
-        finally:
-            _thread = threading.Timer(2, self._start)
-            _thread.start()
+
 
     def _start(self):
         while self._active and self._do_one():
