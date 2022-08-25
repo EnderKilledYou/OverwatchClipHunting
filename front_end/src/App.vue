@@ -2,7 +2,7 @@
   <nav class="navbar navbar-expand-lg navbar-light bg-light">
 
     <router-link class="navbar-brand" to="/">
-      <img v-if="isLoggedIn" :src="profileImage()" width="30" height="30" class="d-inline-block align-top"
+      <img v-if="hasRole('admin')" :src="profileImage()" width="30" height="30" class="d-inline-block align-top"
            alt="">
       {{ displayName }}
     </router-link>
@@ -29,7 +29,7 @@
         <li class="nav-item">
           <router-link class="nav-link" to="/ListClipsMade/">clips</router-link>
         </li>
-        <li class="nav-item" v-if="!isLoggedIn">
+        <li class="nav-item" v-if="!hasRole('admin')">
           <a class="nav-link" href="/login">login</a>
         </li>
         <li class="nav-item" v-else>
@@ -67,9 +67,7 @@ export default class AppView extends Vue {
     window.location = '/login'
   }
 
-  get isLoggedIn() {
-    return HasRole('')
-  }
+
 
   hasRole(role: string) {
     return HasRole(role)
