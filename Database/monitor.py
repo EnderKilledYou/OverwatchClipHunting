@@ -1,5 +1,6 @@
 import datetime
 import json
+import os.path
 
 import threading
 from queue import Queue
@@ -18,7 +19,13 @@ from cloud_logger import cloud_logger, cloud_message
 
 from config.db_config import db
 
-self_id = generate_token()
+if not os.path.exists('id.txt'):
+    self_id = generate_token()
+    with open('id.txt', 'w') as id_file:
+        id_file.write(self_id)
+else:
+    with open('id.txt', 'r') as id_file:
+        self_id = id_file.read().strip()
 
 
 class Monitor(db.Model, SerializerMixin):

@@ -93,7 +93,7 @@ class TwitchEater(VideoFrameBuffer):
             pass
         print(f"stopping - destroying reader - {self.broadcaster}")
         if hasattr(self, 'reader') and self.reader is not None:
-            print(f"stopping - started reader - {self.broadcaster}")
+            print(f"stopping - reader - {self.broadcaster}")
             self.reader.stop()
             print(f"stopping - destroyed reader - {self.broadcaster}")
         if hasattr(self, 'matcher') and self.matcher is not None:
