@@ -17,7 +17,7 @@ class VideoFrameBuffer:
 
     def __del__(self):
         print(f"VideoFrameBuffer Del")
-        while True:
+        while self.buffer.qsize() > 0:
             try:
                 buffer_get = self.buffer.get(False)
                 del buffer_get
