@@ -125,7 +125,7 @@ class VideoCapReader:
 
         if item is None:
             return True
-        if self.count() > 50:
+        if self.count() > 150:
             try:
                 buffer.get(False)
                 self.incr_items_drained()
@@ -136,7 +136,7 @@ class VideoCapReader:
                 pass
         if self.count() == 0:
             print("Sleeping off empty buffer")
-            sleep(1)  # let the video cap have some time to buffer
+            sleep(2)  # let the video cap have some time to buffer
         buffer.put(item)
 
         self.incr_items_read()
