@@ -162,7 +162,9 @@ class VideoCapReader:
         return self
 
     def __exit__(self, exc_type, exc_val, exc_tb):
-        self._release()
+        self.stop()
+
+
 
     def _release(self):
         if self.video_capture is None:
@@ -176,4 +178,3 @@ class ClipVideoCapReader(VideoCapReader):
         super(ClipVideoCapReader, self).__init__(streamer_name)
         self.clip_id = clip_id
         self.sample_every_count = 30
-

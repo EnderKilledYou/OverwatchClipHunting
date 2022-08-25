@@ -10,7 +10,7 @@ class VideoFrameBuffer:
         return self
 
     def __exit__(self, exc_type, exc_val, exc_tb):
-        self.__del__()
+        self.stop()
 
     def get_one(self):
         return self.buffer.get(False)
@@ -31,7 +31,6 @@ class VideoFrameBuffer:
         self.Capturing = False
         self.buffer = Queue()
         self._active = True
-
 
     def buffer_broadcast(self):
         pass
