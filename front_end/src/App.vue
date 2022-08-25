@@ -46,7 +46,7 @@
 <script lang="ts">
 
 import {Component, Vue} from "vue-facing-decorator";
-import {DisplayName, HasRole, IsLoggedIn, ProfileImage} from "@/views/has_role";
+import {DisplayName, HasRole, IsLoggedIn, ProfileImage, UpdateMe} from "@/views/has_role";
 
 
 @Component({
@@ -55,6 +55,10 @@ import {DisplayName, HasRole, IsLoggedIn, ProfileImage} from "@/views/has_role";
 export default class AppView extends Vue {
   profileImage() {
     return ProfileImage()
+  }
+
+  created() {
+    UpdateMe()
   }
 
   Login() {
@@ -66,7 +70,6 @@ export default class AppView extends Vue {
     //@ts-ignore
     window.location = '/login'
   }
-
 
 
   hasRole(role: string) {

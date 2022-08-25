@@ -48,4 +48,3 @@ export function get_me() {
     return Me
 }
 
-UpdateMe()
