@@ -127,7 +127,6 @@ class VideoCapReader:
             return True
         item = self._read_one(frame_number, self.fps)
         if item is None:
-            print("Nothing in buffer")
             return True
 
         if frame_number > 0 and frame_number % 10 == 0 and self.count() == 0:
