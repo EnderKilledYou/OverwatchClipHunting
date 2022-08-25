@@ -130,7 +130,7 @@ class VideoCapReader:
             print("Nothing in buffer")
             return True
 
-        if frame_number > 0 and frame_number % 2 == 0 and self.count() == 0:
+        if frame_number > 0 and frame_number % 10 == 0 and self.count() == 0:
             print("Sleeping off empty buffer")
             sleep(2)  # let the video cap have some time to buffer
         buffer.put(item)
