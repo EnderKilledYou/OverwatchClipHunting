@@ -139,7 +139,9 @@ class ReScanner(ThreadedManager):
             except BaseException as b:
                 traceback.print_exc()
                 pass
-
+            finally:
+                reader.stop()
+                del reader
         update_scan_job_percent(job_id, 1)
 
     def _update_percentage_in_row(self, frame_number, job_id, size):

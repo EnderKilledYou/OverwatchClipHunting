@@ -32,6 +32,7 @@ class VideoCapReader:
         print(f"VideoCapReader Del")
         self._count_lock = None
         if hasattr(self, 'video_capture') and self.video_capture is not None:
+            print("releasing video capture")
             self._release()
             del self.video_capture
 
