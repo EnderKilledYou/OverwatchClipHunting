@@ -122,7 +122,7 @@ class VideoCapReader:
         if self.count() > 100:
             print(f"transfer full, waiting {self.streamer_name}")
             sleep(3)
-            return True
+
         item = self._read_one(frame_number, self.fps)
         if item is None:
             return True
