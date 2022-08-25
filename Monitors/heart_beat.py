@@ -106,15 +106,13 @@ class HeartBeat:
         self._data_lock.acquire()
         try:
             i = 0
+
             for monitor in self._active_monitors:
                 if monitor.broadcaster != streamer_name:
+                    i = i + 1
                     continue
-                monitor.stop()
-                tmp = self._active_monitors.pop(i)
-                del monitor
-                i = i + 1
-                return
-
+            tmp = self._active_monitors.pop(i)
+            monitor.stop()
 
         except BaseException as e:
             cloud_error_logger(e)

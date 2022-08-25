@@ -39,7 +39,7 @@ class TwitchEater(VideoFrameBuffer):
 
     def get_stats(self):
         if self.reader is None:
-            return [0] * 8
+            return [1] * 8
 
         qsize = self.reader.count()
         frames_pending = qsize * self.reader.sample_every_count
@@ -93,6 +93,7 @@ class TwitchEater(VideoFrameBuffer):
             self.reader.stop()
         if hasattr(self, 'matcher') and self.matcher is not None:
             self.matcher.stop()
+        self._active = False
 
     def __enter__(self):
         return self
