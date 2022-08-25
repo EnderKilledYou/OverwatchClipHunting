@@ -5,5 +5,5 @@ from config.db_config import db
 
 def delete_clip(clip_id):
     with db.session.begin():
-        TwitchClipInstance.query.filter(TwitchClipInstance.id == id).delete()
+        TwitchClipInstance.query.filter(TwitchClipInstance.id == clip_id).delete()
         TwitchClipInstanceScanJob.query.filter(TwitchClipInstanceScanJob.clip_id == clip_id).delete()
