@@ -1,4 +1,5 @@
 import {API} from "@/api";
+import store from "@/store";
 
 let Me: any = null;
 
@@ -6,6 +7,8 @@ export async function UpdateMe() {
     try {
         console.log("updating..")
         Me = await API.get_me()
+        debugger
+        store.commit('UpdateMe',Me)
         console.log(Me)
     } catch (e) {
         console.log('update failed ')
@@ -14,6 +17,7 @@ export async function UpdateMe() {
     } finally {
 
     }
+    return Me
 }
 
 export function HasRole(role_name: string) {
@@ -40,15 +44,16 @@ export function IsLoggedIn() {
 export function DisplayName() {
 
     if (Me === null) return ""
-    return Me.display_name
+    return Me.me.display_name
 }
 
 export function ProfileImage() {
-
-    return Me.profile_image_url
+    if (Me === null) return ""
+    return Me.me.profile_image_url
 }
 
 export function get_me() {
     return Me
 }
 
+UpdateMe()

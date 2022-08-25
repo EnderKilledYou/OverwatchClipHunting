@@ -4,7 +4,7 @@
     <router-link class="navbar-brand" to="/">
       <img v-if="hasRole('admin')" :src="profileImage()" width="30" height="30" class="d-inline-block align-top"
            alt="">
-      {{ displayName }}
+      <span v-else>Clip Hunta</span>
     </router-link>
     <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav"
             aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
@@ -47,6 +47,7 @@
 
 import {Component, Vue} from "vue-facing-decorator";
 import {DisplayName, HasRole, IsLoggedIn, ProfileImage, UpdateMe} from "@/views/has_role";
+import store from "@/store";
 
 
 @Component({
@@ -54,12 +55,11 @@ import {DisplayName, HasRole, IsLoggedIn, ProfileImage, UpdateMe} from "@/views/
 })
 export default class AppView extends Vue {
   profileImage() {
-    return ProfileImage()
+    return store.state.profile_image
   }
 
-  created() {
-    UpdateMe()
-  }
+  Me = {}
+
 
   Login() {
     //@ts-ignore
@@ -73,12 +73,12 @@ export default class AppView extends Vue {
 
 
   hasRole(role: string) {
-    return HasRole(role)
+    return store.state.roles.find(a => a === role) !== null
   }
 
   get displayName() {
-
-    return DisplayName()
+    console.log(store.state.display_name)
+    return store.state.display_name
   }
 }
 </script>

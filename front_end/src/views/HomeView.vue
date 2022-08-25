@@ -38,7 +38,7 @@ import Monitor, {API, TwitchLiveStreamData} from "@/api";
 import OnTwitchNow from "@/views/OnTwitchNow.vue";
 import CurrentlyLive from "@/views/CurrentlyLive.vue"; // @ is an alias to /src
 import {Component, Vue} from "vue-facing-decorator";
-import {HasRole, UpdateMe} from "@/views/has_role";
+import store from "@/store";
 
 let interval: number | null | undefined = null
 
@@ -68,8 +68,8 @@ export default class HomeView extends Vue {
     this.showTwitchers = false
   }
 
-  HasRole(role: string) {
-    return HasRole(role)
+   hasRole(role: string) {
+    return store.state.roles.find(a => a === role) !== null
   }
 
   async Twitch() {
@@ -109,7 +109,7 @@ export default class HomeView extends Vue {
   }
 
   created() {
-    UpdateMe()
+
 
     this.list_items()
     if (interval)
