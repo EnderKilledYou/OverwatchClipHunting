@@ -3,7 +3,7 @@ import sys
 
 from twitchAPI import Twitch, AuthScope
 
-from Database.Twitch.twitch_response import TwitchResponse, get_response_by_twitch_id
+from Database.Twitch.twitch_response import TwitchResponse, get_response_by_twitch_id, get_resp_from_db
 from cloud_logger import cloud_error_logger
 from config.config import consumer_key, consumer_secret, access_token, refresh_token
 
@@ -18,7 +18,12 @@ class InvalidTwitchUserError:
 def get_twitch_api(user: str=None):
     twitch = Twitch(app_id=consumer_key, app_secret=consumer_secret)
     twitch.auto_refresh_auth = True
-    twitch.set_user_authentication(access_token, [AuthScope.CLIPS_EDIT], refresh_token,validate=False)
+    row = get_resp_from_db()
+    if row is None:
+        twitch.set_user_authentication(access_token, [AuthScope.CLIPS_EDIT], refresh_token,validate=False)
+    else:
+        twitch.set_user_authentication(row[0], [AuthScope.CLIPS_EDIT], row[1], validate=False)
+
     twitch.refresh_used_token()
     return twitch
     resp = get_response_by_twitch_id(user)
@@ -33,6 +38,7 @@ def get_twitch_api_with_resp(resp: TwitchResponse):
 
         twitch = Twitch(app_id=consumer_key, app_secret=consumer_secret)
         twitch.auto_refresh_auth = True
+
         twitch.set_user_authentication(resp.access_token, [AuthScope.CLIPS_EDIT], resp.refresh_token, validate=False)
         twitch.refresh_used_token()
 

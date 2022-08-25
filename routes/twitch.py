@@ -1,6 +1,5 @@
 import sys
 
-
 from flask import session, redirect, request, url_for, jsonify, Blueprint, abort
 
 from Database.Twitch.dict_to_class import Dict2Class
@@ -47,7 +46,7 @@ def authorized():
         if twitch_response is not None:
             update_from_api(twitch_response.id, resp)
         else:
-            twitch_response = create_from_api(resp,me["display_name"])
+            twitch_response = create_from_api(resp, me["display_name"])
 
         return redirect("/")
     except BaseException as e:
@@ -57,7 +56,7 @@ def authorized():
         return jsonify({})
 
 
-def create_from_api(api_resp,twitch_user_id):
+def create_from_api(api_resp, twitch_user_id):
     with db.session.begin():
         twitch_response = TwitchResponse()
         twitch_response.update_from(api_resp)

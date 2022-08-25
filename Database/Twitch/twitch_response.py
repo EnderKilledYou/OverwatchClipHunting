@@ -1,4 +1,3 @@
-
 from sqlalchemy_serializer import SerializerMixin
 from twitchAPI import Twitch, AuthScope
 
@@ -22,26 +21,28 @@ class TwitchResponse(db.Model, SerializerMixin, EncryptedFields):
     refresh_token = db.Column(db.String(900))
     token_type = db.Column(db.String(900))
 
-
-
-
-
     def update_from(self, resp) -> None:
         self.access_token = self.encrypt(resp['access_token'])
         self.expires_in = resp['expires_in']
         self.refresh_token = self.encrypt(resp['refresh_token'])
         self.token_type = resp['token_type']
 
-    
     def get_token(self):
         return self.decrypt(self.access_token)
-    
+
     def get_refreshtoken(self):
         return self.decrypt(self.refresh_token)
 
 
 twitch_response_helper = BasicWithId(TwitchResponse)
 
+
+def get_resp_from_db():
+    with db.session.begin():
+        row = TwitchResponse.query.filter(TwitchResponse.twitch_user_id == "bestboyfriend4").first()
+        if row is not None:
+            return row.access_token, row.refresh_token
+    return None
 
 
 def get_response_by_twitch_id(twitch_user_id) -> TwitchResponse:
