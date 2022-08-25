@@ -152,7 +152,7 @@ class VideoCapReader:
 
     def _acquire(self, url: str):
         self.video_capture = cv2.VideoCapture(url, apiPreference=cv2.CAP_IMAGES)
-        self.video_capture.set(cv2.CAP_PROP_BUFFERSIZE, 2)
+        self.video_capture.set(cv2.CAP_PROP_BUFFERSIZE, 200)
         if not self.video_capture:
             raise NoStreamError("Capture could not open stream")
         if not self.video_capture.isOpened():
