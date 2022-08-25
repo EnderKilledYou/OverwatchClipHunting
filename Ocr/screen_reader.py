@@ -32,7 +32,7 @@ class ScreenReader:
         self.Active = False
 
     def __del__(self):
-        print(f"{__qualname__} Del")
+        print(f"ScreenReader Del")
         self.Active = False
         pass
 

@@ -15,5 +15,5 @@ class TesseractInstance:
         return self._api.GetUTF8Text()
 
     def __del__(self):
-        print(f"{__qualname__} Del")
+        print(f"TesseractInstance Del")
         self._api.End()

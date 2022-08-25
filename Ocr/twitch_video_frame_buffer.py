@@ -111,7 +111,7 @@ class TwitchEater(VideoFrameBuffer):
         pass
 
     def __del__(self):
-        print(f"{__qualname__} Del")
+        print(f"TwitchEater Del")
         super().__del__()
         if hasattr(self, 'reader') and self.reader is not None:
             del self.reader

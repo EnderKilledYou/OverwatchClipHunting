@@ -48,7 +48,7 @@ class FrameAggregator:
     """
 
     def __del__(self):
-        print(f"{__qualname__} Del")
+        print(f"FrameAggregator Del")
         if hasattr(self, 'emitter'):
             del self.emitter
             del self.healing_frame_watcher

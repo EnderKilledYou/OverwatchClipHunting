@@ -28,7 +28,7 @@ class VideoCapReader:
         self.error_count = 0
 
     def __del__(self):
-        print(f"{__qualname__} Del")
+        print(f"VideoCapReader Del")
         self._count_lock = None
         if hasattr(self, 'video_capture') and self.video_capture is not None:
             self._release()
