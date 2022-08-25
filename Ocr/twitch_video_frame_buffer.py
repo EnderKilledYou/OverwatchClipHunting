@@ -99,14 +99,14 @@ class TwitchEater(VideoFrameBuffer):
     def capture_url_or_file(self, url):
         self.reader = VideoCapReader(self.broadcaster)
         try:
-            print("Capture thread starting")
+            print(f"Capture thread starting {self.broadcaster}")
             self.reader.read(url, self.buffer)
-            print("Capture thread releasing")
+            print(f"Capture thread releasing {self.broadcaster}")
         except StreamEndedError:
-            print("Stream ended or buffer problem")
+            print(f"Stream ended or buffer problem {self.broadcaster}")
             return
         except NoStreamError:
-            print("Stream was not live")
+            print(f"Stream was not live {self.broadcaster}")
             return
         except BaseException as e:
             cloud_error_logger(e, file=sys.stderr)
@@ -115,4 +115,4 @@ class TwitchEater(VideoFrameBuffer):
         finally:
             self.reader.stop()
 
-        print("Capture thread stopping")
+        print("Capture thread stopping {self.broadcaster}")
