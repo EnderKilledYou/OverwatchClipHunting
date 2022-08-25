@@ -35,7 +35,7 @@ def list_streamers():
            my_monitors = cache.get('my_monitors')
         else:
             my_monitors = get_all_monitors_dicts()
-            cache.set('my_monitors', my_monitors,120)
+            cache.set('my_monitors', my_monitors,30)
 
         if len(my_monitors) == 0:
             return {"success": True, 'items': []}
@@ -45,7 +45,7 @@ def list_streamers():
         else:
             twitch_api = get_twitch_api()
             streams = get_monitored_streams_dicts(twitch_api)
-            cache.set('get_monitored_streams', streams,120)
+            cache.set('get_monitored_streams', streams,30)
 
 
         return {"success": True, 'items': [my_monitors, streams]}
