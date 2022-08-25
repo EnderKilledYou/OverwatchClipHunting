@@ -57,6 +57,7 @@ class ScreenReader:
     def wait_next_frame(self):
         try:
             if self.framebuffer.reader.count() == 0:
+                sleep(1)
                 print(f"Couldn't consume one for {self.framebuffer.broadcaster}")
                 return None
             return self.framebuffer.get_one()
