@@ -31,12 +31,6 @@ class VideoFrameBuffer:
         self.buffer = Queue()
         self._active = True
 
-    def get_stats(self):
-        qsize = self.count()
-        frames_pending = qsize * self.sample_every_count
-        frames_finished = self.items_drained * self.sample_every_count
-        back_fill_seconds = frames_pending // self.fps
-        return qsize, frames_finished, frames_finished, back_fill_seconds, self.fps, self.sample_every_count, self.items_read
 
     def buffer_broadcast(self):
         pass

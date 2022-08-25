@@ -101,13 +101,14 @@ class Monitor(db.Model, SerializerMixin):
 
     def start(self):
         ocr = HeartBeatThread()
-        self.get_stats = ocr.get_stats
         ocr.start(self.broadcaster)
+        self.get_stats = ocr.get_stats
+        self._stop = ocr.stop
 
     def stop(self):
         cloud_logger()
-        if hasattr(self, 'ocr') and self.ocr is not None:
-            self.ocr.stop()
+        if self._stop is not None:
+            self._stop()
 
     def wait_for_stop(self, timeout=None):
         cloud_logger()
@@ -131,8 +132,13 @@ def add_stream_to_monitor(broadcaster: str):
 
 class HeartBeatThread:
     def __init__(self):
-        self.get_stats = None
+        self._get_stats = None
         self.stop = None
+
+    def get_stats(self):
+        if self._get_stats is not None:
+            return self._get_stats()
+        return None
 
     def stop(self):
         if self.stop is not None:
@@ -149,9 +155,9 @@ class HeartBeatThread:
     def do_broadcast(self, broadcaster):
         with TwitchEater(broadcaster) as ocr:
             self.stop = ocr.stop
-            self.get_stats = ocr.get_stats
+            self._get_stats = ocr.get_stats
             ocr.buffer_broadcast()
-            self.get_stats = None
+            self._get_stats = None
             self.stop = None
 
 
