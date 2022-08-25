@@ -217,7 +217,7 @@ def update_claim_on_monitor(stream_name, fields: Dict[str, any] = {}) -> Monitor
         for field_name in fields:
             setattr(monitor, field_name, fields[field_name])
 
-    db.session.flush()
+
     return True
 
 

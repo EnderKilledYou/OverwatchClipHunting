@@ -15,10 +15,10 @@ class StreamLinkHelper:
         try:
             streams = StreamLinkHelper.sl_session.streams('https://www.twitch.tv/{0}'.format(broadcaster))
         except NoPluginError as npe:
-            print("no support for that stream")
+            print(f"no support for that stream {broadcaster}")
             return None
         except PluginError as pe:
-            print("Probably twitch timed out")
+            print(f"Probably twitch timed out {broadcaster} {str(pe)}")
             return None
         except BaseException as e:
             traceback.print_exc()
