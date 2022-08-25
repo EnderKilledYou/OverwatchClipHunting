@@ -49,8 +49,6 @@ class TwitchEater(VideoFrameBuffer):
         return qsize, frames_finished, frames_finished, back_fill_seconds, self.reader.fps, self.reader.sample_every_count, self.reader.items_read, self.stream_res
 
     def get_one(self):
-        if self.reader.count() == 0:
-            return None
         item = self.buffer.get(False)
         self.reader.incr_items_drained()
         return item
