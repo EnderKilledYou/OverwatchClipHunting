@@ -1,5 +1,6 @@
 from flask import Blueprint
 
+from cloud_logger import cloud_error_logger
 from routes.login_dec import check_admin
 from routes.route_cache import cache
 
@@ -15,7 +16,10 @@ sharp = api_generator
 @sharp.function()
 def avoid_user(stream_name: str):
     check_admin()
-    avoid_monitor(stream_name)
+    try:
+        avoid_monitor(stream_name)
+    except BaseException as a:
+        cloud_error_logger(a)
     return {"success": True, }
 
 
@@ -30,4 +34,4 @@ def get_live_streamers():
     if 'data' in streams:
         cache.set(get_live_streamers, streams['data'])
         return streams['data']
-    return {"error":"Could not get twitch"}
+    return {"error": "Could not get twitch"}
