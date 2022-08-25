@@ -59,7 +59,8 @@ class VideoCapReader:
     def _read_one(self, frame_number, fps):
         grabbed = self.video_capture.grab()
         if not grabbed:
-            sleep(.5)
+            print(f"grab failed {self.streamer_name}")
+            sleep(2)
             return None
 
         ret, frame = self.video_capture.retrieve()
@@ -122,7 +123,7 @@ class VideoCapReader:
 
     def _next_frame(self, frame_number, buffer: Queue):
         if self.count() > 150:
-            print("transfer full, waiting")
+            print(f"transfer full, waiting {self.streamer_name}")
             sleep(2)
             return True
         item = self._read_one(frame_number, self.fps)
@@ -130,7 +131,7 @@ class VideoCapReader:
             return True
 
         if frame_number > 0 and frame_number % 10 == 0 and self.count() == 0:
-            print("Sleeping off empty buffer")
+            print(f"Sleeping off empty buffer {self.streamer_name}")
             sleep(2)  # let the video cap have some time to buffer
         buffer.put(item)
 

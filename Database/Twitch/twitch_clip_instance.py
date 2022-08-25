@@ -1,10 +1,10 @@
-
 from typing import Tuple
 
 from dateutil.parser import isoparse
 from sqlalchemy_serializer import SerializerMixin
 
 from Database.Twitch.dict_to_class import Dict2Class
+from Database.Twitch.twitch_clip_instance_scan_job import TwitchClipInstanceScanJob
 from OrmHelpers.BasicWithId import BasicWithId
 from config.db_config import db
 
@@ -13,7 +13,7 @@ class TwitchClipInstance(db.Model, SerializerMixin):
     serialize_rules = ()
     serialize_only = (
         'id', 'video_id', 'video_url', 'created_at', 'thumbnail_url',
-        'title', 'broadcaster_name', 'type', 'vod_offset', 'duration','file_path')
+        'title', 'broadcaster_name', 'type', 'vod_offset', 'duration', 'file_path')
     id = db.Column(db.Integer, primary_key=True)
     video_id = db.Column(db.String(90), unique=True)
     video_url = db.Column(db.String(900), unique=True)
@@ -59,8 +59,6 @@ def add_twitch_clip_instance_from_api(api_data, clip_type: str) -> Tuple[int, st
         db.session.flush()
         ret = log.id, log.broadcaster_name
 
-
-
     return ret
 
 
@@ -80,9 +78,10 @@ def get_twitch_clip_instance_by_id(id: int) -> TwitchClipInstance:
         if first is None:
             return None
         class_dict = Dict2Class(first.to_dict())
-    #db.session.expunge(first)
+    # db.session.expunge(first)
 
     return class_dict
+
 
 def get_twitch_clip_video_id_by_id(id: int) -> TwitchClipInstance:
     video_id = None
@@ -93,6 +92,7 @@ def get_twitch_clip_video_id_by_id(id: int) -> TwitchClipInstance:
 
     return video_id
 
+
 def get_twitch_clip_instance_by_video_id(video_id) -> TwitchClipInstance:
     with db.session.begin():
         first = TwitchClipInstance.query.filter_by(video_id=video_id).first()
@@ -100,6 +100,18 @@ def get_twitch_clip_instance_by_video_id(video_id) -> TwitchClipInstance:
             return None
         dict_class = Dict2Class(first.to_dict())
     return dict_class
+
+
+def delete_clip(clip_id):
+    video_id = None
+    with db.session.begin():
+        first = TwitchClipInstance.query.filter_by(id=id).first()
+        if first is None:
+            return
+        db.session.delete(first)
+        scan_job = TwitchClipInstanceScanJob.query.filter_by(clip_id=id).first()
+        if scan_job is not None:
+            db.session.delete(scan_job)
 
 
 def delete_twitch_clip_instance(instance: TwitchClipInstance):
