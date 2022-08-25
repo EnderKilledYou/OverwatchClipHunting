@@ -39,17 +39,7 @@ class TwitchEater(VideoFrameBuffer):
 
     def get_stats(self):
         if self.reader is None:
-            return {
-
-                'frames_read': 0,
-                'frames_done': 0,
-                'frames_read_seconds': 0,
-                'back_fill_seconds': 0,
-                'fps': 0,
-                'queue_size': 0,
-                'stream_resolution': '',
-
-            }
+            return None * 8
 
         qsize = self.reader.count()
         frames_pending = qsize * self.reader.sample_every_count
