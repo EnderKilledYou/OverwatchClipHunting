@@ -121,19 +121,13 @@ class VideoCapReader:
             frame_number = frame_number + 1
 
     def _next_frame(self, frame_number, buffer: Queue):
+        if self.count() > 150:
+            sleep(2)
+            return True
         item = self._read_one(frame_number, self.fps)
-
         if item is None:
             return True
-        if self.count() > 150:
-            try:
-                buffer.get(False)
-                self.incr_items_drained()
-                print("draining off empty buffer")
-            except BaseException as b:
-                print("draining of buffer failed oddly:")
-                print(b)
-                pass
+
         if frame_number > 0 and frame_number % 2 == 0 and self.count() == 0:
             print("Sleeping off empty buffer")
             sleep(2)  # let the video cap have some time to buffer
