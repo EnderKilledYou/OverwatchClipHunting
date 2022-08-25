@@ -133,7 +133,7 @@ def add_stream_to_monitor(broadcaster: str):
 class HeartBeatThread:
     def __init__(self):
         self._get_stats = None
-        self.stop = None
+        self._stop = None
 
     def get_stats(self):
         if self._get_stats is not None:
@@ -141,8 +141,8 @@ class HeartBeatThread:
         return None
 
     def stop(self):
-        if self.stop is not None:
-            self.stop()
+        if self._stop is not None:
+            self._stop()
 
     def start(self, broadcaster):
         cloud_logger()
@@ -154,11 +154,11 @@ class HeartBeatThread:
 
     def do_broadcast(self, broadcaster):
         with TwitchEater(broadcaster) as ocr:
-            self.stop = ocr.stop
+            self._stop = ocr.stop
             self._get_stats = ocr.get_stats
             ocr.buffer_broadcast()
             self._get_stats = None
-            self.stop = None
+            self._stop = None
 
 
 def un_avoid_monitor(stream_name):
