@@ -115,12 +115,13 @@ class HeartBeat:
         self.unclaim_streamer(monitor.broadcaster)
 
     def _add_to_monitor_list(self, monitor: Monitor):
-        monitor.start()
+
         self._data_lock.acquire()
         try:
             self._active_monitors.append(monitor)
         finally:
             self._data_lock.release()
+        self._start_monitor(monitor)
 
     def _remove_monitor_from_list(self, streamer_name: str):
         self._data_lock.acquire()
