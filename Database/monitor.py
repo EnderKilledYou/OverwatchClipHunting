@@ -168,6 +168,7 @@ class HeartBeatThread:
             ocr.buffer_broadcast()
             self._get_stats = None
             self._stop = None
+            print(f"Exiting do broadcast for {broadcaster}")
 
 
 def un_avoid_monitor(stream_name):

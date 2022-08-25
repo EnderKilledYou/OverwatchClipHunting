@@ -22,7 +22,8 @@ class VideoFrameBuffer:
                 buffer_get = self.buffer.get(False)
                 del buffer_get
             except:
-                pass
+                return
+
         del self.buffer
         self.buffer = None
 
