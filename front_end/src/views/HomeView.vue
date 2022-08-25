@@ -2,13 +2,13 @@
 
   <div>
     <div class="col-md-12">
-      <div class="col-md-4" v-if="HasRole('admin')">
+      <div class="col-md-4" v-if="hasRole('admin')">
         <label for="streamer_name"> Add Streamer
           <input class="text-info" id="streamer_name" type="text" v-model="streamerName">
           <button @click="Watch()" class="btn btn-block">Add</button>
         </label>
       </div>
-      <div class="row" v-if="HasRole('admin')">
+      <div class="row" v-if="hasRole('admin')">
         <div class="btn-group-justified">
 
           <button @click="Twitch()" class="btn btn-block" v-show="twitch_streams.length ===0">Look at Twitch
