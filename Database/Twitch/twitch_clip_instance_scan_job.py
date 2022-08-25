@@ -1,5 +1,7 @@
 from datetime import datetime
 from enum import IntEnum
+
+from Database.Twitch.twitch_clip_instance import TwitchClipInstance
 from config.db_config import db
 from sqlalchemy_serializer import SerializerMixin
 
