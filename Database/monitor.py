@@ -111,6 +111,8 @@ class Monitor(db.Model, SerializerMixin):
         with TwitchEater(self.broadcaster) as ocr:
             self.ocr = ocr
             ocr.buffer_broadcast()
+            del ocr
+            self.ocr = None
 
     def dump(self):
         cloud_logger()

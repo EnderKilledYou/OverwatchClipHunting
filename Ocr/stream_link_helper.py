@@ -1,7 +1,6 @@
-
 import traceback
 
-from streamlink import NoPluginError, Streamlink
+from streamlink import NoPluginError, Streamlink, PluginError
 from streamlink.plugins.twitch import TwitchHLSStream
 from typing import Dict, Tuple
 
@@ -12,12 +11,14 @@ class StreamLinkHelper:
     sl_session = Streamlink()
 
     @staticmethod
-    
     def get_best_stream(broadcaster: str) -> TwitchHLSStream:
         try:
             streams = StreamLinkHelper.sl_session.streams('https://www.twitch.tv/{0}'.format(broadcaster))
         except NoPluginError as npe:
             print("no support for that stream")
+            return None
+        except PluginError as pe:
+            print("Probably twitch timed out")
             return None
         except BaseException as e:
             traceback.print_exc()
@@ -28,7 +29,6 @@ class StreamLinkHelper:
         return StreamLinkHelper._parse_best_stream(streams)
 
     @staticmethod
-    
     def _parse_best_stream(streams: Dict[str, TwitchHLSStream]) -> Tuple[TwitchHLSStream, str]:
         cloud_logger()
         ocr_stream = streams['best']
