@@ -26,7 +26,7 @@ export function HasRole(role_name: string) {
     return false
 }
 export function IsLoggedIn() {
-    return Me !== null
+    return Me == null
 
 }
 export function DisplayName() {
