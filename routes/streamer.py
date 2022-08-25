@@ -50,6 +50,7 @@ def list_streamers():
 
         return {"success": True, 'items': [my_monitors, streams]}
     except BaseException as b:
+        print(b)
         cloud_error_logger(b)
         return {"error": str(b)}
 
