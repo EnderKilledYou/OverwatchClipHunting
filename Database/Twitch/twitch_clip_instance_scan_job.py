@@ -1,11 +1,11 @@
 from datetime import datetime
 from enum import IntEnum
-
+from config.db_config import db
 from sqlalchemy_serializer import SerializerMixin
 
 from Database.Twitch.dict_to_class import Dict2Class
 from Database.Twitch.twitch_clip_tag import TwitchClipTag
-from config.db_config import db
+
 
 
 class TwitchClipJobState(IntEnum):
@@ -34,7 +34,7 @@ class TwitchClipInstanceScanJob(db.Model, SerializerMixin):
     error = db.Column(db.String(900), default='')
 
 
-from Database.Twitch.twitch_clip_instance import get_twitch_clip_instance_by_id, TwitchClipInstance
+
 
 from OrmHelpers.BasicWithId import BasicWithId
 

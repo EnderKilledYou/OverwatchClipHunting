@@ -4,14 +4,12 @@ from routes.login_dec import check_admin
 from routes.route_cache import cache
 
 monitor = Blueprint('monitor', __name__)
-from Monitors.tag_clipper import TagClipper
 
 from twitch_helpers.twitch_helpers import get_twitch_api
 from Database.avoid_monitor import avoid_monitor
 from app import api_generator
 
 sharp = api_generator
-tag_clipper = TagClipper()
 
 
 @sharp.function()

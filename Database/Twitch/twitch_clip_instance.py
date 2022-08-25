@@ -4,7 +4,6 @@ from dateutil.parser import isoparse
 from sqlalchemy_serializer import SerializerMixin
 
 from Database.Twitch.dict_to_class import Dict2Class
-from Database.Twitch.twitch_clip_instance_scan_job import TwitchClipInstanceScanJob
 from OrmHelpers.BasicWithId import BasicWithId
 from config.db_config import db
 
@@ -100,18 +99,6 @@ def get_twitch_clip_instance_by_video_id(video_id) -> TwitchClipInstance:
             return None
         dict_class = Dict2Class(first.to_dict())
     return dict_class
-
-
-def delete_clip(clip_id):
-    video_id = None
-    with db.session.begin():
-        first = TwitchClipInstance.query.filter_by(id=id).first()
-        if first is None:
-            return
-        db.session.delete(first)
-        scan_job = TwitchClipInstanceScanJob.query.filter_by(clip_id=id).first()
-        if scan_job is not None:
-            db.session.delete(scan_job)
 
 
 def delete_twitch_clip_instance(instance: TwitchClipInstance):
