@@ -4,12 +4,6 @@ from config.db_config import db
 
 
 def delete_clip(clip_id):
-
     with db.session.begin():
-        first = TwitchClipInstance.query.filter_by(id=id).first()
-        if first is None:
-            return
-        db.session.delete(first)
-        scan_job = TwitchClipInstanceScanJob.query.filter_by(clip_id=id).first()
-        if scan_job is not None:
-            db.session.delete(scan_job)
+        TwitchClipInstance.query.filter(TwitchClipInstance.id == id).delete()
+        TwitchClipInstanceScanJob.query.filter(TwitchClipInstanceScanJob.clip_id == clip_id).delete()
