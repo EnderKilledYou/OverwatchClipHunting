@@ -374,8 +374,10 @@ default = {
 
 def get_monitor_stats(monitor: Monitor) -> Dict[str, str]:
     if hasattr(monitor, 'get_stats') and monitor.get_stats is not None:
-        qsize, frames_finished, frames_finished, back_fill_seconds, fps, sample_every_count, items_read, stream_res = monitor.get_stats()
-
+        item = monitor.get_stats()
+        if item is None or len(item) != 8:
+            return default
+        qsize, frames_finished, frames_finished, back_fill_seconds, fps, sample_every_count, items_read, stream_res = item
         return {
             'frames_read': items_read * sample_every_count,
             'frames_done': frames_finished,
