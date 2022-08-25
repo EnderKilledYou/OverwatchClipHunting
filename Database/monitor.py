@@ -12,6 +12,7 @@ from sqlalchemy.orm import validates
 from sqlalchemy_serializer import SerializerMixin
 
 from Database.Twitch.dict_to_class import Dict2Class
+from Database.unclaim_monitor import unclaim_monitor
 from Ocr.twitch_video_frame_buffer import TwitchEater
 
 from Ocr.video_frame_buffer import VideoFrameBuffer
@@ -169,6 +170,7 @@ class HeartBeatThread:
             self._get_stats = None
             self._stop = None
             print(f"Exiting do broadcast for {broadcaster}")
+        unclaim_monitor(broadcaster)
 
 
 def un_avoid_monitor(stream_name):
