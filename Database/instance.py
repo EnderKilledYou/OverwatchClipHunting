@@ -34,7 +34,7 @@ def VoteForLeader(vote_id):
     vote = VoteTable(vote_id=vote_id, voter=self_id)
     db.session.add(vote)
     db.session.commit()
-    db.session.flush()
+
     votes = list(VoteTable.query.filter_by(vote_id=vote_id).filter(VoteTable.id < vote.id))
     if len(votes) > 0:
         print("Someone voted before me")

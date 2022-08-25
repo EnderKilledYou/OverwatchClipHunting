@@ -97,32 +97,12 @@ class Monitor(db.Model, SerializerMixin):
     def __init__(self, broadcaster: str, web_dict={}):
         self.broadcaster = broadcaster
         self.web_dict = web_dict
-        self.ocr = None
+        self.get_stats = None
 
     def start(self):
-        cloud_logger()
-        has_started = hasattr(self, 'ocr')
-        if has_started:
-            return
-        self.producer_thread = threading.Thread(target=self.do_broadcast, args=[])
-        self.producer_thread.start()
-
-    def do_broadcast(self):
-        with TwitchEater(self.broadcaster) as ocr:
-            self.ocr = ocr
-            ocr.buffer_broadcast()
-            del ocr
-            self.ocr = None
-
-    def dump(self):
-        cloud_logger()
-        tmp = self.ocr.buffer
-        self.ocr.buffer = Queue()
-        while not tmp.empty():
-            try:
-                tmp.get(False)
-            finally:
-                return
+        ocr = HeartBeatThread()
+        self.get_stats = ocr.get_stats
+        ocr.start(self.broadcaster)
 
     def stop(self):
         cloud_logger()
@@ -147,6 +127,30 @@ def add_stream_to_monitor(broadcaster: str):
 
     un_avoid_monitor(lower)
     return True
+
+
+class HeartBeatThread:
+    def __init__(self):
+        self.get_stats = None
+        self.stop = None
+
+    def stop(self):
+        if self.stop is not None:
+            self.stop()
+
+    def start(self, broadcaster):
+        cloud_logger()
+        has_started = hasattr(self, 'ocr')
+        if has_started:
+            return
+        producer_thread = threading.Thread(target=self.do_broadcast, args=[broadcaster])
+        producer_thread.start()
+
+    def do_broadcast(self, broadcaster):
+        with TwitchEater(broadcaster) as ocr:
+            self.stop = ocr.stop
+            self.get_stats = ocr.get_stats
+            ocr.buffer_broadcast()
 
 
 def un_avoid_monitor(stream_name):
@@ -217,7 +221,6 @@ def update_claim_on_monitor(stream_name, fields: Dict[str, any] = {}) -> Monitor
         for field_name in fields:
             setattr(monitor, field_name, fields[field_name])
 
-
     return True
 
 
@@ -238,7 +241,6 @@ def reset_for_claim(stream_name):
         monitor.fps = 0
         monitor.queue_size = 0
         monitor.stream_resolution = ''
-    db.session.flush()
 
 
 def release_monitors() -> bool:
@@ -251,8 +253,7 @@ def release_monitors() -> bool:
             Monitor.activated_by: '',
             Monitor.is_active: False
         }
-        return query.update(update_values
-                            )
+        return query.update(update_values)
 
 
 def claim_monitor(stream_name) -> bool:
@@ -339,8 +340,6 @@ def cancel_stream_to_monitor(stream_name):
             return
         monitor.cancel_request = True
 
-    db.session.flush()
-
 
 def remove_stream_to_monitor(stream_name):
     with db.session.begin():
@@ -348,7 +347,6 @@ def remove_stream_to_monitor(stream_name):
         if not monitor:
             return
         monitor.is_active = False
-    db.session.flush()
 
 
 default = {
@@ -365,21 +363,17 @@ default = {
 
 
 def get_monitor_stats(monitor: Monitor) -> Dict[str, str]:
-    if monitor.ocr is None or monitor.ocr.reader is None:
-        return default
-    reader = monitor.ocr.reader
-    qsize = reader.count()
-    frames_pending = qsize * reader.sample_every_count
-    frames_finished = reader.items_drained * reader.sample_every_count
-    back_fill_seconds = frames_pending // reader.fps
+    if hasattr(monitor, 'get_stats') and monitor.get_stats is not None:
+        qsize, frames_finished, frames_finished, back_fill_seconds, fps, sample_every_count, items_read = monitor.get_stats()
 
-    return {
-        'frames_read': reader.items_read * reader.sample_every_count,
-        'frames_done': frames_finished,
-        'frames_read_seconds': frames_finished // reader.fps,
-        'back_fill_seconds': back_fill_seconds,
-        'fps': reader.fps,
-        'queue_size': qsize,
-        'stream_resolution': monitor.ocr.stream_res,
+        return {
+            'frames_read': items_read * sample_every_count,
+            'frames_done': frames_finished,
+            'frames_read_seconds': frames_finished // fps,
+            'back_fill_seconds': back_fill_seconds,
+            'fps': fps,
+            'queue_size': qsize,
+            'stream_resolution': monitor.ocr.stream_res,
 
-    }
+        }
+    return default

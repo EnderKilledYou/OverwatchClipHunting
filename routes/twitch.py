@@ -63,7 +63,7 @@ def create_from_api(api_resp,twitch_user_id):
         twitch_response.update_from(api_resp)
         twitch_response.twitch_user_id = twitch_user_id
         db.session.commit()
-        db.session.flush()
+
         dict_class = Dict2Class(twitch_response.to_dict())
     return dict_class
 

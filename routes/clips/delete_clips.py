@@ -8,10 +8,6 @@ from routes.clips.clips import sharp
 def deleteclips(clip_id: str):
     cloud_logger()
     with db.session.begin():
-        clip = TwitchClipInstance.query.filter_by(id=int(clip_id)).first()
-        if clip:
-            db.session.delete(clip)
-
-    db.session.flush()
+        TwitchClipInstance.query.filter_by(id=int(clip_id)).delete()
 
     return {"success": True}

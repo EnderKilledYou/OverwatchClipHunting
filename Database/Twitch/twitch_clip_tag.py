@@ -50,7 +50,7 @@ def add_twitch_clip_tag_request(clip_id: int, tag: str, tag_amount: int, tag_dur
                                                clip_start=tag_start,
                                                clip_end=tag_start + tag_duration)
         db.session.add(request)
-    db.session.flush()
+
 
     report_zombie_tag(request, clip)
     return request, clip

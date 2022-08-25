@@ -45,7 +45,7 @@ def fix_vod_and_duration(api_data):
         clip.vod_offset = api_data['vod_offset']
         clip.duration = api_data['duration']
 
-    db.session.flush()
+
 
 
 def add_twitch_clip_instance_from_api(api_data, clip_type: str) -> Tuple[int, str]:
@@ -68,7 +68,7 @@ def update_twitch_clip_instance_filename(twitch_clip_id: int, file_path):
             return
         item.file_path = file_path
 
-    db.session.flush()
+
 
 
 def get_twitch_clip_instance_by_id(id: int) -> TwitchClipInstance:
@@ -104,4 +104,4 @@ def get_twitch_clip_instance_by_video_id(video_id) -> TwitchClipInstance:
 def delete_twitch_clip_instance(instance: TwitchClipInstance):
     with db.session.begin():
         db.session.delete(instance)
-    db.session.flush()
+

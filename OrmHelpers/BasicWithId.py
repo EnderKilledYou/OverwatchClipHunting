@@ -15,7 +15,7 @@ class UpdateProxy:
             raise MissingRecordError("No such record " + self._id + " of " + str(self._class_type))
         setattr(record, key, value)
         db.session.commit()
-        db.session.flush()
+
 
 
 class BasicWithId:

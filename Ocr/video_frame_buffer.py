@@ -8,8 +8,10 @@ class VideoFrameBuffer:
 
     def __enter__(self):
         return self
+
     def __exit__(self, exc_type, exc_val, exc_tb):
         self.__del__()
+
     def get_one(self):
         return self.buffer.get(False)
 
@@ -28,6 +30,13 @@ class VideoFrameBuffer:
         self.Capturing = False
         self.buffer = Queue()
         self._active = True
+
+    def get_stats(self):
+        qsize = self.count()
+        frames_pending = qsize * self.sample_every_count
+        frames_finished = self.items_drained * self.sample_every_count
+        back_fill_seconds = frames_pending // self.fps
+        return qsize, frames_finished, frames_finished, back_fill_seconds, self.fps, self.sample_every_count, self.items_read
 
     def buffer_broadcast(self):
         pass

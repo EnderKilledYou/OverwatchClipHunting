@@ -105,7 +105,7 @@ def update_scan_job_error(scan_job_id: int, error_str: str):
         item.state = 3
         item.error = error_str
         item.completed_at = datetime.now()
-    db.session.flush()
+
 
 
 def update_scan_job_percent(scan_job_id: int, percent: float, is_complete: bool = False):
@@ -120,7 +120,7 @@ def update_scan_job_percent(scan_job_id: int, percent: float, is_complete: bool 
             item.state = TwitchClipJobState.Complete
             item.completed_at = datetime.now()
 
-    db.session.flush()
+
 
 
 def update_scan_job_in_scanning(scan_job_id: int):
@@ -129,7 +129,7 @@ def update_scan_job_in_scanning(scan_job_id: int):
         if item is None:
             return
         item.state = TwitchClipJobState.Scanning
-    db.session.flush()
+
 
 
 def update_scan_job_in_subclip(scan_job_id: int):
@@ -138,7 +138,7 @@ def update_scan_job_in_subclip(scan_job_id: int):
         if item is None:
             return
         item.state = TwitchClipJobState.Yielding
-    db.session.flush()
+
 
 
 def update_scan_job_in_deepface(scan_job_id: int):
@@ -148,7 +148,7 @@ def update_scan_job_in_deepface(scan_job_id: int):
             return
         item.state = TwitchClipJobState.DeepFacing
         item.percent = 0
-    db.session.flush()
+
 
 
 def update_scan_job_in_deepfacequeue(scan_job_id: int):
@@ -158,7 +158,7 @@ def update_scan_job_in_deepfacequeue(scan_job_id: int):
             return
         item.state = TwitchClipJobState.DeepFacingQueue
         item.percent = 0
-    db.session.flush()
+
 
 
 def update_scan_job_started(scan_job_id: int):
@@ -169,6 +169,6 @@ def update_scan_job_started(scan_job_id: int):
         item.state = 1
         item.percent = 0
         dict_class = Dict2Class(item.to_dict())
-    db.session.flush()
+
 
     return dict_class

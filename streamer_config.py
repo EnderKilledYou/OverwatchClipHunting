@@ -51,11 +51,11 @@ def update_config(config: StreamerConfig, **kwargs):
     with db.session.begin():
         for key in kwargs:
             setattr(config, key, kwargs[key])
-    db.session.flush()
+
 
 
 def add_config(**kwargs):
     config = StreamerConfig(kwargs)
 
-    db.session.flush()
+
     return config

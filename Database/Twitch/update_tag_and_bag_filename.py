@@ -16,5 +16,5 @@ def update_tag_and_bag_filename(id: int, filename_str) -> TwitchClipTag:
         item.file_name = filename_str
         item.has_file = filename_str is not None
 
-    db.session.flush()
+
     return item

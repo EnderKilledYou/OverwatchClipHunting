@@ -13,4 +13,4 @@ def unclaim_monitor(stream_name) -> Monitor:
         monitor.activated_by = ""
         monitor.activated_at = datetime.datetime(1999, 12, 11, 0, 0)
         monitor.is_active = False
-    db.session.flush()
+

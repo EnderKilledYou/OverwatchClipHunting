@@ -51,7 +51,7 @@ def update_tag_and_bag_scan_scan_error(id: int, error: str):
         bag.scan_error = True
         bag.is_error = True
 
-    db.session.flush()
+
 
 
 def update_tag_and_bag_scan_progress(id: int, progress_value: float):
@@ -62,7 +62,7 @@ def update_tag_and_bag_scan_progress(id: int, progress_value: float):
             return
         bag.scan_progress = round(progress_value, 2)
 
-    db.session.flush()
+
 
 
 def add_tag_and_bag_request(clip_id: int) -> TagAndBagRequest:
@@ -70,7 +70,7 @@ def add_tag_and_bag_request(clip_id: int) -> TagAndBagRequest:
         request: TagAndBagRequest = TagAndBagRequest(clip_id=clip_id)
         db.session.add(request)
 
-    db.session.flush()
+
     return request
 
 

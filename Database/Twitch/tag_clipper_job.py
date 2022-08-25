@@ -37,7 +37,7 @@ def get_twitch_clip_job() -> TagClipperJob:
             return None
         first.state = 1
 
-    db.ssession.flush()
+
     return first
 
 
@@ -57,7 +57,7 @@ def reset_twitch_clip_job_state():
         for item in items:
             item.state = 0
 
-    db.session.flush()
+
 
 
 def update_twitch_clip_job_state(job_id: int, state: int, error: str = '') -> List[TagClipperJob]:
@@ -71,7 +71,7 @@ def update_twitch_clip_job_state(job_id: int, state: int, error: str = '') -> Li
         if state == 3:
             item.error = error
 
-    db.session.flush()
+
 
 
 def get_twitch_clip_job_by_id(id: int) -> TagClipperJob:
@@ -94,7 +94,7 @@ def add_twitch_clip_job(clip_id: int, tag_id: int) -> TagClipperJob:
             raise RecordExistsError('already exists')
         log = TagClipperJob(state=0, created_at=datetime.datetime.now(), clip_id=clip_id, tag_id=tag_id)
         db.session.add(log)
-        db.session.flush()
+
         logclass = Dict2Class(log.to_dict())
 
     return logclass
