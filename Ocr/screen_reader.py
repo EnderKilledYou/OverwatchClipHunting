@@ -40,7 +40,7 @@ class ScreenReader:
         while self.framebuffer.active:
             with PyTessBaseAPI(path=tess_fast_dir, psm=PSM.SINGLE_COLUMN) as api:
                 try:
-                    while self.next_frame(api):
+                    while self.next_frame(api) and self.framebuffer.active:
                         pass
                 except BaseException as b:
                     cloud_error_logger(b)
