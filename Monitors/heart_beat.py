@@ -112,7 +112,6 @@ class HeartBeat:
                 monitor.stop()
                 tmp = self._active_monitors.pop(i)
                 del monitor
-                del tmp
                 i = i + 1
                 return
 

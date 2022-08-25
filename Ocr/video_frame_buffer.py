@@ -23,7 +23,6 @@ class VideoFrameBuffer:
                 del buffer_get
             except:
                 pass
-        del self.buffer
         self.buffer = None
 
     def __init__(self):
