@@ -20,7 +20,7 @@ def claim_one_monitor(streams: List[LiveTwitchInstance], claimed_count: int):
             claimed = claim_monitor(user_login)
             if not claimed:
                 continue
-            cloud_logger.cloud_message("Claimed One" + user_login)
+            print("Claimed One" + user_login)
             monitor = get_monitor_by_name(user_login)
             reset_for_claim(user_login)
 
