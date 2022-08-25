@@ -66,6 +66,8 @@ def get_twitch_clip_scan_by_page(page: int, page_count: int = 25):
         by_id = TwitchClipInstance.query.filter_by(id=a.clip_id).first()
         if by_id is not None:
             output.append((a.to_dict(), by_id.to_dict()))
+        else:
+            print(f"Could not find clip for {a.clip_id}")
 
     return output
 

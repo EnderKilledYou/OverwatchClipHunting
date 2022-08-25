@@ -5,8 +5,6 @@ from cloud_logger import cloud_logger
 from config.db_config import db
 
 
-
-
 def avoid_monitor(stream_name):
     cloud_logger()
     with db.session.begin():

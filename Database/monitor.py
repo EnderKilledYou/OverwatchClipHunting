@@ -3,22 +3,16 @@ import json
 import os.path
 
 import threading
-from queue import Queue
 from typing import List, Dict
-
 from oauthlib.common import generate_token
 from sqlalchemy import func
 from sqlalchemy.orm import validates
 from sqlalchemy_serializer import SerializerMixin
-
 from Database.Twitch.dict_to_class import Dict2Class
-from Database.unclaim_monitor import unclaim_monitor
-from Ocr.twitch_video_frame_buffer import TwitchEater
-
 from Ocr.video_frame_buffer import VideoFrameBuffer
 from cloud_logger import cloud_logger, cloud_message
-
 from config.db_config import db
+
 
 if not os.path.exists('id.txt'):
     self_id = generate_token()
@@ -154,23 +148,8 @@ class HeartBeatThread:
         if self._stop is not None:
             self._stop()
 
-    def start(self, broadcaster):
-        cloud_logger()
-        has_started = hasattr(self, 'ocr')
-        if has_started:
-            return
-        producer_thread = threading.Thread(target=self.do_broadcast, args=[broadcaster])
-        producer_thread.start()
 
-    def do_broadcast(self, broadcaster):
-        with TwitchEater(broadcaster) as ocr:
-            self._stop = ocr.stop
-            self._get_stats = ocr.get_stats
-            ocr.buffer_broadcast()
-            self._get_stats = None
-            self._stop = None
-            print(f"Exiting do broadcast for {broadcaster}")
-        unclaim_monitor(broadcaster)
+
 
 
 def un_avoid_monitor(stream_name):

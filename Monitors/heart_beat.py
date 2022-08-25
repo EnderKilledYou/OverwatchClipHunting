@@ -59,6 +59,10 @@ class HeartBeat:
                 unclaim_monitor(streamer_name)
                 break
 
+    def unclaim_streamer(self, streamer_name):
+
+        unclaim_monitor(streamer_name)
+
     def reassert_claim(self, monitors: List[Monitor]):
         cloud_logger()
         for monitor in monitors:
@@ -93,6 +97,22 @@ class HeartBeat:
             traceback.print_exc()
         sleep(10)
         return True
+
+    def _start_monitor(self, monitor):
+        cloud_logger()
+        producer_thread = threading.Thread(target=self.do_broadcast, args=[monitor])
+        producer_thread.start()
+
+    def do_broadcast(self, monitor):
+        print(f"starting do broadcast for {monitor.broadcaster}")
+        with TwitchEater(monitor.broadcaster) as ocr:
+            monitor._stop = ocr.stop
+            monitor._get_stats = ocr.get_stats
+            ocr.buffer_broadcast()
+            monitor._get_stats = None
+            monitor._stop = None
+            print(f"Exiting do broadcast for {monitor.broadcaster}")
+        self.unclaim_streamer(monitor.broadcaster)
 
     def _add_to_monitor_list(self, monitor: Monitor):
         monitor.start()
