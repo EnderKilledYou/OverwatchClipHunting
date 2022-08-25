@@ -4,8 +4,12 @@ let Me: any = null;
 
 export async function UpdateMe() {
     try {
+        console.log("updating..")
         Me = await API.get_me()
+        console.log(Me)
     } catch (e) {
+        console.log('update failed ')
+        console.log(e)
         Me = null
     } finally {
 
