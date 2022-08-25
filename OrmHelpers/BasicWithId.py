@@ -12,10 +12,9 @@ class UpdateProxy:
     def __setitem__(self, key, value):
         record = self._class_type.query.filter_by(id=self._id).first()
         if not record:
-            raise MissingRecordError("No such record " + self._id + " of " + str(self._class_type))
+            return None
         setattr(record, key, value)
         db.session.commit()
-
 
 
 class BasicWithId:
