@@ -357,7 +357,7 @@ default = {
 
 
 def get_monitor_stats(monitor: Monitor) -> Dict[str, str]:
-    if hasattr(monitor, 'get_stats') and monitor.get_stats is not None:
+    if hasattr(monitor, '_get_stats') and monitor._get_stats is not None:
         item = monitor.get_stats()
         if item is None or len(item) != 8:
             return default
