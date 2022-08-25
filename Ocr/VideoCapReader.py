@@ -62,12 +62,12 @@ class VideoCapReader:
         if not grabbed:
             print(f"grab failed {self.streamer_name}")
             sleep(2)
-            self.error_count = self.error_count +1
+            self.error_count = self.error_count + 1
             if self.error_count > 10:
                 raise StreamEndedError("Could not read frame")
 
             return None
-
+        self.error_count = 0
         ret, frame = self.video_capture.retrieve()
         if not ret:
             raise StreamEndedError("Could not read frame")
