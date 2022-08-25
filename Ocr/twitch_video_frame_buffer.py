@@ -137,7 +137,7 @@ class TwitchEater(VideoFrameBuffer):
             return
         finally:
             self.stop()
-
+        self._active = False
         print(f'Capture thread stopping {self.broadcaster} ...')
         self.join()
         print(f'Capture thread stopped {self.broadcaster}')
