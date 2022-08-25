@@ -13,7 +13,6 @@ from Ocr.video_frame_buffer import VideoFrameBuffer
 from cloud_logger import cloud_logger, cloud_message
 from config.db_config import db
 
-
 if not os.path.exists('id.txt'):
     self_id = generate_token()
     with open('id.txt', 'w') as id_file:
@@ -30,6 +29,10 @@ class Monitor(db.Model, SerializerMixin):
     def __json__(self):
         to_dict = self.to_dict()
         return to_dict
+
+    def get_stats(self):
+        if self._get_stats is not None:
+            return self._get_stats()
 
     @validates('broadcaster')
     def name_to_lower(self, key, value):
@@ -99,13 +102,8 @@ class Monitor(db.Model, SerializerMixin):
     def __init__(self, broadcaster: str, web_dict={}):
         self.broadcaster = broadcaster
         self.web_dict = web_dict
-        self.get_stats = None
-
-    def start(self):
-        ocr = HeartBeatThread()
-        ocr.start(self.broadcaster)
-        self.get_stats = ocr.get_stats
-        self._stop = ocr.stop
+        self._get_stats = None
+        self._stop = None
 
     def stop(self):
         cloud_logger()
@@ -147,9 +145,6 @@ class HeartBeatThread:
     def stop(self):
         if self._stop is not None:
             self._stop()
-
-
-
 
 
 def un_avoid_monitor(stream_name):
