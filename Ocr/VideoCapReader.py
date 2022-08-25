@@ -119,7 +119,7 @@ class VideoCapReader:
             frame_number = frame_number + 1
 
     def _next_frame(self, frame_number, buffer: Queue):
-        if self.count() > 300:
+        if self.count() > 100:
             print(f"transfer full, waiting {self.streamer_name}")
             sleep(3)
             return True
