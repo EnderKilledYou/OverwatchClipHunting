@@ -23,6 +23,7 @@ class OverwatchClipReader(ScreenReader):
 
 
     def __del__(self):
+        print(f"{__qualname__} Del")
         super().__del__()
         if hasattr(self, 'frame_tester'):
             del self.frame_tester

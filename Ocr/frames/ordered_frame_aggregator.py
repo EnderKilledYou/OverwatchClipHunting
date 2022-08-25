@@ -10,6 +10,7 @@ class OrderedFrameAggregator(FrameAggregator):
         self.lock = threading.Lock()
 
     def __del__(self):
+        print(f"{__qualname__} Del")
         super().__del__()
         if hasattr(self, 'lock'):
             del self.lock

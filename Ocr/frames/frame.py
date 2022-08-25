@@ -22,6 +22,7 @@ class Frame:
         self.clip_id = clip_id
 
     def __del__(self):
+        print(f"{__qualname__} Del")
         self.image = None
         self.frame_number = None
         self.ts_second = None

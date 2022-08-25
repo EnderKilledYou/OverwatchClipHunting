@@ -20,6 +20,7 @@ from Events.overwatch_events import overwatch_event
 
 class OverwatchScreenReader(ScreenReader):
     def __del__(self):
+        print(f"{__qualname__} Del")
         if hasattr(self, 'frame_tester'):
             del self.frame_tester
         if hasattr(self, 'ActionTextCropper'):

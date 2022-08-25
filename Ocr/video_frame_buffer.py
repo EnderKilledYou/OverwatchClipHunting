@@ -16,6 +16,7 @@ class VideoFrameBuffer:
         return self.buffer.get(False)
 
     def __del__(self):
+        print(f"{__qualname__} Del")
         while True:
             try:
                 buffer_get = self.buffer.get(False)
