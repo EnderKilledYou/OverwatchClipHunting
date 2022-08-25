@@ -129,10 +129,14 @@ class VideoCapReader:
             try:
                 buffer.get(False)
                 self.incr_items_drained()
-            except:
+                print("draining off empty buffer")
+            except BaseException as b:
+                print("draining of buffer failed oddly:")
+                print(b)
                 pass
-        if self.count () ==0:
-            sleep(1) # let the video cap have some time to buffer
+        if self.count() == 0:
+            print("Sleeping off empty buffer")
+            sleep(1)  # let the video cap have some time to buffer
         buffer.put(item)
 
         self.incr_items_read()
