@@ -47,7 +47,8 @@ class OverwatchScreenReader(ScreenReader):
         try:
             img_grey = cv.cvtColor(frame.image, cv.COLOR_RGB2GRAY)
             pil_grey = Image.fromarray(img_grey)
-
+            if frame.frame_number % 100 == 0:
+                print(f"Processing frame {frame.frame_number} for {frame.source_name}")
             self.ActionTextCropper.process(pil_grey, frame, self.frame_watcher,
                                            self.frame_tester, api)
             if frame.empty:
