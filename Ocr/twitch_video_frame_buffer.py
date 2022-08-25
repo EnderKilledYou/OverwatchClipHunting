@@ -24,12 +24,12 @@ class TwitchEater(VideoFrameBuffer):
             Manages the threads for a VideoCapReader.
 
         :param broadcaster:
-        :param matcher:
+
         """
         super(TwitchEater, self).__init__()
 
         self.items_read = None
-        self.matcher = None
+
         self.stream_res = ""
         self.reader = None
         self.broadcaster = broadcaster
@@ -96,11 +96,8 @@ class TwitchEater(VideoFrameBuffer):
             print(f"stopping - started reader - {self.broadcaster}")
             self.reader.stop()
             print(f"stopping - destroyed reader - {self.broadcaster}")
-        print(f"stopping - destroying matcher - {self.broadcaster}")
-        if hasattr(self, 'matcher') and self.matcher is not None:
-            print(f"stopping - started matcher - {self.broadcaster}")
-            self.matcher.stop()
-            print(f"stopping - destroyed matcher - {self.broadcaster}")
+
+
         self._active = False
 
     def __enter__(self):
@@ -114,8 +111,7 @@ class TwitchEater(VideoFrameBuffer):
         super().__del__()
         if hasattr(self, 'reader') and self.reader is not None:
             del self.reader
-        if hasattr(self, 'matcher') and self.matcher is not None:
-            del self.matcher
+
 
     def capture_url_or_file(self, url):
         self.reader = VideoCapReader(self.broadcaster)
