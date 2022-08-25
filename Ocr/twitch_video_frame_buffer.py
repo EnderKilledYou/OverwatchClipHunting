@@ -84,15 +84,23 @@ class TwitchEater(VideoFrameBuffer):
             consumer_thread.start()
 
     def stop(self):
+        print(f"stopping {self.broadcaster}")
         try:
+            print(f"stopping - emptying buffer - {self.broadcaster}")
             while True:
                 self.buffer.get(False)
         except:
             pass
+        print(f"stopping - destroying reader - {self.broadcaster}")
         if hasattr(self, 'reader') and self.reader is not None:
+            print(f"stopping - started reader - {self.broadcaster}")
             self.reader.stop()
+            print(f"stopping - destroyed reader - {self.broadcaster}")
+        print(f"stopping - destroying matcher - {self.broadcaster}")
         if hasattr(self, 'matcher') and self.matcher is not None:
+            print(f"stopping - started matcher - {self.broadcaster}")
             self.matcher.stop()
+            print(f"stopping - destroyed matcher - {self.broadcaster}")
         self._active = False
 
     def __enter__(self):

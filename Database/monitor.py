@@ -107,7 +107,9 @@ class Monitor(db.Model, SerializerMixin):
 
     def stop(self):
         cloud_logger()
+        print(f"stopping... monitor stopping {self.broadcaster}")
         if self._stop is not None:
+            print(f"stopping... calling stop on monitor stopping {self.broadcaster}")
             self._stop()
 
     def wait_for_stop(self, timeout=None):

@@ -106,12 +106,13 @@ class HeartBeat:
         self._data_lock.acquire()
         try:
             i = 0
-
+            print(f"finding monitor stopping {streamer_name}")
             for monitor in self._active_monitors:
                 if monitor.broadcaster != streamer_name:
                     i = i + 1
                     continue
             tmp = self._active_monitors.pop(i)
+            print(f"found monitor stopping {streamer_name}")
             monitor.stop()
 
         except BaseException as e:
