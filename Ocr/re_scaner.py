@@ -134,7 +134,7 @@ class ReScanner(ThreadedManager):
                             self._frame_count += 1
                             frame_number = frame_number + 1
                             self._update_percentage_in_row(frame_number, job_id, size)
-                            if frame_number % 10 == 0:
+                            if frame_number % 30 == 0:
                                 sleep(1)
             except BaseException as b:
                 traceback.print_exc()
