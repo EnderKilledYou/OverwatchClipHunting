@@ -36,7 +36,7 @@ export function DisplayName() {
 }
 
 export function ProfileImage() {
-    if (Me === null) return ""
+
     return Me.profile_image_url
 }
 

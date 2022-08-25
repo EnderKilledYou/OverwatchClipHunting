@@ -131,6 +131,8 @@ class VideoCapReader:
                 self.incr_items_drained()
             except:
                 pass
+        if self.count () ==0:
+            sleep(1) # let the video cap have some time to buffer
         buffer.put(item)
 
         self.incr_items_read()

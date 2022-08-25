@@ -1,11 +1,11 @@
 <template>
   <nav class="navbar navbar-expand-lg navbar-light bg-light">
 
-    <a class="navbar-brand" href="#/">Clip Hunta
-      <img v-if="isLoggedIn()" :src="profileImage()" width="30" height="30" class="d-inline-block align-top"
+    <router-link class="navbar-brand" to="/">
+      <img v-if="isLoggedIn" :src="profileImage()" width="30" height="30" class="d-inline-block align-top"
            alt="">
-      {{ displayName() }}
-    </a>
+      {{ displayName }}
+    </router-link>
     <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav"
             aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
       <span class="navbar-toggler-icon"></span>
@@ -29,11 +29,11 @@
         <li class="nav-item">
           <router-link class="nav-link" to="/ListClipsMade/">clips</router-link>
         </li>
-        <li class="nav-item" v-if="!isLoggedIn()">
-          <a class="nav-link" href="/login" >login</a>
+        <li class="nav-item" v-if="!isLoggedIn">
+          <a class="nav-link" href="/login">login</a>
         </li>
         <li class="nav-item" v-else>
-          <a class="nav-link" href="/logout"  >logout</a>
+          <a class="nav-link" href="/logout">logout</a>
         </li>
       </ul>
     </div>
@@ -54,26 +54,30 @@ import {DisplayName, HasRole, IsLoggedIn, ProfileImage} from "@/views/has_role";
 })
 export default class AppView extends Vue {
   profileImage() {
-    return ProfileImage()
+    return ProfileIm
+    age()
   }
-  Login(){
+
+  Login() {
     //@ts-ignore
     window.location = '/login'
   }
-    Logout(){
+
+  Logout() {
     //@ts-ignore
     window.location = '/login'
   }
-  isLoggedIn() {
+
+  get isLoggedIn() {
     return IsLoggedIn()
   }
 
-  hasRole(role: string) {
+  get hasRole(role: string) {
     return HasRole(role)
   }
 
-  displayName() {
-        debugger
+  get displayName() {
+
     return DisplayName()
   }
 }
