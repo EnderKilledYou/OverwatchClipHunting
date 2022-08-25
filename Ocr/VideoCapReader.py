@@ -62,6 +62,7 @@ class VideoCapReader:
 
         ret, frame = self.video_capture.read()
         if not ret:
+            print(f"Stream could not be read from {self.streamer_name}")
             raise StreamEndedError("Could not read frame")
 
         if frame_number % self.sample_every_count == 0:
@@ -100,7 +101,6 @@ class VideoCapReader:
 
     def stop(self):
         self.Active = False
-
 
     def _read(self, buffer: Queue):
 
@@ -163,8 +163,6 @@ class VideoCapReader:
 
     def __exit__(self, exc_type, exc_val, exc_tb):
         self.stop()
-
-
 
     def _release(self):
         if self.video_capture is None:
