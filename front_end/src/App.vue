@@ -54,8 +54,7 @@ import {DisplayName, HasRole, IsLoggedIn, ProfileImage} from "@/views/has_role";
 })
 export default class AppView extends Vue {
   profileImage() {
-    return ProfileIm
-    age()
+    return ProfileImage()
   }
 
   Login() {
@@ -72,7 +71,7 @@ export default class AppView extends Vue {
     return IsLoggedIn()
   }
 
-  get hasRole(role: string) {
+  hasRole(role: string) {
     return HasRole(role)
   }
 

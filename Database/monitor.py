@@ -373,3 +373,12 @@ def get_monitor_stats(monitor: Monitor) -> Dict[str, str]:
 
         }
     return default
+
+
+from sqlalchemy import event
+
+
+@event.listens_for(Monitor, 'load')
+def receive_load(target, context):
+    target._get_stats = None
+    target._stop = None
