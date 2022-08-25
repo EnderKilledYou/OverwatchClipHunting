@@ -7,6 +7,7 @@ from tesserocr import PyTessBaseAPI, PSM
 from Ocr.frames.frame import Frame
 
 from Ocr.video_frame_buffer import VideoFrameBuffer
+from cloud_logger import cloud_error_logger
 from config.config import tess_fast_dir
 
 
@@ -33,9 +34,13 @@ class ScreenReader:
         pass
 
     def consume_twitch_broadcast(self):
-        with PyTessBaseAPI(path=tess_fast_dir, psm=PSM.SINGLE_COLUMN) as api:
-            while self.Active and self.framebuffer.active and self.next_frame(api):
-                pass
+        while self.framebuffer.active:
+            with PyTessBaseAPI(path=tess_fast_dir, psm=PSM.SINGLE_COLUMN) as api:
+                try:
+                    while self.Active and self.next_frame(api):
+                        pass
+                except BaseException as b:
+                    cloud_error_logger(b)
 
     def next_frame(self, api):
         frame = self.wait_next_frame()

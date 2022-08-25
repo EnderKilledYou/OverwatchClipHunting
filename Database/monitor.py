@@ -151,6 +151,8 @@ class HeartBeatThread:
             self.stop = ocr.stop
             self.get_stats = ocr.get_stats
             ocr.buffer_broadcast()
+            self.get_stats = None
+            self.stop = None
 
 
 def un_avoid_monitor(stream_name):
