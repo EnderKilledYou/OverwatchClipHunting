@@ -50,6 +50,7 @@ class TwitchEater(VideoFrameBuffer):
 
     def get_one(self):
         item = self.buffer.get(False)
+
         self.reader.incr_items_drained()
         return item
 
