@@ -1,5 +1,6 @@
 import datetime
 
+from Database.Twitch.dict_to_class import Dict2Class
 from Database.Twitch.list_dicts import list_dicts
 from Database.monitor import Monitor
 from config.db_config import db
@@ -15,7 +16,16 @@ def unclaim_monitor(stream_name) -> Monitor:
         monitor.is_active = False
 
 
-def unclaim_table_Type(table_type, id):
+def get_claimed(table_type, id):
+    with db.session.begin():
+        claimed_record = table_type.query.filter_by(id=id).first()
+        if claimed_record is None:
+            return
+        item = Dict2Class(claimed_record.to_dict())
+    return item
+
+
+def unclaim_table_type(table_type, id):
     with db.session.begin():
         claimed_record = table_type.query.filter_by(id=id).first()
         if claimed_record is None:
@@ -52,7 +62,7 @@ def claim_table_type(table_type, id, my_claim_id) -> bool:
         return False
 
 
-def get_table_types(table_type):
+def get_table_claims(table_type):
     with db.session.begin():
         items = list_dicts(db.query(table_type).filter(table_type.activated_at == ''))
     return items

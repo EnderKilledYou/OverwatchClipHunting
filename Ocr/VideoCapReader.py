@@ -170,8 +170,6 @@ class VideoCapReader:
         self.stop()
 
     def _release(self):
-        if self.video_capture is None:
-            return
         self.video_capture.release()
         self.video_capture = None
 

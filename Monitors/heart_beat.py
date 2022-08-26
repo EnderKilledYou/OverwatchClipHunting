@@ -11,6 +11,7 @@ from Database.unclaim_monitor import unclaim_monitor
 from Monitors.heart_beat_helpers import claim_one_monitor
 from Ocr.twitch_video_frame_buffer import TwitchEater
 from cloud_logger import cloud_logger, cloud_error_logger
+from threads.monitor_thread_job import MonitorThreadJob
 from twitch_helpers.get_monitored_streams import get_monitored_streams
 from twitch_helpers.twitch_helpers import get_twitch_api
 
@@ -52,16 +53,16 @@ class HeartBeat:
         self._thread_timer.start()
 
     def stop_streamer(self, streamer_name):
+        print(f"Releasing {streamer_name}")
         streamer_names = self.get_copy_active_monitors()
         for active_stream in streamer_names:
             if active_stream.broadcaster == streamer_name:
                 self._remove_monitor_from_list(active_stream.broadcaster)
-                unclaim_monitor(streamer_name)
                 active_stream.stop()
+                del active_stream
                 break
 
     def unclaim_streamer(self, streamer_name):
-
         unclaim_monitor(streamer_name)
 
     def reassert_claim(self, monitors: List[Monitor]):
@@ -71,8 +72,8 @@ class HeartBeat:
 
             if update_claim_on_monitor(monitor.broadcaster, stats):
                 continue
-            print(f"Releasing {monitor.broadcaster}")
-            self._remove_monitor_from_list(monitor.broadcaster)
+
+            self.stop_streamer(monitor.broadcaster)
 
     def stop(self):
         cloud_logger()
@@ -104,26 +105,16 @@ class HeartBeat:
         producer_thread = threading.Thread(target=self.do_broadcast, args=[monitor])
         producer_thread.start()
 
-    def do_broadcast(self, monitor):
-        print(f"starting do broadcast for {monitor.broadcaster}")
-        with TwitchEater(monitor.broadcaster) as ocr:
-            monitor._stop = ocr.stop
-            monitor._get_stats = ocr.get_stats
-            ocr.buffer_broadcast()
-            monitor._get_stats = None
-            monitor._stop = None
-            print(f"Exiting do broadcast for {monitor.broadcaster}")
-        self.unclaim_streamer(monitor.broadcaster)
-        del monitor
-
     def _add_to_monitor_list(self, monitor: Monitor):
 
         self._data_lock.acquire()
         try:
-            self._active_monitors.append(monitor)
+            thread_job = MonitorThreadJob(monitor.broadcaster)
+            thread_job.set_id(monitor.id)
+            thread_job.start()
+            self._active_monitors.append(thread_job)
         finally:
             self._data_lock.release()
-        self._start_monitor(monitor)
 
     def _remove_monitor_from_list(self, streamer_name: str):
         self._data_lock.acquire()
@@ -135,8 +126,8 @@ class HeartBeat:
                     i = i + 1
                     continue
                 print(f"found monitor stopping {streamer_name}")
-                tmp = self._active_monitors.pop(i)
-                tmp.stop()
+                self._active_monitors.pop(i)
+
 
 
 
@@ -145,15 +136,7 @@ class HeartBeat:
         finally:
             self._data_lock.release()
 
-    def delete_monitor_index(self, index) -> List[Monitor]:
-        self._data_lock.acquire(True)
-        try:
-            del self._active_monitors[index]
-        finally:
-            self._data_lock.release()
-            pass
-
-    def get_copy_active_monitors(self) -> List[Monitor]:
+    def get_copy_active_monitors(self) -> List[MonitorThreadJob]:
         self._data_lock.acquire(True)
         try:
             return list(self._active_monitors)

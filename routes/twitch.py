@@ -89,4 +89,4 @@ def get_twitch_user_by_twitch_display_name(display_name):
 @twitch.route('/logout')
 def logout():
     session.pop('twitch_token', None)
-    return redirect(url_for('index'))
+    return redirect('/')

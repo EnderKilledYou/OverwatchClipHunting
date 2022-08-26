@@ -26,20 +26,24 @@ class StreamLinkHelper:
         if 'best' not in streams:
             return None
 
-        return StreamLinkHelper._parse_best_stream(streams)
+        best_stream = StreamLinkHelper._parse_best_stream(streams)
+        for item in streams:
+            del streams[item]
+
+        return best_stream
 
     @staticmethod
-    def _parse_best_stream(streams: Dict[str, TwitchHLSStream]) -> Tuple[TwitchHLSStream, str]:
+    def _parse_best_stream(streams: Dict[str, TwitchHLSStream]) -> Tuple[str, str]:
         cloud_logger()
         ocr_stream = streams['best']
         items = []
 
         if '480p60' in streams:
-            return streams['480p60'], '480p60'
+            return streams['480p60'].url, '480p60'
         if '720p60' in streams:
-            return streams['720p60'], '720p60'
+            return streams['720p60'].url, '720p60'
         if '480p' in streams:
-            return streams['480p'], '480p'
+            return streams['480p'].url, '480p'
 
         for stream_res in streams:
             if not stream_res.endswith('p60'):
@@ -48,4 +52,4 @@ class StreamLinkHelper:
         try:
             return items.pop()
         except:
-            return ocr_stream, "best"
+            return ocr_stream.url, "best"
