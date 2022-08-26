@@ -40,7 +40,7 @@ class OverwatchActionScreenRegion(ScreenRegion):
         api.SetImage(img)
         text = api.GetUTF8Text()
         conf = api.MeanTextConf()
-        print(conf)
+
         frame.empty = True
         if len(text) < 4:
             return
