@@ -120,8 +120,16 @@ class VideoCapReader:
         self.sample_every_count = fps // sample_frame_rate
         cloud_logger.cloud_message(
             f"Starting sampling.. sampling {fps} /  {sample_frame_rate} = {self.sample_every_count}")
-        while self.Active and self._next_frame(frame_number, buffer):
-            frame_number = frame_number + 1
+        try:
+            while self.Active and self._next_frame(frame_number, buffer):
+                frame_number = frame_number + 1
+        finally:
+            try:
+                self.video_capture.release()
+            except BaseException as b:
+                cloud_logger.cloud_error_logger(b)
+                pass
+        print("cleared")
 
     def _next_frame(self, frame_number, buffer: Queue):
         if self.count() > 100:
@@ -170,7 +178,7 @@ class VideoCapReader:
         self.stop()
 
     def _release(self):
-        self.video_capture.release()
+
         self.video_capture = None
 
 

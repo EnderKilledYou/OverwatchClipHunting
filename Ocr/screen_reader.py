@@ -3,7 +3,7 @@ from queue import Empty
 
 from time import sleep
 
-from tesserocr import PyTessBaseAPI, PSM
+from tesserocr import PyTessBaseAPI, PSM, OEM
 
 from Ocr.frames.frame import Frame
 
@@ -38,7 +38,7 @@ class ScreenReader:
 
     def consume_twitch_broadcast(self):
         while self.framebuffer.active:
-            with PyTessBaseAPI(path=tess_fast_dir, psm=PSM.SINGLE_COLUMN) as api:
+            with PyTessBaseAPI(path=tess_fast_dir, psm=PSM.SINGLE_COLUMN,oem=OEM.LSTM_ONLY) as api:
                 try:
                     while self.next_frame(api) and self.framebuffer.active:
                         pass
