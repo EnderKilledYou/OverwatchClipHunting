@@ -6,17 +6,17 @@ iforb = re.compile('GAINED',re.IGNORECASE)
 ifobjectivedefense = re.compile('DEFENSE',re.IGNORECASE)
 
 def if_got_elimed(text: str):
-    return natedby.search(text)
+    return natedby.search(text)  is not None
 
 
 def if_menu(text: str):
-    return ifmenu.search(text)
+    return ifmenu.search(text)  is not None
 
 def if_blocking(text: str):
-    return ifblocking.search(text)
+    return ifblocking.search(text)  is not None
 
 def if_orb_gain(text: str):
-    return iforb.search(text)
+    return iforb.search(text)  is not None
 
 def if_objective_defense(text: str):
-    return ifobjectivedefense.search(text)
+    return ifobjectivedefense.search(text)  is not None

@@ -166,6 +166,13 @@ class HeartBeat:
                 self._add_to_monitor_list(monitor)
         self.update_monitor_healths()
 
+        not_monitored2.clear()
+        not_monitored.clear()
+        already_claimed.clear()
+        active_monitors.clear()
+        monitors.clear()
+        streams.clear()
+
     def size(self):
         self._data_lock.acquire(True)
         try:

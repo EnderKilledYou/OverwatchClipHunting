@@ -5,4 +5,4 @@ SLEPT = re.compile('SLEPT',re.IGNORECASE)
 
 def if_slept(text: str):
 
-    return SLEPT.search(text)
+    return SLEPT.search(text)  is not None
