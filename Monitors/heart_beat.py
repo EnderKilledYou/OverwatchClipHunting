@@ -57,6 +57,7 @@ class HeartBeat:
             if active_stream.broadcaster == streamer_name:
                 self._remove_monitor_from_list(active_stream.broadcaster)
                 unclaim_monitor(streamer_name)
+                active_stream.stop()
                 break
 
     def unclaim_streamer(self, streamer_name):
@@ -113,6 +114,7 @@ class HeartBeat:
             monitor._stop = None
             print(f"Exiting do broadcast for {monitor.broadcaster}")
         self.unclaim_streamer(monitor.broadcaster)
+        del monitor
 
     def _add_to_monitor_list(self, monitor: Monitor):
 
@@ -134,7 +136,7 @@ class HeartBeat:
                     continue
             tmp = self._active_monitors.pop(i)
             print(f"found monitor stopping {streamer_name}")
-            monitor.stop()
+            tmp.stop()
 
         except BaseException as e:
             cloud_error_logger(e)

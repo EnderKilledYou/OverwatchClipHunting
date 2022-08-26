@@ -84,6 +84,7 @@ class TwitchEater(VideoFrameBuffer):
 
     def stop(self):
         print(f"stopping {self.broadcaster}")
+        self._active = False
         try:
             print(f"stopping - emptying buffer - {self.broadcaster}")
             while True:
@@ -116,7 +117,6 @@ class TwitchEater(VideoFrameBuffer):
             del self.matcher
         if hasattr(self, 'buffer') and self.buffer is not None:
             del self.buffer
-
 
     def capture_url_or_file(self, url):
         self.reader = VideoCapReader(self.broadcaster)
