@@ -27,8 +27,7 @@ def consume_twitch_broadcast(cancel_token, reader, buffer):
                 api.Clear()
                 api.ClearAdaptiveClassifier()
                 api.ClearPersistentCache()
-                api.End()
-                del api
+
 
 
 def next_frame(api, reader, buffer, ocr, action_text_matcher: OverwatchActionScreenRegion):
