@@ -82,7 +82,7 @@ class VideoCapReader:
             self._read(buffer)
         except StreamEndedError:
             pass
-        self._release()
+
 
     def readYield(self, url):
         self.Active = True
@@ -179,7 +179,7 @@ class VideoCapReader:
 
     def _release(self):
 
-        self.video_capture = None
+        pass
 
 
 class ClipVideoCapReader(VideoCapReader):
