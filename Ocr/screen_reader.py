@@ -13,9 +13,8 @@ from config.config import tess_fast_dir
 
 
 class ScreenReader:
-    def __init__(self, framebuffer: VideoFrameBuffer):
+    def __init__(self):
         self.Active = True
-        self.framebuffer = framebuffer
         self._gathered = 0
 
     def __enter__(self):
@@ -36,11 +35,11 @@ class ScreenReader:
         self.Active = False
         self.framebuffer = None
 
-    def consume_twitch_broadcast(self):
-        while self.framebuffer.active:
+    def consume_twitch_broadcast(self, cancel_token, reader, buffer):
+        while not cancel_token.canelled:
             with PyTessBaseAPI(path=tess_fast_dir, psm=PSM.SINGLE_COLUMN, oem=OEM.LSTM_ONLY) as api:
                 try:
-                    while self.next_frame(api) and self.framebuffer.active:
+                    while self.next_frame(api, reader, buffer):
                         pass
                 except BaseException as b:
                     cloud_error_logger(b)
@@ -50,19 +49,20 @@ class ScreenReader:
                 api.End()
                 del api
 
-    def next_frame(self, api):
-        frame = self.wait_next_frame()
+    def next_frame(self, api, reader, buffer):
+        frame = self.wait_next_frame(reader, buffer)
         if frame is None:
             sleep(1)
             return True
-
         self.ocr(frame, api)
-        frame.image = None
+        del frame
         return True
 
-    def wait_next_frame(self):
+    def wait_next_frame(self, reader, buffer):
         try:
-            return self.framebuffer.get_one()
+            read = buffer.get(False)
+            reader.incr_items_drained()
+            return read
         except Empty:
             pass
         except BaseException as b:

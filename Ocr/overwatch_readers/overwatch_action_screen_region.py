@@ -5,9 +5,11 @@ from pytesseract import image_to_string
 
 from tesserocr import PyTessBaseAPI
 
+from Events.overwatch_events import overwatch_event
 from Ocr.frames.frame import Frame
 from Ocr.frames.frame_aggregator import FrameAggregator
 from Ocr.frames.frame_tester import FrameTester
+from Ocr.frames.ordered_frame_aggregator import OrderedFrameAggregator
 from Ocr.overwatch_readers.tesseract_instance import TesseractInstance
 from Ocr.screen_region import ScreenRegion
 from Ocr.wait_for_tess import wait_for_tess
@@ -15,10 +17,16 @@ from config.config import tess_fast_dir
 
 
 class OverwatchActionScreenRegion(ScreenRegion):
+    def __init__(self):
+        self.frame_watcher = OrderedFrameAggregator(overwatch_event)
+        self.frame_tester = FrameTester()
 
-    def process(self, img: Image, frame: Frame, frame_watcher: FrameAggregator, frame_tester: FrameTester,
-                api: PyTessBaseAPI):
-        # img_crop = self.crop(pil)
+    def __del__(self):
+        del self.frame_watcher
+        del self.frame_tester
+
+    def process(self, img: Image, frame: Frame, api: PyTessBaseAPI):
+
         if not os.path.exists(tess_fast_dir):
             wait_for_tess()
 
@@ -35,6 +43,8 @@ class OverwatchActionScreenRegion(ScreenRegion):
         frame.empty = True
         if len(text) < 4:
             return
+        frame_tester = self.frame_tester
+        frame_watcher = self.frame_watcher
         if frame_tester.is_first_menu_frame(text):
             return  # later
 

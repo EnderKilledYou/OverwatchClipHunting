@@ -31,9 +31,9 @@ class OverwatchScreenReader(ScreenReader):
         if hasattr(self, 'frame_watcher'):
             del self.frame_watcher
 
-    def __init__(self, framebuffer: VideoFrameBuffer):
+    def __init__(self):
 
-        super(OverwatchScreenReader, self).__init__(framebuffer)
+        super(OverwatchScreenReader, self).__init__()
         self.skip_frames = 0
 
         self.last_queue_check = 0

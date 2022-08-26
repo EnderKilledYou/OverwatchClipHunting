@@ -97,7 +97,7 @@ class FrameAggregator:
 
         print_scanner("Hero {1} made elim at {0}   ".format(str(frame.ts_second), frame.source_name))
 
-        thread_function(self.emitter.emit, 'elim', frame,
+        thread_function(self.emitter.emit, 'elim', frame.to_dict(),
                         self.elim_frame_watcher.streak_size, self.elim_frame_watcher.streak_size_seconds,
                         self.elimed_frame_watcher.last_second)
 
@@ -121,7 +121,7 @@ class FrameAggregator:
         if self.elimed_frame_watcher.add(frame):
             del frame
             return
-        thread_function(self.emitter.emit, 'elimed', frame)
+        thread_function(self.emitter.emit, 'elimed', frame.to_dict())
         print_scanner("Death {1} at {0} ".format(str(frame.ts_second), frame.source_name))
 
     def add_spawn_room_frame(self, frame):
@@ -132,12 +132,12 @@ class FrameAggregator:
             del frame
             return
         print_scanner("Hero {1} Select at {0}   ".format(str(frame.ts_second), frame.source_name))
-        thread_function(self.emitter.emit, 'spawn_room', frame)
+        thread_function(self.emitter.emit, 'spawn_room', frame.to_dict())
         self.last_hero_room_frame = frame.ts_second
 
     def check_if_was_queue(self, frame):
         if self.in_queue:
-            thread_function(self.emitter.emit, 'game_start', frame)
+            thread_function(self.emitter.emit, 'game_start', frame.to_dict())
             self.in_queue = False
 
     def add_slepting_frame(self, frame):
@@ -150,7 +150,7 @@ class FrameAggregator:
 
         print_scanner("Hero {1} slepted at {0}   ".format(str(frame.ts_second), frame.source_name))
 
-        thread_function(self.emitter.emit, 'slept', frame)
+        thread_function(self.emitter.emit, 'slept', frame.to_dict())
 
     def add_healing_frame(self, frame):
         if self.too_soon_after_death('heal', frame):
@@ -162,7 +162,7 @@ class FrameAggregator:
 
         print_scanner("Hero {1} Healed at {0}   ".format(str(frame.ts_second), frame.source_name))
 
-        thread_function(self.emitter.emit, 'healing', frame, (
+        thread_function(self.emitter.emit, 'healing', frame.to_dict(), (
             self.healing_frame_watcher.streak_start_second, self.healing_frame_watcher.streak_size,
             self.healing_frame_watcher.streak_size_seconds))
 
@@ -173,7 +173,7 @@ class FrameAggregator:
         if self.orb_frame_watcher.add(frame):
             del frame
             return
-        thread_function(self.emitter.emit, 'orbed', frame)
+        thread_function(self.emitter.emit, 'orbed', frame.to_dict())
 
     def add_blocking_frame(self, frame):
         if self.too_soon_after_death('blocking', frame):
@@ -182,14 +182,14 @@ class FrameAggregator:
         if self.blocking_frame_watcher.add(frame):
             del frame
             return
-        thread_function(self.emitter.emit, 'blocking', frame, self.blocking_frame_watcher.streak_size_seconds)
+        thread_function(self.emitter.emit, 'blocking', frame.to_dict(), self.blocking_frame_watcher.streak_size_seconds)
 
     def set_in_queue(self, frame):
         if self.in_queue:
             del frame
             return
         print_scanner("{1} in queue at {0}   ".format(str(frame.ts_second), frame.source_name))
-        thread_function(self.emitter.emit, 'queue_start', frame)
+        thread_function(self.emitter.emit, 'queue_start', frame.to_dict())
         self.in_queue = True
 
     def set_in_prepare(self, frame, mode):
@@ -197,7 +197,7 @@ class FrameAggregator:
         if self.prepare_frame_watcher.add(frame):
             del frame
             return
-        thread_function(self.emitter.emit, 'prepare', frame, mode)
+        thread_function(self.emitter.emit, 'prepare', frame.to_dict(), mode)
 
     def add_assist_frame(self, frame):
         self.check_if_was_queue(frame)
@@ -207,8 +207,7 @@ class FrameAggregator:
         if self.assist_frame_watcher.add(frame):
             del frame
             return
-        thread_function(self.emitter.emit, 'assist', frame, self.assist_frame_watcher.streak_size_seconds)
-
+        thread_function(self.emitter.emit, 'assist', frame.to_dict(), self.assist_frame_watcher.streak_size_seconds)
 
     def add_escort_frame(self, frame):
         self.check_if_was_queue(frame)
@@ -224,7 +223,8 @@ class FrameAggregator:
         if self.contested_frame_watcher.add(frame):
             del frame
             return
-        thread_function(self.emitter.emit, 'contested', frame, self.contested_frame_watcher.streak_size_seconds)
+        thread_function(self.emitter.emit, 'contested', frame.to_dict(),
+                        self.contested_frame_watcher.streak_size_seconds)
 
     def add_defense_frame(self, frame):
         self.check_if_was_queue(frame)
@@ -234,7 +234,7 @@ class FrameAggregator:
         if self.defense_frame_watcher.add(frame):
             del frame
             return
-        thread_function(self.emitter.emit, 'defense', frame, self.defense_frame_watcher.streak_size_seconds)
+        thread_function(self.emitter.emit, 'defense', frame.to_dict(), self.defense_frame_watcher.streak_size_seconds)
 
 
 def thread_function(func, *args):  # the events can slow down processing

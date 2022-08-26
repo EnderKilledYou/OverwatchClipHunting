@@ -11,13 +11,21 @@ class ScreenRegion:
     def __del__(self):
         print(f"ScreenRegion Del")
         pass
+
     def __del__(self):
         print(f"ScreenRegion Del")
         pass
+
     def crop(self, img):
         """crops this specific screen region."""
         pass
 
-    def process(self, pil: Image, frame: Frame, frame_watcher: FrameAggregator, frame_tester: FrameTester,api: PyTessBaseAPI):
+    def __enter__(self):
+        return self
+
+    def __exit__(self, exc_type, exc_val, exc_tb):
+        del self
+
+    def process(self, pil: Image, frame: Frame, api: PyTessBaseAPI):
         """Runs the region analysis and return sends the result to the frame watcher."""
         pass

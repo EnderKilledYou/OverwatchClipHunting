@@ -158,6 +158,20 @@ def un_avoid_monitor(stream_name):
         monitor.avoid = False
 
 
+def update_monitor_stats(broadcaster, stats: Dict[str, any]):
+    items_out = []
+    # cloud_logger()
+    with db.session.begin():
+        item = Monitor.query.filter_by(broadcaster=broadcaster).first()
+        if item is None:
+            return
+        for attr in stats:
+            if hasattr(item, attr):
+                setattr(item, attr, stats[attr])
+
+
+
+
 def get_all_monitors_dicts() -> List[Dict[str, any]]:
     items_out = []
     # cloud_logger()

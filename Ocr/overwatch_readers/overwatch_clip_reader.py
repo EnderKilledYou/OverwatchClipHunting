@@ -15,7 +15,7 @@ class OverwatchClipReader(ScreenReader):
     clip_id: int
 
     def __init__(self):
-        super(OverwatchClipReader, self).__init__(None)
+        super(OverwatchClipReader, self).__init__()
         self.frame_tester = FrameTester()
         self.ActionTextCropper = OverwatchActionScreenRegion()
         self.frame_watcher = OrderedFrameAggregator(overwatch_clips_event)

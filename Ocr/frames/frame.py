@@ -33,6 +33,15 @@ class Frame:
         self.empty = None
         self.clip_id = None
 
+    def to_dict(self):
+        return {
+            'frame_number': self.frame_number,
+            'ts_second': self.ts_second,
+            'source_name': self.source_name,
+            'empty': self.empty,
+            'clip_id': self.clip_id,
+        }
+
     def __enter__(self):
         return self
 

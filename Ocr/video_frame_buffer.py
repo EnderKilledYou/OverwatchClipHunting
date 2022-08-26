@@ -29,6 +29,7 @@ class VideoFrameBuffer:
 
     def __init__(self):
         self.reader = None
+
         self.Capturing = False
         self.buffer = Queue()
         self._active = True

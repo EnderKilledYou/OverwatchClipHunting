@@ -1,5 +1,7 @@
 import threading
 
+from cancel_token import CancellationToken
+
 from Database.monitor import self_id
 from Database.unclaim_monitor import claim_table_type, unclaim_table_type, get_table_claims, get_claimed
 
@@ -10,13 +12,11 @@ class TableThreadJob:
         self.thread = None
         self._table_type = table_type
         self._id = None
-        self._get_stats = None
-        self._stop = None
 
-    def get_stats(self):
-        if self._get_stats is not None:
-            return self._get_stats()
-        return None
+        self._cancel_token = CancellationToken()
+
+
+
 
     def __del__(self):
         self._table_type = None
@@ -48,8 +48,5 @@ class TableThreadJob:
             self._work()
 
     def stop(self):
-        if self._id is None:
-            return
-        if self._stop is not None:
-            self._stop()
+        self._cancel_token.cancel()
         unclaim_table_type(self._table_type, self._id)

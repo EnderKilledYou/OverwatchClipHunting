@@ -60,6 +60,21 @@ class VideoCapReader:
             self._count_lock.release()
             pass
 
+    def _read_one2(self, frame_number, fps, video_capture):
+
+        video_capture.grab()
+
+        if frame_number % self.sample_every_count != 0:
+            return None
+
+        ret, frame = video_capture.retrieve()
+
+        if ret:
+            return Frame(frame_number, frame, frame_number // fps, self.streamer_name, self.clip_id)
+
+        print(f"Stream could not be read from {self.streamer_name}")
+        raise StreamEndedError("Could not read frame")
+
     def _read_one(self, frame_number, fps):
 
         self.video_capture.grab()
@@ -77,12 +92,37 @@ class VideoCapReader:
 
     def read(self, url, buffer):
         self.Active = True
-        self._acquire(url)
+        video_capture = self._acquire2(url)
         try:
             self._read(buffer)
         except StreamEndedError:
             pass
 
+    def get_stats(self):
+
+        qsize = self.count()
+        frames_pending = qsize * self.sample_every_count
+        frames_finished = self.items_drained * self.sample_every_count
+        back_fill_seconds = frames_pending // self.fps
+
+        return qsize, frames_finished, frames_finished, back_fill_seconds, self.fps, self.sample_every_count, self.items_read
+
+    def read2(self, url, buffer, cancel_token, stats_callback=None):
+        self.Active = True
+        video_capture = self._acquire2(url)
+        if video_capture is None:
+            print("no video capture")
+            return
+        try:
+            self._read2(buffer, video_capture, cancel_token, stats_callback)
+        except StreamEndedError:
+            pass
+        try:
+            video_capture.release()
+        except BaseException as b:
+            cloud_logger.cloud_error_logger(b)
+        finally:
+            del video_capture
 
     def readYield(self, url):
         self.Active = True
@@ -106,6 +146,45 @@ class VideoCapReader:
 
     def stop(self):
         self.Active = False
+
+    def _read2(self, buffer: Queue, video_capture, cancel_token, stats_callback=None):
+
+        fps = int(video_capture.get(cv.CAP_PROP_FPS))
+        if fps > 500:
+            fps = 60
+        if fps < 10:
+            fps = 60
+        self.fps = fps
+        frame_number = 0
+
+        self.sample_every_count = fps // sample_frame_rate
+        cloud_logger.cloud_message(
+            f"Starting sampling.. sampling {fps} /  {sample_frame_rate} = {self.sample_every_count}")
+
+        while not cancel_token.cancelled and self._next_frame2(frame_number, buffer, video_capture):
+            frame_number = frame_number + 1
+            if stats_callback is not None and frame_number % 100 == 0:
+                stats_callback(self.get_stats())
+
+    def _next_frame2(self, frame_number, buffer: Queue, video_capture):
+        if self.count() > 100:
+            print(f"transfer full, waiting {self.streamer_name}")
+            sleep(3)
+
+        item = self._read_one2(frame_number, self.fps, video_capture)
+        if item is None:
+            return True
+        should_sleep = False
+        if frame_number > 0 and frame_number % 10 == 0 and self.count() == 0:
+            print(f"Sleeping off empty buffer {self.streamer_name}")
+            should_sleep = True
+
+        buffer.put(item)
+        if should_sleep:
+            sleep(1)  # let the video cap have some time to buffer
+
+        self.incr_items_read()
+        return True
 
     def _read(self, buffer: Queue):
 
@@ -162,6 +241,14 @@ class VideoCapReader:
             self.incr_items_read()
 
             frame_number = frame_number + 1
+
+    def _acquire2(self, url: str):
+        video_capture = cv2.VideoCapture(url, apiPreference=cv2.CAP_IMAGES)
+        video_capture.set(cv2.CAP_PROP_BUFFERSIZE, 1)
+        if not video_capture:
+            raise None
+        video_capture.open(url)
+        return video_capture
 
     def _acquire(self, url: str):
         self.video_capture = cv2.VideoCapture(url, apiPreference=cv2.CAP_IMAGES)
