@@ -28,9 +28,9 @@ def consume_twitch_broadcast(cancel_token, reader, buffer):
                 except BaseException as b:
                     cloud_error_logger(b)
 
-                api.Clear()
-                api.ClearAdaptiveClassifier()
-                api.ClearPersistentCache()
+        api.Clear()
+        api.ClearAdaptiveClassifier()
+        api.ClearPersistentCache()
 
 
 def ocr(frame: Frame, api: PyTessBaseAPI, action_text_matcher: OverwatchActionScreenRegion) -> None:
