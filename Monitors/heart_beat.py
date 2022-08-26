@@ -134,9 +134,11 @@ class HeartBeat:
                 if monitor.broadcaster != streamer_name:
                     i = i + 1
                     continue
-            tmp = self._active_monitors.pop(i)
-            print(f"found monitor stopping {streamer_name}")
-            tmp.stop()
+                print(f"found monitor stopping {streamer_name}")
+                tmp = self._active_monitors.pop(i)
+                tmp.stop()
+
+
 
         except BaseException as e:
             cloud_error_logger(e)
