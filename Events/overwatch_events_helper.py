@@ -18,16 +18,16 @@ def format_event_for_marker(event_type: str, start_seconds: int, end_seconds: in
 
 def create_clip(frame: Frame, clip_type: str):
     api = get_twitch_api()
-    print(f"creating clip for {frame.source_name} {clip_type}")
-    created = api.create_clip(get_broadcaster_id(frame.source_name), True)
+    print(f"creating clip for {frame['source_name']} {clip_type}")
+    created = api.create_clip(get_broadcaster_id(frame['source_name']), True)
     if created is None:
-        print(f"could not create clip for {frame.source_name}")
+        print(f"could not create clip for {frame['source_name']}")
         return
 
     if 'status' in created and created['status'] == 403:
         print("can't clip this channel no perms")
-        flask_event.emit('avoid',frame.source_name)
-        #avoid_monitor(frame.source_name)
+        flask_event.emit('avoid',frame['source_name'])
+        #avoid_monitor(frame['source_name'])
 
 
     if 'data' in created:
@@ -43,7 +43,7 @@ def append_to_clip_log(clip_type, created, frame):
         write_to_clip_log([])
     clip_data = read_clip_clog()
 
-    clip_data.append({'streamer': frame.source_name,
+    clip_data.append({'streamer': frame['source_name'],
                       'clip_data': created['data'],
                       'type': clip_type
                       })
@@ -63,7 +63,7 @@ def write_to_clip_log(clip_data):
 
 
 def can_clip(frame, type: str):
-    if not get_streamer_config(frame.source_name).make_clips:
+    if not get_streamer_config(frame['source_name']).make_clips:
         return False
     last_clip_distance = get_last_clip_time_distance(frame)
     if type == 'slept':
@@ -75,12 +75,12 @@ def can_clip(frame, type: str):
 
 
 def set_last_clip_time(frame: Frame):
-    last_clip_time[frame.source_name] = frame.ts_second
+    last_clip_time[frame['source_name']] = frame['ts_second']
 
 
 def get_last_clip_time_distance(frame: Frame):
-    if frame.source_name not in last_clip_time:
-        last_clip_time[frame.source_name] = -30
-    distance = frame.ts_second - last_clip_time[frame.source_name]
+    if frame['source_name'] not in last_clip_time:
+        last_clip_time[frame['source_name']] = -30
+    distance = frame['ts_second'] - last_clip_time[frame['source_name']]
 
     return distance
