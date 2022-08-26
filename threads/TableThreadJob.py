@@ -47,7 +47,7 @@ class TableThreadJob:
         if self._id is not None:
             self._work()
 
-    def _stop(self):
+    def stop(self):
         if self._id is None:
             return
         if self._stop is not None:
