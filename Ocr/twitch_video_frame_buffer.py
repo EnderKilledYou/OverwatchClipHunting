@@ -72,8 +72,6 @@ class TwitchEater(VideoFrameBuffer):
             self.stream_res = stream_res
             self.capture_url_or_file(ocr_stream)
 
-
-
     def _consumers(self, matcher: ScreenReader):
         # count = os.cpu_count()
         # print("Cpu threads would be " + str(count))
@@ -90,7 +88,8 @@ class TwitchEater(VideoFrameBuffer):
         try:
             print(f"stopping - emptying buffer - {self.broadcaster}")
             while True:
-                self.buffer.get(False)
+                item = self.buffer.get(False)
+                del item
         except:
             pass
         print(f"stopping - destroying reader - {self.broadcaster}")
