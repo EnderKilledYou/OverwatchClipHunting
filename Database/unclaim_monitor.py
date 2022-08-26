@@ -14,3 +14,12 @@ def unclaim_monitor(stream_name) -> Monitor:
         monitor.activated_at = datetime.datetime(1999, 12, 11, 0, 0)
         monitor.is_active = False
 
+
+def unclaim_table_Type(table_type):
+    with db.session.begin():
+        monitor = table_type.query.filter_by(id=self._id).first()
+        if monitor is None:
+            return
+        monitor.activated_by = ""
+        monitor.activated_at = datetime.datetime(1999, 12, 11, 0, 0)
+        monitor.is_active = False

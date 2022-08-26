@@ -67,7 +67,7 @@ class VideoCapReader:
         if frame_number % self.sample_every_count != 0:
             return None
 
-        ret, frame = self.video_capture.read()
+        ret, frame = self.video_capture.retrieve()
 
         if ret:
             return Frame(frame_number, frame, frame_number // fps, self.streamer_name, self.clip_id)
