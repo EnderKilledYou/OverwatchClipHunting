@@ -53,6 +53,8 @@ class StreamLinkHelper:
                 continue
             items.append((streams[stream_res], stream_res))
         try:
-            return items.pop()
+            pop = items.pop()
+            items.clear()
+            return pop
         except:
             return ocr_stream.url, "best"

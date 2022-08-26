@@ -112,6 +112,7 @@ class TwitchEater(VideoFrameBuffer):
     def __del__(self):
         print(f"TwitchEater Del")
         super().__del__()
+        self.consumer_threads.clear()
         if hasattr(self, 'reader') and self.reader is not None:
             del self.reader
         if hasattr(self, 'matcher') and self.matcher is not None:

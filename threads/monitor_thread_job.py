@@ -26,7 +26,7 @@ class MonitorThreadJob(TableThreadJob):
         except BaseException as b:
             cloud_error_logger(b)
 
-        gc.collect()
+
         print(f"Unclaiming for {work.broadcaster}")
         unclaim_table_type(Monitor, self._id)
         print(f"Unclaimed for {work.broadcaster}")

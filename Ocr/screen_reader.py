@@ -34,16 +34,20 @@ class ScreenReader:
     def __del__(self):
         print(f"ScreenReader Del")
         self.Active = False
-        pass
+        self.framebuffer = None
+
+
 
     def consume_twitch_broadcast(self):
         while self.framebuffer.active:
-            with PyTessBaseAPI(path=tess_fast_dir, psm=PSM.SINGLE_COLUMN,oem=OEM.LSTM_ONLY) as api:
+            with PyTessBaseAPI(path=tess_fast_dir, psm=PSM.SINGLE_COLUMN, oem=OEM.LSTM_ONLY) as api:
                 try:
                     while self.next_frame(api) and self.framebuffer.active:
                         pass
                 except BaseException as b:
                     cloud_error_logger(b)
+                api.Clear()
+                api.End()
 
     def next_frame(self, api):
         frame = self.wait_next_frame()
