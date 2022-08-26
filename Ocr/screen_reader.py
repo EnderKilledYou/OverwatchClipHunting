@@ -36,8 +36,6 @@ class ScreenReader:
         self.Active = False
         self.framebuffer = None
 
-
-
     def consume_twitch_broadcast(self):
         while self.framebuffer.active:
             with PyTessBaseAPI(path=tess_fast_dir, psm=PSM.SINGLE_COLUMN, oem=OEM.LSTM_ONLY) as api:
@@ -47,7 +45,10 @@ class ScreenReader:
                 except BaseException as b:
                     cloud_error_logger(b)
                 api.Clear()
+                api.ClearAdaptiveClassifier()
+                api.ClearPersistentCache()
                 api.End()
+                del api
 
     def next_frame(self, api):
         frame = self.wait_next_frame()

@@ -16,15 +16,21 @@ from config.config import tess_fast_dir
 
 class OverwatchActionScreenRegion(ScreenRegion):
 
-    def process(self, pil: Image, frame: Frame, frame_watcher: FrameAggregator, frame_tester: FrameTester,
+    def process(self, img: Image, frame: Frame, frame_watcher: FrameAggregator, frame_tester: FrameTester,
                 api: PyTessBaseAPI):
-        img_crop = self.crop(pil)
+        # img_crop = self.crop(pil)
         if not os.path.exists(tess_fast_dir):
             wait_for_tess()
 
-        api.SetImage(img_crop)
+        width = img.width - (img.width * .25)
+        left = (img.width * .27)
+        top = img.height / 2
+        img_height = img.height - (img.height * .18)
+
+        api.SetRectangle(left=left, top=top, height=img_height, width=width)
+
+        api.SetImage(img)
         text = api.GetUTF8Text()
-        del img_crop
 
         frame.empty = True
         if len(text) < 4:
