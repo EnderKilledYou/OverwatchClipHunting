@@ -59,10 +59,10 @@ class MonitorThreadJob(TableThreadJob):
 
         with VideoCapReader(self.broadcaster) as reader:
 
-            for i in range(0, 2):
-                # consumer_thread = threading.Thread(target=consume_twitch_broadcast,
-                #                                    args=[self._cancel_token, reader, buffer])
-                # consumer_thread.start()
+            # for i in range(0, 2):
+            #     # consumer_thread = threading.Thread(target=consume_twitch_broadcast,
+            #     #                                    args=[self._cancel_token, reader, buffer])
+            #     # consumer_thread.start()
             try:
                 reader.read2(url, buffer, self._cancel_token, self._update_stats)
                 print(f'Capture thread releasing {self.broadcaster}')
