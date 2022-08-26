@@ -11,7 +11,7 @@ class StreamLinkHelper:
     sl_session = Streamlink()
 
     @staticmethod
-    def get_best_stream(broadcaster: str) -> TwitchHLSStream:
+    def get_best_stream(broadcaster: str) -> Tuple[str, str]:
         try:
             streams = StreamLinkHelper.sl_session.streams('https://www.twitch.tv/{0}'.format(broadcaster))
         except NoPluginError as npe:

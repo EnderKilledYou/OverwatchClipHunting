@@ -70,7 +70,7 @@ class TwitchEater(VideoFrameBuffer):
         with OverwatchScreenReader(self) as matcher:
             self._consumers(matcher)
             self.stream_res = stream_res
-            self.capture_url_or_file(ocr_stream.url)
+            self.capture_url_or_file(ocr_stream)
         del ocr_stream
 
 
