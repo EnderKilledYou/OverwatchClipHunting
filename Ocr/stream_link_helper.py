@@ -27,8 +27,11 @@ class StreamLinkHelper:
             return None
 
         best_stream = StreamLinkHelper._parse_best_stream(streams)
-        for item in streams:
+
+        keys = list(streams.keys())
+        for item in keys:
             del streams[item]
+        del keys
 
         return best_stream
 

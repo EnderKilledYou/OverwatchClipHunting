@@ -71,7 +71,7 @@ class TwitchEater(VideoFrameBuffer):
             self._consumers(matcher)
             self.stream_res = stream_res
             self.capture_url_or_file(ocr_stream)
-        del ocr_stream
+
 
 
     def _consumers(self, matcher: ScreenReader):
