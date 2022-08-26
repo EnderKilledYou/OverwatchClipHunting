@@ -1,5 +1,8 @@
 import threading
 
+from Database.monitor import self_id
+from Database.unclaim_monitor import claim_table_type
+
 
 class TableThreadJob:
 
@@ -18,7 +21,8 @@ class TableThreadJob:
         self.thread = threading_thread
 
     def _start(self):
-        self._table_type.query
+
+        claim_table_type(self._table_type,id,self_id)
 
     def _stop(self):
         if self._id is None:
