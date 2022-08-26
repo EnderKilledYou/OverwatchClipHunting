@@ -4,12 +4,9 @@ from time import sleep
 
 import cv2
 from PIL import Image
-
 from tesserocr import PyTessBaseAPI, PSM, OEM
-
 from Ocr.frames.frame import Frame
 from Ocr.overwatch_readers.overwatch_action_screen_region import OverwatchActionScreenRegion
-from Ocr.overwatch_readers.overwatch_screen_reader import OverwatchScreenReader
 from cloud_logger import cloud_error_logger
 from config.config import tess_fast_dir
 
@@ -29,6 +26,7 @@ def consume_twitch_broadcast(cancel_token, reader, buffer):
                     cloud_error_logger(b)
 
         api.Clear()
+
         api.ClearAdaptiveClassifier()
         api.ClearPersistentCache()
 
