@@ -59,7 +59,6 @@ class ScreenReader:
         try:
             return self.framebuffer.get_one()
         except Empty:
-            sleep(2)
             pass
         except BaseException as b:
             print(f"Couldn't consume one for {self.framebuffer.broadcaster} : {str(b)}")

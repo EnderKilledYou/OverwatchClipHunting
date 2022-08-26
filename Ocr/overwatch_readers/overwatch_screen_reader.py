@@ -52,6 +52,8 @@ class OverwatchScreenReader(ScreenReader):
                 print(f"Processing frame {frame.frame_number} for {frame.source_name}")
             self.ActionTextCropper.process(pil_grey, frame, self.frame_watcher,
                                            self.frame_tester, api)
+            del img_grey
+            del pil_grey
             if frame.empty:
                 del frame
 

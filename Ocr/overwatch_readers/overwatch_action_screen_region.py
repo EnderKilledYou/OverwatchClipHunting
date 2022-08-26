@@ -1,6 +1,5 @@
 import os
 
-
 from PIL import Image
 from pytesseract import image_to_string
 
@@ -16,7 +15,7 @@ from config.config import tess_fast_dir
 
 
 class OverwatchActionScreenRegion(ScreenRegion):
-    
+
     def process(self, pil: Image, frame: Frame, frame_watcher: FrameAggregator, frame_tester: FrameTester,
                 api: PyTessBaseAPI):
         img_crop = self.crop(pil)
@@ -25,11 +24,11 @@ class OverwatchActionScreenRegion(ScreenRegion):
 
         api.SetImage(img_crop)
         text = api.GetUTF8Text()
+        del img_crop
         # text = image_to_string(
         #     img_crop)  # image_to_string(img_crop, config=f'--tessdata-dir "{tess_fast_dir}"', lang='eng')  # , lang='eng')
         frame.empty = True
         if len(text) < 4:
-
             return
         if frame_tester.is_first_menu_frame(text):
             return  # later
@@ -69,7 +68,7 @@ class OverwatchActionScreenRegion(ScreenRegion):
         if frame_tester.is_spawn_room_frame(text):
             frame_watcher.add_spawn_room_frame(frame)
             frame.empty = False
-    
+
     def crop(self, img):
         right = img.width - (img.width * .25)
         left = (img.width * .27)
