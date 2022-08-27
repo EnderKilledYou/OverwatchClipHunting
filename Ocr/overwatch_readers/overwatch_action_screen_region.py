@@ -34,14 +34,10 @@ class OverwatchActionScreenRegion(ScreenRegion):
         left = (img.width * .27)
         top = img.height / 2
         img_height = img.height - (img.height * .18)
-
-        #api.SetRectangle(left=left, top=top, height=img_height, width=width)
-
-
         api.SetImage(img)
-        api.GetUTF8Text()
+        api.SetRectangle(left=left, top=top, height=img_height, width=width)
+        text = api.GetUTF8Text()
 
-        return
         frame.empty = True
         if len(text) < 4:
             return
