@@ -15,25 +15,25 @@ def consume_twitch_broadcast(cancel_token, reader, buffer):
     streamer_name = reader.streamer_name
     print(f"Starting consume_twitch_broadcast {streamer_name}")
    # with PyTessBaseAPI(path=tess_fast_dir, psm=PSM.SINGLE_COLUMN, oem=OEM.LSTM_ONLY) as api:
-    with OverwatchActionScreenRegion() as action_text_matcher:
-        while not cancel_token.cancelled:
-            try:
-                frame = wait_next_frame(reader, buffer)
-                if frame is None:
-                    print("Hitting bottom nothing to read")
-                    sleep(1)
-                    continue
-                ocr(frame, None, action_text_matcher)
-                del frame
-            except BaseException as b:
-                cloud_error_logger(b)
-    print(f"stopping consume_twitch_broadcast {streamer_name}")
-    #    api.Clear()
+        with OverwatchActionScreenRegion() as action_text_matcher:
+            while not cancel_token.cancelled:
+                try:
+                    frame = wait_next_frame(reader, buffer)
+                    if frame is None:
+                        print("Hitting bottom nothing to read")
+                        sleep(1)
+                        continue
+                    ocr(frame, api, action_text_matcher)
+                    del frame
+                except BaseException as b:
+                    cloud_error_logger(b)
+        print(f"stopping consume_twitch_broadcast {streamer_name}")
+        api.Clear()
 
-    #    api.ClearAdaptiveClassifier()
-    #    api.ClearPersistentCache()
-    #    del api
-    #    del action_text_matcher
+        api.ClearAdaptiveClassifier()
+        api.ClearPersistentCache()
+        del api
+        del action_text_matcher
     print(f"stopped consume_twitch_broadcast {streamer_name}")
     cancel_token.cancel()
 
@@ -43,7 +43,7 @@ def ocr(frame: Frame, api: PyTessBaseAPI, action_text_matcher: OverwatchActionSc
     pil_grey = Image.fromarray(img_grey)
     if frame.frame_number % 100 == 0:
         print(f"Processing frame {frame.frame_number} for {frame.source_name}")
-    # action_text_matcher.process(pil_grey, frame, api)
+    action_text_matcher.process(pil_grey, frame, api)
     del img_grey
     del pil_grey
 
