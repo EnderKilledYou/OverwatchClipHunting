@@ -39,7 +39,7 @@ class OverwatchActionScreenRegion(ScreenRegion):
 
 
         api.SetImage(img)
-        text = api.GetUTF8Text()
+        api.GetUTF8Text()
 
         return
         frame.empty = True
