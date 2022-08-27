@@ -44,7 +44,7 @@ def ocr(frame: Frame, api: PyTessBaseAPI, action_text_matcher: OverwatchActionSc
     pil_grey = Image.fromarray(img_grey)
     if frame.frame_number % 100 == 0:
         print(f"Processing frame {frame.frame_number} for {frame.source_name}")
-    action_text_matcher.process(frame.image, frame, api)
+    action_text_matcher.process(pil_grey, frame, api)
     img_grey = None
     pil_grey = None
     frame.image = None
