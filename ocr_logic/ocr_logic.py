@@ -32,6 +32,8 @@ def consume_twitch_broadcast(cancel_token, reader, buffer):
 
         api.ClearAdaptiveClassifier()
         api.ClearPersistentCache()
+        del api
+        del action_text_matcher
     print(f"stopped consume_twitch_broadcast {streamer_name}")
     cancel_token.cancel()
 
