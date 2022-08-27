@@ -27,10 +27,8 @@ def consume_twitch_broadcast(cancel_token, reader, buffer):
                 except BaseException as b:
                     cloud_error_logger(b)
         print(f"stopping consume_twitch_broadcast {streamer_name}")
-        api.Clear()
-
-        api.ClearAdaptiveClassifier()
-        api.ClearPersistentCache()
+    api.ClearPersistentCache()
+    api.End()
     print(f"stopped consume_twitch_broadcast {streamer_name}")
     cancel_token.cancel()
 
