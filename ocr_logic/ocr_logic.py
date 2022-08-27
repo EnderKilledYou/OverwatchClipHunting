@@ -26,6 +26,7 @@ def consume_twitch_broadcast(cancel_token, reader, buffer):
                     sleep(1)
                     continue
                 ocr(frame, get_perma_ocr(), action_text_matcher)
+                del frame
                 frame = None
             except BaseException as b:
                 cloud_error_logger(b)
