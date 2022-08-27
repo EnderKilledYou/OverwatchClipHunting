@@ -2,6 +2,7 @@ import gc
 import random
 import sys
 import threading
+import traceback
 from queue import Empty, Queue
 from time import sleep
 
@@ -29,7 +30,9 @@ def consume_twitch_broadcast(cancel_token, reader, buffer):
                 del frame
                 frame = None
             except BaseException as b:
-                cloud_error_logger(b)
+                #cloud_error_logger(b)
+                print(b)
+                traceback.print_exception()
         print(f"stopping consume_twitch_broadcast {streamer_name}")
         # api.ClearPersistentCache()
         # api.Clear()
