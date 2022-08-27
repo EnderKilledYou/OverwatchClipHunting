@@ -31,6 +31,9 @@ class OverwatchActionScreenRegion(ScreenRegion):
                 self.return_queue.get(False)
         except:
             pass
+        self.frame_watcher = None
+        self.frame_tester = None
+        self.return_queue = None
 
     def process(self, img: Image, frame: Frame, api: PyTessBaseAPI):
 
@@ -43,7 +46,7 @@ class OverwatchActionScreenRegion(ScreenRegion):
         text = api.GetUTF8Text(img_crop, self.return_queue)
 
         img_crop = None
-
+        return
         frame.empty = True
         if len(text) < 4:
             text = None
