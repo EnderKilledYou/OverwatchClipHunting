@@ -57,7 +57,7 @@ class DeepFaceResult:
     race: Race
     frame_width:int
     def __del__(self):
-        print(f"DeepFaceResult Del")
+#        print(f"DeepFaceResult Del")
         self.frame = None
         self.region = None
         self.dominant_emotion = None

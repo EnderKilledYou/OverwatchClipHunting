@@ -12,6 +12,8 @@ import cancel_token
 from tesserocr import PyTessBaseAPI
 from twitchdl.twitch import GQLError
 
+from Database.Twitch.get_tag_and_bag import get_tag_and_bag_by_clip_id, delete_tag_and_bag_by_id, \
+    update_tag_and_bag_start_and_duration
 from Database.Twitch.twitch_clip_instance import update_twitch_clip_instance_filename, \
     get_twitch_clip_video_id_by_id, get_twitch_clip_instance_by_video_id
 from Database.Twitch.delete_twitch_clip import delete_clip
@@ -98,6 +100,38 @@ class ReScanner(ThreadedManager):
 
             update_scan_job_in_deepfacequeue(job.id)
             face_to_clip(job.clip_id, path, job.id)
+            sleep(5)  # wait for all the items to have made
+            clip_parts = get_tag_and_bag_by_clip_id(job.clip_id)
+            clips_merged = {}
+            for bag in clip_parts:
+                if bag.tag not in clips_merged:
+                    clips_merged[bag.tag] = [bag]
+                    continue
+                should_add = True
+                for i in range(0, len(clips_merged[bag.tag])):
+                    existing_tag = clips_merged[bag.tag][i]
+                    if existing_tag.tag_start == bag.tag_start:
+                        if existing_tag.tag_duration < bag.tag_duration:
+                            delete_tag_and_bag_by_id(existing_tag.id)  # the clip is longer
+                            clips_merged[bag.tag][i] = bag
+                        else:
+                            delete_tag_and_bag_by_id(bag.id)  # the existing clip is longer
+                        should_add = False
+                        break
+                    intersection = self.does_intersect_time(bag, existing_tag)
+
+                    if len(intersection) > 0:
+                        duration_max, tag_min = self.get_new_start_end(bag, existing_tag)
+                        existing_tag.tag_start = tag_min
+                        duration_max_tag_min = duration_max - tag_min
+                        existing_tag.tag_duration = duration_max_tag_min
+                        update_tag_and_bag_start_and_duration(existing_tag.id, tag_min, duration_max_tag_min)
+                        delete_tag_and_bag_by_id(bag.id)
+                        should_add = False
+                        break
+
+                if should_add:
+                    clips_merged[bag.tag].append(bag)
 
             # update_scan_job_percent(job.id, 1, True)
             del clip
@@ -108,6 +142,22 @@ class ReScanner(ThreadedManager):
             traceback.print_exc()
             if job is not None:
                 update_scan_job_error(job.id, str(e))
+
+    def get_new_start_end(self, bag, existing_tag):
+        clip_1_end = existing_tag.tag_start + existing_tag.tag_duration
+        clip_2_end = bag.tag_start + bag.tag_duration
+        tag_min = min(bag.tag_start, existing_tag.tag_start)
+        duration_max = max(clip_1_end, clip_2_end)
+        return duration_max, tag_min
+
+    def does_intersect_time(self, bag, existing_tag):
+        clip_1_end = existing_tag.tag_start + existing_tag.tag_duration
+        clip_2_end = bag.tag_start + bag.tag_duration
+        clip_1 = range(existing_tag.tag_start, clip_1_end + 2)
+        clip_2 = range(bag.tag_start, clip_2_end + 2)
+        xs = set(clip_1)
+        intersection = xs.intersection(clip_2)
+        return intersection
 
     def _get_url(self, job: TwitchClipInstanceScanJob):
         video_id = get_twitch_clip_video_id_by_id(job.clip_id)
@@ -149,7 +199,7 @@ class ReScanner(ThreadedManager):
                         reader_count = reader.count()
                         if reader_count % 20 == 0:
                             count_size = reader_count / size
-                            update_scan_job_percent(job_id, count_size/100)
+                            update_scan_job_percent(job_id, count_size / 100)
 
             except BaseException as b:
                 traceback.print_exc()
@@ -159,8 +209,6 @@ class ReScanner(ThreadedManager):
                 reader.stop()
                 del reader
         update_scan_job_percent(job_id, 1)
-
-
 
 
 def queue_to_list(queue: Queue):
