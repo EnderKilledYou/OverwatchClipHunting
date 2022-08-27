@@ -1,3 +1,4 @@
+import gc
 import sys
 from queue import Empty
 from time import sleep
@@ -29,7 +30,7 @@ def consume_twitch_broadcast(cancel_token, reader, buffer):
         print(f"stopping consume_twitch_broadcast {streamer_name}")
         api.ClearPersistentCache()
         api.Clear()
-
+    gc.collect()
     print(f"stopped consume_twitch_broadcast {streamer_name}")
     cancel_token.cancel()
 
