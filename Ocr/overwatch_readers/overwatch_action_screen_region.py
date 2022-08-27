@@ -42,7 +42,7 @@ class OverwatchActionScreenRegion(ScreenRegion):
 
         img_crop = self.crop(img)
         # api.SetImage(img_crop)
-        return
+
         text = api.GetUTF8Text(img_crop, self.return_queue)
 
         img_crop = None
