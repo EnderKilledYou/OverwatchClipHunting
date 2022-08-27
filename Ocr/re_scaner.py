@@ -5,8 +5,10 @@ import tempfile
 import traceback
 from os.path import abspath
 from queue import Empty, Queue
+from random import random, Random
 from time import sleep
 
+import cancel_token
 from tesserocr import PyTessBaseAPI
 from twitchdl.twitch import GQLError
 
@@ -26,6 +28,7 @@ from Ocr.wait_for_tessy import wait_for_tesseract
 from cloud_logger import cloud_logger, cloud_error_logger
 from config.config import tess_fast_dir
 from generic_helpers.something_manager import ThreadedManager
+from ocr_logic.ocr_logic import PermaOCR
 
 
 class InvalidFpsError(BaseException):
@@ -36,6 +39,17 @@ tmp_path = abspath(
     './tmp')
 if not os.path.exists(tmp_path):
     os.makedirs(tmp_path)
+
+rescanner_ocrs = [PermaOCR().start()]
+rand = Random()
+
+
+def get_scan_ocr():
+    index = rand.randint(0, len(rescanner_ocrs) - 1)
+    return rescanner_ocrs[index]
+
+
+rescanner_ocr = PermaOCR().start()
 
 
 class ReScanner(ThreadedManager):
@@ -120,6 +134,7 @@ class ReScanner(ThreadedManager):
         return True
 
     def _scan_clip(self, job_id: int, broadcaster: str, clip_id: int, path: str):
+        cancel = cancel_token.CancellationToken()
         with ClipVideoCapReader(broadcaster, clip_id) as reader:
             # size = len(reader_list)
             frame_number = 0
@@ -127,31 +142,25 @@ class ReScanner(ThreadedManager):
             reader.sample_every_count = 10
             size = reader.fps * seconds / reader.sample_every_count
             try:
-                itr = reader.readYield(path)
-                with PyTessBaseAPI(path=tess_fast_dir) as api:
-                    with OverwatchClipReader() as matcher:
-                        while self.match_frame(itr, api, matcher):
-                            self._frame_count += 1
-                            frame_number = frame_number + 1
-                            self._update_percentage_in_row(frame_number, job_id, size)
-                            if frame_number % 30 == 0:
-                                sleep(1)
+                itr = reader.readYield(path, cancel)
+                # with PyTessBaseAPI(path=tess_fast_dir) as api:
+                with OverwatchClipReader() as matcher:
+                    while self.match_frame(itr, get_scan_ocr(), matcher):
+                        reader_count = reader.count()
+                        if reader_count % 20 == 0:
+                            count_size = reader_count / size
+                            update_scan_job_percent(job_id, count_size/100)
+
             except BaseException as b:
                 traceback.print_exc()
                 pass
             finally:
+                cancel.cancel()
                 reader.stop()
                 del reader
         update_scan_job_percent(job_id, 1)
 
-    def _update_percentage_in_row(self, frame_number, job_id, size):
-        if frame_number < size:
-            percent_done = frame_number / size
-        else:
-            percent_done = .99  # we guessed the fps wrong (ffmped)
-        i = int(percent_done * 100.0)
-        if i > 0 and i % 15 == 0:
-            update_scan_job_percent(job_id, percent_done)
+
 
 
 def queue_to_list(queue: Queue):

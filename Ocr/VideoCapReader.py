@@ -125,8 +125,8 @@ class VideoCapReader:
         finally:
             del video_capture
 
-    def readYield(self, url):
-        self.Active = True
+    def readYield(self, url, cancel_token):
+
         self._acquire(url)
         try:
 
@@ -137,7 +137,7 @@ class VideoCapReader:
                 fps = 60
             self.fps = fps
             self.sample_every_count = fps // sample_frame_rate
-            return self._yield_frames(fps)
+            return self._yield_frames(fps, cancel_token)
         except StreamEndedError:
             try:
                 self._release()
@@ -228,20 +228,21 @@ class VideoCapReader:
         self.incr_items_read()
         return True
 
-    def _yield_frames(self, fps):
+    def _yield_frames(self, fps, cancel_token):
         frame_number = 0
-        while self.Active:
+        while not cancel_token.cancelled:
             try:
                 item = self._read_one(frame_number, fps)
             except StreamEndedError:
                 break
+            frame_number = frame_number + 1
             if item is None:
-                break
+                continue
 
             yield item
             self.incr_items_read()
 
-            frame_number = frame_number + 1
+
 
     def _acquire2(self, url: str):
         video_capture = cv2.VideoCapture(url, apiPreference=cv2.CAP_IMAGES)

@@ -6,6 +6,7 @@ from os.path import abspath
 from threading import Timer
 from typing import List
 
+import cancel_token
 import cv2
 import deepface.DeepFace
 import numpy as np
@@ -86,7 +87,6 @@ class DeepFacer(ThreadedManager):
 
             frames.clear()
 
-
             # Timer(8, clip_tag_to_clip, (clip_id, file, scan_job_id)).start()
             update_scan_job_percent(scan_job_id, 1, True)
             if os.path.exists(file):
@@ -133,7 +133,8 @@ class DeepFacer(ThreadedManager):
             frame_list = []
 
             try:
-                itr = reader.readYield(path)
+                token = cancel_token.CancellationToken()
+                itr = reader.readYield(path, token)
 
                 while True:
                     self.scanned_frame(itr, frame_list)
@@ -158,6 +159,11 @@ class DeepFacer(ThreadedManager):
             except BaseException as b:
                 traceback.print_exc()
                 pass
+            finally:
+                token.cancel()
+                reader.stop()
+                del reader
+                reader = None
 
     def scanned_frame(self, itr, return_items):
         items = []

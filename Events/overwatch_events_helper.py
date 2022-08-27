@@ -1,7 +1,6 @@
 import json
 import os.path
 
-
 from Events.flask_events import flask_event
 from Ocr.frames.frame import Frame
 
@@ -26,9 +25,8 @@ def create_clip(frame: Frame, clip_type: str):
 
     if 'status' in created and created['status'] == 403:
         print("can't clip this channel no perms")
-        flask_event.emit('avoid',frame['source_name'])
-        #avoid_monitor(frame['source_name'])
-
+        flask_event.emit('avoid', frame['source_name'])
+        # avoid_monitor(frame['source_name'])
 
     if 'data' in created:
         flask_event.emit('clip', created['data'], clip_type)
@@ -82,5 +80,6 @@ def get_last_clip_time_distance(frame: Frame):
     if frame['source_name'] not in last_clip_time:
         last_clip_time[frame['source_name']] = -30
     distance = frame['ts_second'] - last_clip_time[frame['source_name']]
-
+    if distance < 0:
+        last_clip_time[frame['source_name']] = frame['ts_second']  # reset cuz stream may have
     return distance

@@ -16,26 +16,22 @@ class OverwatchClipReader(ScreenReader):
 
     def __init__(self):
         super(OverwatchClipReader, self).__init__()
-        self.frame_tester = FrameTester()
-        self.ActionTextCropper = OverwatchActionScreenRegion()
-        self.frame_watcher = OrderedFrameAggregator(overwatch_clips_event)
 
-
+        self.ActionTextCropper = OverwatchActionScreenRegion(events=overwatch_clips_event)
 
     def __del__(self):
         print(f"OverwatchClipReader Del")
         super().__del__()
-        if hasattr(self, 'frame_tester'):
-            del self.frame_tester
+
         if hasattr(self, 'ActionTextCropper'):
             del self.ActionTextCropper
-        if hasattr(self, 'frame_watcher'):
-            del self.frame_watcher
 
     def ocr(self, frame: Frame, api: PyTessBaseAPI) -> None:
         img_grey = cv.cvtColor(frame.image, cv.COLOR_RGB2GRAY)
         pil_grey = Image.fromarray(img_grey)
-        self.ActionTextCropper.process(pil_grey, frame, self.frame_watcher,
-                                       self.frame_tester, api)
-        if frame.empty:
-            del frame
+        self.ActionTextCropper.process(pil_grey, frame, api)
+
+        del frame
+        frame = None
+        pil_grey = None
+        img_grey = None

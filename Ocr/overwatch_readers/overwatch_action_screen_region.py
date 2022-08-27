@@ -18,8 +18,8 @@ from config.config import tess_fast_dir
 
 
 class OverwatchActionScreenRegion(ScreenRegion):
-    def __init__(self):
-        self.frame_watcher = OrderedFrameAggregator(overwatch_event)
+    def __init__(self,events=overwatch_event):
+        self.frame_watcher = OrderedFrameAggregator(events)
         self.frame_tester = FrameTester()
         self.return_queue = Queue()
 
