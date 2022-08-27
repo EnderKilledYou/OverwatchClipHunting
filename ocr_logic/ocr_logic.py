@@ -17,7 +17,7 @@ from config.config import tess_fast_dir
 def consume_twitch_broadcast(cancel_token, reader, buffer):
     streamer_name = reader.streamer_name
     print(f"Starting consume_twitch_broadcast {streamer_name}")
-    #with PyTessBaseAPI(path=tess_fast_dir, psm=PSM.SINGLE_COLUMN, oem=OEM.LSTM_ONLY) as api:
+    # with PyTessBaseAPI(path=tess_fast_dir, psm=PSM.SINGLE_COLUMN, oem=OEM.LSTM_ONLY) as api:
     with OverwatchActionScreenRegion() as action_text_matcher:
         while not cancel_token.cancelled:
             try:
@@ -34,17 +34,17 @@ def consume_twitch_broadcast(cancel_token, reader, buffer):
         # api.ClearPersistentCache()
         # api.Clear()
         # api = None
-    #gc.collect()
+    # gc.collect()
     print(f"stopped consume_twitch_broadcast {streamer_name}")
     cancel_token.cancel()
 
 
 def ocr(frame: Frame, api: PyTessBaseAPI, action_text_matcher: OverwatchActionScreenRegion) -> None:
-    img_grey = cv2.cvtColor(frame.image, cv2.COLOR_RGB2GRAY)
-    pil_grey = Image.fromarray(img_grey)
+    # img_grey = cv2.cvtColor(frame.image, cv2.COLOR_RGB2GRAY)
+    # pil_grey = Image.fromarray(img_grey)
     if frame.frame_number % 100 == 0:
         print(f"Processing frame {frame.frame_number} for {frame.source_name}")
-    action_text_matcher.process(pil_grey, frame, api)
+    action_text_matcher.process(frame.image, frame, api)
     img_grey = None
     pil_grey = None
     frame.image = None
@@ -82,7 +82,6 @@ class PermaOCR:
             image = None
             return_queue = None
 
-
     def GetUTF8Text(self, image, return_queue):
         self.queue.put((image, return_queue))
         return return_queue.get()
@@ -93,5 +92,5 @@ rand = random.Random()
 
 
 def get_perma_ocr():
-    index = rand.randint(0, len(perma_ocrs)-1)
+    index = rand.randint(0, len(perma_ocrs) - 1)
     return perma_ocrs[index]

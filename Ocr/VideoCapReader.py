@@ -62,17 +62,18 @@ class VideoCapReader:
 
     def _read_one2(self, frame_number, fps, video_capture):
 
-        ret, frame = video_capture.read()
-
-        if not ret:
-            print(f"Stream could not be read from {self.streamer_name}")
-            raise StreamEndedError("Could not read frame")
+        video_capture.grab()
 
         if frame_number % self.sample_every_count != 0:
-            del frame
             return None
 
-        return Frame(frame_number, frame, frame_number // fps, self.streamer_name, self.clip_id)
+        ret, frame = video_capture.retrieve()
+
+        if ret:
+            return Frame(frame_number, frame, frame_number // fps, self.streamer_name, self.clip_id)
+
+        print(f"Stream could not be read from {self.streamer_name}")
+        raise StreamEndedError("Could not read frame")
 
     def _read_one(self, frame_number, fps):
 
