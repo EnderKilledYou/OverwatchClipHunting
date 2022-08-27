@@ -40,8 +40,8 @@ def consume_twitch_broadcast(cancel_token, reader, buffer):
 
 
 def ocr(frame: Frame, api: PyTessBaseAPI, action_text_matcher: OverwatchActionScreenRegion) -> None:
-    # img_grey = cv2.cvtColor(frame.image, cv2.COLOR_RGB2GRAY)
-    # pil_grey = Image.fromarray(img_grey)
+    img_grey = cv2.cvtColor(frame.image, cv2.COLOR_RGB2GRAY)
+    pil_grey = Image.fromarray(img_grey)
     if frame.frame_number % 100 == 0:
         print(f"Processing frame {frame.frame_number} for {frame.source_name}")
     action_text_matcher.process(frame.image, frame, api)
