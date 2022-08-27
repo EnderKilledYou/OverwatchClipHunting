@@ -21,7 +21,7 @@ def consume_twitch_broadcast(cancel_token, reader, buffer):
                     frame = wait_next_frame(reader, buffer)
                     if frame is None:
                         sleep(1)
-                        return True
+                        continue
                     ocr(frame, api, action_text_matcher)
                     del frame
                 except BaseException as b:
@@ -32,6 +32,7 @@ def consume_twitch_broadcast(cancel_token, reader, buffer):
         api.ClearAdaptiveClassifier()
         api.ClearPersistentCache()
     print(f"stopped consume_twitch_broadcast {streamer_name}")
+    cancel_token.cancel()
 
 
 def ocr(frame: Frame, api: PyTessBaseAPI, action_text_matcher: OverwatchActionScreenRegion) -> None:
