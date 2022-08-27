@@ -31,8 +31,10 @@ class OverwatchActionScreenRegion(ScreenRegion):
             wait_for_tess()
 
         img_crop = self.crop(img)
-        api.SetImage(img_crop)
-        text = api.GetUTF8Text()
+        # api.SetImage(img_crop)
+
+        config =f'--tessdata-dir {tess_fast_dir}'
+        text = image_to_string(img_crop, config=config, lang='eng')  # api.GetUTF8Text()
         del img_crop
         frame.empty = True
         if len(text) < 4:
