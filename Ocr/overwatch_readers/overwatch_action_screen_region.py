@@ -30,21 +30,16 @@ class OverwatchActionScreenRegion(ScreenRegion):
         if not os.path.exists(tess_fast_dir):
             wait_for_tess()
 
-        width = img.width - (img.width * .25)
-        left = (img.width * .27)
-        top = img.height / 2
-        img_height = img.height - (img.height * .18)
-        api.SetImage(img)
-        api.SetRectangle(left=left, top=top, height=img_height, width=width)
+        img_crop = self.crop(img)
+        api.SetImage(img_crop)
         text = api.GetUTF8Text()
-
+        del img_crop
         frame.empty = True
         if len(text) < 4:
+            del text
             return
         frame_tester = self.frame_tester
         frame_watcher = self.frame_watcher
-        if frame_tester.is_first_menu_frame(text):
-            return  # later
 
         if frame_tester.is_elimed_frame(text):
             frame_watcher.add_elimed_frame(frame)
@@ -81,6 +76,7 @@ class OverwatchActionScreenRegion(ScreenRegion):
         if frame_tester.is_spawn_room_frame(text):
             frame_watcher.add_spawn_room_frame(frame)
             frame.empty = False
+        del text
 
     def crop(self, img):
         right = img.width - (img.width * .25)
