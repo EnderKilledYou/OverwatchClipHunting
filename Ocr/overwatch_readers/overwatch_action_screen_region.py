@@ -37,6 +37,7 @@ class OverwatchActionScreenRegion(ScreenRegion):
        # text = image_to_string(img_crop, config=config, lang='eng')  # api.GetUTF8Text()
         text = " blah"
         del img_crop
+        return
         frame.empty = True
         if len(text) < 4:
             del text
