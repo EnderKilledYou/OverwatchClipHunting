@@ -2,20 +2,21 @@ import re
 
 
 def if_got_elimed(text: str):
-    return re.search('(NATED BY|YOU WERE)', text, re.IGNORECASE) is not None
+    return 'YOU WERE' in text or 'NATED BY' in text
+
 
 
 def if_menu(text: str):
-    return re.search('ENTER THE ARCADE', text, re.IGNORECASE) is not None
+    return 'ENTER THE ARCADE' in text
 
 
 def if_blocking(text: str):
-    return re.search('BLOCKING', text, re.IGNORECASE) is not None
+    return 'BLOCKING' in text
 
 
 def if_orb_gain(text: str):
-    return re.search('GAINED', text, re.IGNORECASE) is not None
+    return 'GAINED' in text
 
 
 def if_objective_defense(text: str):
-    return re.search('DEFENSE', text, re.IGNORECASE) is not None
+    return 'DEFENSE' in text

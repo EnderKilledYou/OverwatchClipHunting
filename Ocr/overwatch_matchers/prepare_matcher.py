@@ -1,18 +1,17 @@
 import re
 
 
-
 def if_prepare_attack(text: str):
-    return re.search('PREPARE', text) is not None and re.search('ATTACK', text) is not None
+    return 'PREPARE' in text and 'ATTACK' in text
 
 
 def if_prepare_defense(text: str):
-    return re.search('PREPARE', text) is not None and re.search('DEFENSE', text) is not None
+    return 'PREPARE' in text and 'DEFENSE' in text
 
 
 def if_escort(text: str):
-    return re.search('ESCORT', text) is not None and  re.search('PAY', text) is not None
+    return 'ESCORT' in text and 'PAY' in text
 
 
 def if_contested(text: str):
-    return re.search('CONTESTED', text) is not None
+    return 'CONTESTED' in text
