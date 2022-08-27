@@ -23,7 +23,7 @@ def consume_twitch_broadcast(cancel_token, reader, buffer):
                         sleep(1)
                         continue
                     ocr(frame, api, action_text_matcher)
-                    del frame
+                    frame = None
                 except BaseException as b:
                     cloud_error_logger(b)
         print(f"stopping consume_twitch_broadcast {streamer_name}")
@@ -41,8 +41,9 @@ def ocr(frame: Frame, api: PyTessBaseAPI, action_text_matcher: OverwatchActionSc
     if frame.frame_number % 100 == 0:
         print(f"Processing frame {frame.frame_number} for {frame.source_name}")
     action_text_matcher.process(pil_grey, frame, api)
-    del img_grey
-    del pil_grey
+    img_grey = None
+    pil_grey = None
+    frame.image = None
 
 
 def wait_next_frame(reader, buffer):

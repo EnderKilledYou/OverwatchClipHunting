@@ -33,14 +33,13 @@ class OverwatchActionScreenRegion(ScreenRegion):
         img_crop = self.crop(img)
         # api.SetImage(img_crop)
 
-
         text = api.GetUTF8Text()
 
-        del img_crop
-        return
+        img_crop = None
+
         frame.empty = True
         if len(text) < 4:
-            del text
+            text = None
             return
         frame_tester = self.frame_tester
         frame_watcher = self.frame_watcher
@@ -80,7 +79,9 @@ class OverwatchActionScreenRegion(ScreenRegion):
         if frame_tester.is_spawn_room_frame(text):
             frame_watcher.add_spawn_room_frame(frame)
             frame.empty = False
-        del text
+        text = None
+        frame_tester = None
+        frame_watcher = None
 
     def crop(self, img):
         right = img.width - (img.width * .25)
