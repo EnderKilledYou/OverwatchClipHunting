@@ -12,7 +12,8 @@ from config.config import tess_fast_dir
 
 
 def consume_twitch_broadcast(cancel_token, reader, buffer):
-    print (f"Starting consume_twitch_broadcast {reader.streamer_name}")
+    streamer_name = reader.streamer_name
+    print(f"Starting consume_twitch_broadcast {streamer_name}")
     with PyTessBaseAPI(path=tess_fast_dir, psm=PSM.SINGLE_COLUMN, oem=OEM.LSTM_ONLY) as api:
         with OverwatchActionScreenRegion() as action_text_matcher:
             while not cancel_token.cancelled:
@@ -25,11 +26,12 @@ def consume_twitch_broadcast(cancel_token, reader, buffer):
                     del frame
                 except BaseException as b:
                     cloud_error_logger(b)
-
+        print(f"stopping consume_twitch_broadcast {streamer_name}")
         api.Clear()
 
         api.ClearAdaptiveClassifier()
         api.ClearPersistentCache()
+    print(f"stopped consume_twitch_broadcast {streamer_name}")
 
 
 def ocr(frame: Frame, api: PyTessBaseAPI, action_text_matcher: OverwatchActionScreenRegion) -> None:
