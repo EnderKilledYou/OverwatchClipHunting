@@ -50,6 +50,8 @@ def ocr(frame: Frame, api: PyTessBaseAPI, action_text_matcher: OverwatchActionSc
     frame.image = None
 
 
+
+
 def wait_next_frame(reader, buffer):
     try:
         read = buffer.get(False)
