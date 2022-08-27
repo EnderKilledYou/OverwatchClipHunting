@@ -20,6 +20,7 @@ def consume_twitch_broadcast(cancel_token, reader, buffer):
                 try:
                     frame = wait_next_frame(reader, buffer)
                     if frame is None:
+                        print("Hitting bottom nothing to read")
                         sleep(1)
                         continue
                     ocr(frame, api, action_text_matcher)
