@@ -1,4 +1,5 @@
 import os
+from queue import Queue
 
 from PIL import Image
 from pytesseract import image_to_string
@@ -20,10 +21,16 @@ class OverwatchActionScreenRegion(ScreenRegion):
     def __init__(self):
         self.frame_watcher = OrderedFrameAggregator(overwatch_event)
         self.frame_tester = FrameTester()
+        self.return_queue = Queue()
 
     def __del__(self):
         del self.frame_watcher
         del self.frame_tester
+        try:
+            while True:
+                self.return_queue.get(False)
+        except:
+            pass
 
     def process(self, img: Image, frame: Frame, api: PyTessBaseAPI):
 
@@ -31,9 +38,9 @@ class OverwatchActionScreenRegion(ScreenRegion):
             wait_for_tess()
 
         img_crop = self.crop(img)
-        api.SetImage(img_crop)
+        # api.SetImage(img_crop)
 
-        text = api.GetUTF8Text()
+        text = api.GetUTF8Text(img_crop, self.return_queue)
 
         img_crop = None
 
