@@ -70,38 +70,58 @@ class ReScanner(ThreadedManager):
     def _do_work(self, job_id: int):
         cloud_logger()
         wait_for_tesseract()
-        job = None
 
         try:
-
             job: TwitchClipInstanceScanJob = update_scan_job_started(job_id)
-            if job is None:
-                return
+        except BaseException as e:
+            cloud_error_logger(e, file=sys.stderr)
+            traceback.print_exc()
+            return
+        if job is None:
+            return
+        try:
             clip = get_twitch_clip_instance_by_video_id(get_twitch_clip_video_id_by_id(job.clip_id))
+        except BaseException as e:
+            cloud_error_logger(e, file=sys.stderr)
+            traceback.print_exc()
+            return
+        if clip is None:
+            update_scan_job_error(job.id, "Clip was not found")
+            return
+
+        self._run(clip, job_id)
+
+        del clip
+        del job
+
+    def _run(self, clip, job_id):
+        try:
 
             path = tmp_path + os.sep + next(tempfile._get_candidate_names()) + '.mp4'
-            url = self._get_url(job)
+            url = self._get_url(clip.id)
             if url is None:
+                update_scan_job_error(job_id, "Couldn't get url")
                 return
             if clip.file_path is None or not os.path.exists(clip.file_path):
                 try:
                     _download_clip(url, Args(url, path))
                 except GQLError as gql:
-                    delete_clip(job.clip_id)
+                    update_scan_job_error(job_id, "Clip was removed from twitch")
+                    delete_clip(clip.id)
                     return
             else:
                 path = clip.file_path
 
             path = path.strip()
 
-            update_twitch_clip_instance_filename(job.clip_id, path)
-            update_scan_job_in_scanning(job.id)
-            self._scan_clip(job_id, job.broadcaster, job.clip_id, path)
+            update_twitch_clip_instance_filename(clip.id, path)
+            update_scan_job_in_scanning(job_id)
+            self._scan_clip(job_id, clip.broadcaster_name, clip.id, path)
 
-            update_scan_job_in_deepfacequeue(job.id)
+            update_scan_job_in_deepfacequeue(job_id)
 
             sleep(2)  # wait for all the items to have made
-            clip_parts = get_tag_and_bag_by_clip_id(job.clip_id)
+            clip_parts = get_tag_and_bag_by_clip_id(clip.id)
             clips_merged = {}
             for bag in clip_parts:
                 if bag.tag not in clips_merged:
@@ -135,16 +155,12 @@ class ReScanner(ThreadedManager):
             for item in clips_merged:
                 clips_merged[item].clear()
             clips_merged.clear()
-            del clip
-            del job
+            update_scan_job_percent(job_id, 1, True)
 
         except BaseException as e:
             cloud_error_logger(e, file=sys.stderr)
             traceback.print_exc()
-            if job is not None:
-                update_scan_job_error(job.id, str(e))
-        finally:
-            update_scan_job_percent(job.id, 1, True)
+            update_scan_job_error(job_id, str(e))
 
     def get_new_start_end(self, bag, existing_tag):
         clip_1_end = existing_tag.tag_start + existing_tag.tag_duration
@@ -162,8 +178,8 @@ class ReScanner(ThreadedManager):
         intersection = xs.intersection(clip_2)
         return intersection
 
-    def _get_url(self, job: TwitchClipInstanceScanJob):
-        video_id = get_twitch_clip_video_id_by_id(job.clip_id)
+    def _get_url(self, clip_id):
+        video_id = get_twitch_clip_video_id_by_id(clip_id)
         if video_id is None:
             return None
         return video_id
