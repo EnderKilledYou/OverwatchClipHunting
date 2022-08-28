@@ -135,12 +135,14 @@ class ReScanner(ThreadedManager):
 
             del clip
             del job
-            update_scan_job_percent(job.id, 1, True)
+
         except BaseException as e:
             cloud_error_logger(e, file=sys.stderr)
             traceback.print_exc()
             if job is not None:
                 update_scan_job_error(job.id, str(e))
+        finally:
+            update_scan_job_percent(job.id, 1, True)
 
     def get_new_start_end(self, bag, existing_tag):
         clip_1_end = existing_tag.tag_start + existing_tag.tag_duration
