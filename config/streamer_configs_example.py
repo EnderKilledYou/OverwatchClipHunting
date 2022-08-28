@@ -20,7 +20,7 @@ streamer_configs = {
         'min_elims': 2,
         'min_blocking_duration': 3,
         'min_defense_duration': 3,
-        'min_assist_duration': 3,
+        'min_assist_duration': 4,
         'clip_deaths': False,
         'stream_prefers_quality': '720p60',
         'buffer_prefers_quality': 'best',
