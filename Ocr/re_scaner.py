@@ -242,11 +242,11 @@ class ReScanner(ThreadedManager):
                                                          self._on_frame_read(job_id, reader, size)])
                 consumer_thread.start()
                 reader.read2(path, buffer, cancel)
-                print(f'Capture thread releasing {self.broadcaster}')
+                print(f'Capture thread releasing {broadcaster}')
             except StreamEndedError:
-                print(f'Stream ended or buffer problem {self.broadcaster}')
+                print(f'Stream ended or buffer problem {broadcaster}')
             except NoStreamError:
-                print(f'Stream was not live {self.broadcaster}')
+                print(f'Stream was not live {broadcaster}')
             except BaseException as e:
                 cloud_error_logger(e, file=sys.stderr)
                 traceback.print_exc()
@@ -254,9 +254,9 @@ class ReScanner(ThreadedManager):
                 clear_queue(buffer, broadcaster)
                 cancel.cancel()
                 reader.stop()
-                print(f'waiting for clip reader of {self.broadcaster} {job_id}  to wind down')
+                print(f'waiting for clip reader of {broadcaster} {job_id}  to wind down')
                 consumer_thread.join()
-                print(f'Clip reader of {self.broadcaster}  {job_id} down')
+                print(f'Clip reader of {broadcaster}  {job_id} down')
                 del buffer
         update_scan_job_percent(job_id, 1)
 
