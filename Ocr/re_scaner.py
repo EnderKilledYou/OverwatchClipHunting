@@ -255,6 +255,9 @@ class ReScanner(ThreadedManager):
             except NoStreamError:
                 print(f'Stream was not live {broadcaster}')
             except BaseException as e:
+                if 'icvExtractPattern' in str(e):
+                    update_scan_job_error(job_id, "Url couldn't be read from twitch try hitting rescan.")
+                    return
                 cloud_error_logger(e, file=sys.stderr)
                 traceback.print_exc()
                 update_scan_job_error(job_id, str(e))
