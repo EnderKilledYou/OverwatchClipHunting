@@ -221,12 +221,11 @@ class ReScanner(ThreadedManager):
             return False
         return True
 
-    def _on_frame_read(self, job_id, reader, size):
+    def _on_frame_read(self, job_id, sample_every_count, size):
 
         def call_back(frame):
-            reader_count = reader.count()
-            if reader_count % 20 == 0:
-                count_size = frame.frame_number / size
+            if frame.frame_number % 20 == 0:
+                count_size = (frame.frame_number * sample_every_count) / size
                 update_scan_job_percent(job_id, count_size / 100)
 
         return call_back
@@ -238,13 +237,17 @@ class ReScanner(ThreadedManager):
             frame_number = 0
             seconds = get_length(path)
             reader.sample_every_count = 10
-            size = reader.fps * seconds / reader.sample_every_count
+            size = reader.fps * seconds
             buffer = Queue()
+            threads = []
             try:
-                consumer_thread = threading.Thread(target=consume_twitch_clip,
-                                                   args=[cancel, reader, buffer,
-                                                         self._on_frame_read(job_id, reader, size)])
-                consumer_thread.start()
+                for i in range(0, 2):
+                    consumer_thread = threading.Thread(target=consume_twitch_clip,
+                                                       args=[cancel, reader, buffer,
+                                                             self._on_frame_read(job_id, reader.sample_every_count,
+                                                                                 size)])
+                    consumer_thread.start()
+                    threads.append(consumer_thread)
                 reader.read2(path, buffer, cancel)
                 print(f'Capture thread releasing {broadcaster}')
             except StreamEndedError:
@@ -259,9 +262,10 @@ class ReScanner(ThreadedManager):
                 cancel.cancel()
                 reader.stop()
                 print(f'waiting for clip reader of {broadcaster} {job_id}  to wind down')
-                consumer_thread.join(20)
-                if consumer_thread.is_alive():
-                    print(f'Clip reader of didnt end yet check for issue {broadcaster}  {job_id} down')
+                for consumer_thread in threads:
+                    consumer_thread.join(20)
+                    if consumer_thread.is_alive():
+                        print(f'Clip reader of didnt end yet check for issue {broadcaster}  {job_id} down')
                 print(f'Clip reader of {broadcaster}  {job_id} down')
                 del buffer
         update_scan_job_percent(job_id, 1)
@@ -278,6 +282,4 @@ def queue_to_list(queue: Queue):
 
 
 def get_clip_url(twitch_video_id):
-
-
     return get_clip_authenticated_url(twitch_video_id, "source")
