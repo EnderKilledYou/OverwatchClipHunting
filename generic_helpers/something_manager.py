@@ -1,5 +1,6 @@
 import sys
 import threading
+import traceback
 from queue import Queue, Empty
 from time import sleep
 
@@ -40,8 +41,6 @@ class ThreadedManager:
     def _do_work(self, item):
         pass
 
-
-
     def _start(self):
         while self._active and self._do_one():
             pass
@@ -58,6 +57,7 @@ class ThreadedManager:
             sleep(2)
         except BaseException as b:
             cloud_error_logger(b, file=sys.stderr)
+            traceback.print_exc()
 
         finally:
             pass
