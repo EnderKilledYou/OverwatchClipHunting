@@ -222,7 +222,7 @@ class ReScanner(ThreadedManager):
         def call_back(frame):
             reader_count = reader.count()
             if reader_count % 20 == 0:
-                count_size = reader_count / size
+                count_size = frame.frame_number / size
                 update_scan_job_percent(job_id, count_size / 100)
 
         return call_back
