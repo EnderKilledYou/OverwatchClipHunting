@@ -11,6 +11,8 @@ from time import sleep
 
 import cancel_token
 from tesserocr import PyTessBaseAPI
+from twitchdl import twitch
+from twitchdl.commands.download import get_clip_authenticated_url
 from twitchdl.twitch import GQLError
 
 from Database.Twitch.get_tag_and_bag import get_tag_and_bag_by_clip_id, delete_tag_and_bag_by_id, \
@@ -123,12 +125,14 @@ class ReScanner(ThreadedManager):
 
     def _run(self, clip, job_id):
         try:
-            path, url = self._get_path_url_tuple(clip, job_id)
-            if path is None:
-                return
-            update_twitch_clip_instance_filename(clip.id, path)
+            # path, url = self._get_path_url_tuple(clip, job_id)
+            # if path is None:
+            #     return
+            # update_twitch_clip_instance_filename(clip.id, path)
+            twitch_video_id = self._get_url(clip.id)
+            url = get_clip_url(twitch_video_id)
             update_scan_job_in_scanning(job_id)
-            self._scan_clip(job_id, clip.broadcaster_name, clip.id, path)
+            self._scan_clip(job_id, clip.broadcaster_name, clip.id, url)
 
             update_scan_job_in_deepfacequeue(job_id)
 
@@ -255,7 +259,9 @@ class ReScanner(ThreadedManager):
                 cancel.cancel()
                 reader.stop()
                 print(f'waiting for clip reader of {broadcaster} {job_id}  to wind down')
-                consumer_thread.join()
+                consumer_thread.join(20)
+                if consumer_thread.is_alive():
+                    print(f'Clip reader of didnt end yet check for issue {broadcaster}  {job_id} down')
                 print(f'Clip reader of {broadcaster}  {job_id} down')
                 del buffer
         update_scan_job_percent(job_id, 1)
@@ -269,3 +275,9 @@ def queue_to_list(queue: Queue):
     except Empty:
         pass
     return items
+
+
+def get_clip_url(twitch_video_id):
+
+
+    return get_clip_authenticated_url(twitch_video_id, "source")
