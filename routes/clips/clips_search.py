@@ -8,7 +8,7 @@ from routes.clips.clips import sharp
 
 
 @sharp.function()
-def clips_search(creator_name: str, clip_type: List[str] = [], page: int = 1):
+def clips_search(creator_name: str, clip_type: List[str] = [], duration_min: int = 0, page: int = 1):
     cloud_logger()
     int_page = int(page)
     if int_page < 1:
@@ -20,6 +20,8 @@ def clips_search(creator_name: str, clip_type: List[str] = [], page: int = 1):
 
         if len(clip_type) > 0:
             q = q.filter(TwitchClipTag.tag.in_(clip_type))
+        if duration_min > 0:
+            q = q.filter(TwitchClipTag.tag_duration >= duration_min)
 
         if len(creator_name) > 0:
             q = q.filter(TwitchClipInstance.broadcaster_name == creator_name)

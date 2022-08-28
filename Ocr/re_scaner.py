@@ -106,6 +106,7 @@ class ReScanner(ThreadedManager):
             return None, None
 
         return job, clip
+
     def _do_work(self, job_id: int):
         cloud_logger()
         wait_for_tesseract()
@@ -116,7 +117,6 @@ class ReScanner(ThreadedManager):
         self._run(clip, job_id)
         del clip
         del job
-
 
     def _run(self, clip, job_id):
         try:
