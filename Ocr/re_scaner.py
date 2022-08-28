@@ -132,7 +132,9 @@ class ReScanner(ThreadedManager):
 
                 if should_add:
                     clips_merged[bag.tag].append(bag)
-
+            for item in clips_merged:
+                clips_merged[item].clear()
+            clips_merged.clear()
             del clip
             del job
 
