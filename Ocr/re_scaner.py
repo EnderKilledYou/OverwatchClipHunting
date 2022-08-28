@@ -120,7 +120,7 @@ class ReScanner(ThreadedManager):
 
     def _run(self, clip, job_id):
         try:
-            path, url = self._get_path_url_tuple()
+            path, url = self._get_path_url_tuple(clip, job_id)
             if path is None:
                 return
             update_twitch_clip_instance_filename(clip.id, path)
