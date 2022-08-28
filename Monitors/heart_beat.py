@@ -51,6 +51,7 @@ class HeartBeat:
         self._thread_timer = threading.Thread(target=self._heart_beat_thread, )
         self._thread_timer.start()
 
+
     def stop_streamer(self, streamer_name):
         print(f"Releasing {streamer_name}")
         streamer_names = self.get_copy_active_monitors()

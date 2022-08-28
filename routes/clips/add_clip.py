@@ -2,10 +2,11 @@ from flask import session
 
 from Database.Twitch.twitch_clip_instance import get_twitch_clip_instance_by_video_id, add_twitch_clip_instance_from_api
 from Database.Twitch.twitch_clip_instance_scan_job import add_twitch_clip_scan
+from Events.system import system_events
 from cloud_logger import cloud_logger
 from routes.clips.clips import sharp
 from routes.login_dec import requires_admin_user, requires_logged_in
-from start_up_flask import rescanner
+from scanner import rescanner
 from twitch_helpers.twitch_helpers import get_twitch_api
 
 
@@ -25,8 +26,8 @@ def add_clip(clip_id: str):
         (clip_id, clip_broadcaster) = clip.id, clip.broadcaster_name
     job_id = add_twitch_clip_scan(clip_id, clip_broadcaster)
     if job_id is not None:
-        rescanner.add_job(job_id)
-        return {"success": True,  }
+        system_events.emit('rescan', job_id)
+        return {"success": True, }
     return {"success": False, "error": "Clip is alread being processed"}
 
 
@@ -45,6 +46,6 @@ def add_clip_admin(clip_id: str):
         (clip_id, clip_broadcaster) = clip.id, clip.broadcaster_name
     job_id = add_twitch_clip_scan(clip_id, clip_broadcaster)
     if job_id is not None:
-        rescanner.add_job(job_id)
+        system_events.emit('rescan', job_id)
         return {"success": True, "clip": dict(clip)}
     return {"success": False, "error": "Clip is alread being processed"}

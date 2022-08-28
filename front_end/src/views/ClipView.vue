@@ -35,9 +35,9 @@
         </label>
       </div>
       <div class="col-md-4">
-        <div class="btn-group" role="group" >
-          <button @click="Clear()" class="btn btn-block btn-outline-dark">Clear</button>
-          <button @click="Search()" class="btn btn-block btn-outline-dark">Search</button>
+        <div class="btn-group btn-group-sm" role="group" >
+          <button @click="Clear()" class="btn btn-sm btn-outline-dark">Clear</button>
+          <button @click="Search()" class="btn btn-sm btn-outline-dark">Search</button>
         </div>
       </div>
     </div>

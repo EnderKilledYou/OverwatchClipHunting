@@ -2,12 +2,12 @@ from typing import Tuple
 
 from pyee.base import EventEmitter
 
-from Events.overwatch_events_helper import can_clip, create_clip
+
 from Ocr.frames.frame import Frame
 from config.streamer_configs import get_streamer_config
 
 overwatch_event = EventEmitter()
-
+from Events.overwatch_events_helper import can_clip, create_clip
 
 @overwatch_event.on('elim')
 def on_elim_event(frame: Frame, count: int, duration: int, last_death):

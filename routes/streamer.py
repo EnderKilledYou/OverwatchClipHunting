@@ -10,7 +10,6 @@ from Database.monitor import remove_stream_to_monitor, add_stream_to_monitor, ge
 from cloud_logger import cloud_error_logger
 from routes.login_dec import check_admin
 from routes.route_cache import cache
-from start_up_flask import alli
 from twitch_helpers.get_monitored_streams import get_monitored_streams, get_monitored_streams_dicts
 from twitch_helpers.twitch_helpers import get_twitch_api
 

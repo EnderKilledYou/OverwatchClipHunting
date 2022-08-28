@@ -28,7 +28,6 @@ from Ocr.overwatch_readers.overwatch_clip_reader import OverwatchClipReader
 from Ocr.vod_downloader import _download_clip
 from Ocr.wait_for_tessy import wait_for_tesseract
 from cloud_logger import cloud_logger, cloud_error_logger
-from config.config import tess_fast_dir
 from generic_helpers.something_manager import ThreadedManager
 from ocr_logic.ocr_logic import PermaOCR
 

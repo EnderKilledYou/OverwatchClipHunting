@@ -8,7 +8,7 @@ from tesserocr import PyTessBaseAPI
 from Ocr.frames.frame import Frame
 from Ocr.frames.frame_tester import FrameTester
 from Ocr.frames.ordered_frame_aggregator import OrderedFrameAggregator
-from Ocr.overwatch_readers.overwatch_action_screen_region import OverwatchActionScreenRegion
+from Ocr.overwatch_readers.overwatch_action_screen_region import OverwatchActionScreenRegion, ActionTextCropper
 from Ocr.overwatch_readers.overwatch_searching_for_game_screen_region import OverwatchSearchingForGameScreenRegion
 from Ocr.overwatch_readers.tesseract_instance import TesseractInstance
 from Ocr.screen_reader import ScreenReader
@@ -24,8 +24,7 @@ class OverwatchScreenReader(ScreenReader):
         print(f"OverwatchScreenReader Del")
         if hasattr(self, 'frame_tester'):
             del self.frame_tester
-        if hasattr(self, 'ActionTextCropper'):
-            del self.ActionTextCropper
+
         if hasattr(self, 'GameSearchCropper'):
             del self.GameSearchCropper
         if hasattr(self, 'frame_watcher'):
@@ -40,7 +39,7 @@ class OverwatchScreenReader(ScreenReader):
         self.frame_tester = FrameTester()
         self.Show = False
         self.last_action_second = 0
-        self.ActionTextCropper = OverwatchActionScreenRegion()
+
         self.GameSearchCropper = OverwatchSearchingForGameScreenRegion()
         self.frame_watcher = OrderedFrameAggregator(overwatch_event)
 
@@ -51,7 +50,7 @@ class OverwatchScreenReader(ScreenReader):
             pil_grey = Image.fromarray(img_grey)
             if frame.frame_number % 100 == 0:
                 print(f"Processing frame {frame.frame_number} for {frame.source_name}")
-            self.ActionTextCropper.process(pil_grey, frame, self.frame_watcher,
+            ActionTextCropper.process(pil_grey, frame, self.frame_watcher,
                                            self.frame_tester, api)
             del img_grey
             del pil_grey

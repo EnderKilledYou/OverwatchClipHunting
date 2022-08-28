@@ -2,16 +2,14 @@ import os
 from queue import Queue
 
 from PIL import Image
-from pytesseract import image_to_string
 
 from tesserocr import PyTessBaseAPI
 
+from Events.overwatch_clip_events import overwatch_clips_event
 from Events.overwatch_events import overwatch_event
 from Ocr.frames.frame import Frame
-from Ocr.frames.frame_aggregator import FrameAggregator
 from Ocr.frames.frame_tester import FrameTester
 from Ocr.frames.ordered_frame_aggregator import OrderedFrameAggregator
-from Ocr.overwatch_readers.tesseract_instance import TesseractInstance
 from Ocr.screen_region import ScreenRegion
 from Ocr.wait_for_tess import wait_for_tess
 from config.config import tess_fast_dir
@@ -106,3 +104,6 @@ class OverwatchActionScreenRegion(ScreenRegion):
         )
 
         return im_crop
+
+ClipActionTextCropper = OverwatchActionScreenRegion(events=overwatch_clips_event)
+ActionTextCropper = OverwatchActionScreenRegion(events=overwatch_event)

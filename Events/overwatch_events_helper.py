@@ -2,6 +2,7 @@ import json
 import os.path
 
 from Events.flask_events import flask_event
+from Events.system import system_events
 from Ocr.frames.frame import Frame
 
 from config.streamer_configs import get_streamer_config
@@ -25,8 +26,7 @@ def create_clip(frame: Frame, clip_type: str):
 
     if 'status' in created and created['status'] == 403:
         print("can't clip this channel no perms")
-        flask_event.emit('avoid', frame['source_name'])
-        # avoid_monitor(frame['source_name'])
+        system_events.emit('avoid_streamer', frame['source_name'])
 
     if 'data' in created:
         flask_event.emit('clip', created['data'], clip_type)
