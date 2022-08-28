@@ -99,8 +99,8 @@ class ReScanner(ThreadedManager):
             self._scan_clip(job_id, job.broadcaster, job.clip_id, path)
 
             update_scan_job_in_deepfacequeue(job.id)
-            face_to_clip(job.clip_id, path, job.id)
-            sleep(5)  # wait for all the items to have made
+
+            sleep(2)  # wait for all the items to have made
             clip_parts = get_tag_and_bag_by_clip_id(job.clip_id)
             clips_merged = {}
             for bag in clip_parts:
@@ -133,10 +133,9 @@ class ReScanner(ThreadedManager):
                 if should_add:
                     clips_merged[bag.tag].append(bag)
 
-            # update_scan_job_percent(job.id, 1, True)
             del clip
             del job
-
+            update_scan_job_percent(job.id, 1, True)
         except BaseException as e:
             cloud_error_logger(e, file=sys.stderr)
             traceback.print_exc()

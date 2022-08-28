@@ -144,7 +144,7 @@ class DeepFacer(ThreadedManager):
                     self._frame_count += len(frame_list)
                     frame_number = frame_number + len(frame_list)
                     for frame in frame_list:
-                        if 45 < frame.region.w < frame.frame_width * .9:
+                        if frame.frame_width * .08 < frame.region.w < frame.frame_width * .9:
                             frames.append(frame)
                     frame_list.clear()
                     if frame_number < size:
@@ -219,6 +219,7 @@ def get_deep_results(frames):
         emotions[i]['frame_width'] = frames[i].image.shape[0]
         emotions[i]['frame_height'] = frames[i].image.shape[1]
         frames[i].image = None
+
     images.clear()
     frames.clear()
     deeps = list(map(DeepFaceResult, emotions))
