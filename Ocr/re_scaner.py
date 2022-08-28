@@ -67,53 +67,62 @@ class ReScanner(ThreadedManager):
         self._reader = None
         self._frame_count = 0
 
-    def _do_work(self, job_id: int):
-        cloud_logger()
-        wait_for_tesseract()
+    def _get_path_url_tuple(self, clip, job_id):
+        path = tmp_path + os.sep + next(tempfile._get_candidate_names()) + '.mp4'
+        url = self._get_url(clip.id)
+        if url is None:
+            update_scan_job_error(job_id, "Couldn't get url")
+            return None, None
+        if clip.file_path is None or not os.path.exists(clip.file_path):
+            try:
+                _download_clip(url, Args(url, path))
+            except GQLError as gql:
+                update_scan_job_error(job_id, "Clip was removed from twitch")
+                delete_clip(clip.id)
+                return None, None
+        else:
+            path = clip.file_path
 
+        path = path.strip()
+        return path, url
+
+    def _get_job_clip_tuple(self, job_id: int):
         try:
             job: TwitchClipInstanceScanJob = update_scan_job_started(job_id)
         except BaseException as e:
             cloud_error_logger(e, file=sys.stderr)
             traceback.print_exc()
-            return
+            return None, None
         if job is None:
-            return
+            return None, None
         try:
             clip = get_twitch_clip_instance_by_video_id(get_twitch_clip_video_id_by_id(job.clip_id))
         except BaseException as e:
             cloud_error_logger(e, file=sys.stderr)
             traceback.print_exc()
-            return
+            return None, None
         if clip is None:
             update_scan_job_error(job.id, "Clip was not found")
-            return
+            return None, None
 
+        return job, clip
+    def _do_work(self, job_id: int):
+        cloud_logger()
+        wait_for_tesseract()
+
+        job, clip = self._get_job_clip_tuple(job_id)
+        if job is None:
+            return None
         self._run(clip, job_id)
-
         del clip
         del job
 
+
     def _run(self, clip, job_id):
         try:
-
-            path = tmp_path + os.sep + next(tempfile._get_candidate_names()) + '.mp4'
-            url = self._get_url(clip.id)
-            if url is None:
-                update_scan_job_error(job_id, "Couldn't get url")
+            path, url = self._get_path_url_tuple()
+            if path is None:
                 return
-            if clip.file_path is None or not os.path.exists(clip.file_path):
-                try:
-                    _download_clip(url, Args(url, path))
-                except GQLError as gql:
-                    update_scan_job_error(job_id, "Clip was removed from twitch")
-                    delete_clip(clip.id)
-                    return
-            else:
-                path = clip.file_path
-
-            path = path.strip()
-
             update_twitch_clip_instance_filename(clip.id, path)
             update_scan_job_in_scanning(job_id)
             self._scan_clip(job_id, clip.broadcaster_name, clip.id, path)
@@ -121,46 +130,49 @@ class ReScanner(ThreadedManager):
             update_scan_job_in_deepfacequeue(job_id)
 
             sleep(2)  # wait for all the items to have made
-            clip_parts = get_tag_and_bag_by_clip_id(clip.id)
-            clips_merged = {}
-            for bag in clip_parts:
-                if bag.tag not in clips_merged:
-                    clips_merged[bag.tag] = [bag]
-                    continue
-                should_add = True
-                for i in range(0, len(clips_merged[bag.tag])):
-                    existing_tag = clips_merged[bag.tag][i]
-                    if existing_tag.tag_start == bag.tag_start:
-                        if existing_tag.tag_duration < bag.tag_duration:
-                            delete_tag_and_bag_by_id(existing_tag.id)  # the clip is longer
-                            clips_merged[bag.tag][i] = bag
-                        else:
-                            delete_tag_and_bag_by_id(bag.id)  # the existing clip is longer
-                        should_add = False
-                        break
-                    intersection = self.does_intersect_time(bag, existing_tag)
-
-                    if len(intersection) > 0:
-                        duration_max, tag_min = self.get_new_start_end(bag, existing_tag)
-                        existing_tag.tag_start = tag_min
-                        duration_max_tag_min = duration_max - tag_min
-                        existing_tag.tag_duration = duration_max_tag_min
-                        update_tag_and_bag_start_and_duration(existing_tag.id, tag_min, duration_max_tag_min)
-                        delete_tag_and_bag_by_id(bag.id)
-                        should_add = False
-                        break
-
-                if should_add:
-                    clips_merged[bag.tag].append(bag)
-            for item in clips_merged:
-                clips_merged[item].clear()
-            clips_merged.clear()
+            self.merge_clip_parts(clip)
             update_scan_job_percent(job_id, 1, True)
 
         except BaseException as e:
             cloud_error_logger(e, file=sys.stderr)
             traceback.print_exc()
             update_scan_job_error(job_id, str(e))
+
+    def merge_clip_parts(self, clip):
+        clip_parts = get_tag_and_bag_by_clip_id(clip.id)
+        clips_merged = {}
+        for bag in clip_parts:
+            if bag.tag not in clips_merged:
+                clips_merged[bag.tag] = [bag]
+                continue
+            should_add = True
+            for i in range(0, len(clips_merged[bag.tag])):
+                existing_tag = clips_merged[bag.tag][i]
+                if existing_tag.tag_start == bag.tag_start:
+                    if existing_tag.tag_duration < bag.tag_duration:
+                        delete_tag_and_bag_by_id(existing_tag.id)  # the clip is longer
+                        clips_merged[bag.tag][i] = bag
+                    else:
+                        delete_tag_and_bag_by_id(bag.id)  # the existing clip is longer
+                    should_add = False
+                    break
+                intersection = self.does_intersect_time(bag, existing_tag)
+
+                if len(intersection) > 0:
+                    duration_max, tag_min = self.get_new_start_end(bag, existing_tag)
+                    existing_tag.tag_start = tag_min
+                    duration_max_tag_min = duration_max - tag_min
+                    existing_tag.tag_duration = duration_max_tag_min
+                    update_tag_and_bag_start_and_duration(existing_tag.id, tag_min, duration_max_tag_min)
+                    delete_tag_and_bag_by_id(bag.id)
+                    should_add = False
+                    break
+
+            if should_add:
+                clips_merged[bag.tag].append(bag)
+        for item in clips_merged:
+            clips_merged[item].clear()
+        clips_merged.clear()
 
     def get_new_start_end(self, bag, existing_tag):
         clip_1_end = existing_tag.tag_start + existing_tag.tag_duration
