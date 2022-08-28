@@ -257,6 +257,8 @@ class ReScanner(ThreadedManager):
             except BaseException as e:
                 cloud_error_logger(e, file=sys.stderr)
                 traceback.print_exc()
+                update_scan_job_error(job_id, str(e))
+                return
             finally:
                 clear_queue(buffer, broadcaster)
                 cancel.cancel()
