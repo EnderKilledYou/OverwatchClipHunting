@@ -14,7 +14,7 @@
           <a target="_blank" :href="`https://clips.twitch.tv/` +item[1].video_id"><img class="card-img-top"
                                                                                        :src="item[1].thumbnail_url"
                                                                                        :alt="title"></a>
-
+          <h5 class="card-title"> {{ item[0].broadcaster_name }}</h5>
           <div class="card-body">
             <h5 class="card-title"> {{ stateToString(item[0].state) }}</h5>
             <p class="card-text">{{ item[1].title }}</p>
