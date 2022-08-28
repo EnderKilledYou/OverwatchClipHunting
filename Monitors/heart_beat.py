@@ -51,7 +51,6 @@ class HeartBeat:
         self._thread_timer = threading.Thread(target=self._heart_beat_thread, )
         self._thread_timer.start()
 
-
     def stop_streamer(self, streamer_name):
         print(f"Releasing {streamer_name}")
         streamer_names = self.get_copy_active_monitors()
@@ -109,6 +108,10 @@ class HeartBeat:
 
         self._data_lock.acquire()
         try:
+            exists = list(filter(lambda x: x.broadcaster == monitor.broadcaster, self._active_monitors))
+            if len(exists) > 0:
+                print("Monitor already added")
+                return
             thread_job = MonitorThreadJob(monitor.broadcaster)
             thread_job.set_id(monitor.id)
             thread_job.start()
