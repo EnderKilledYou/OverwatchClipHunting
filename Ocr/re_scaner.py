@@ -2,6 +2,7 @@ import os
 
 import sys
 import tempfile
+import threading
 import traceback
 from os.path import abspath
 from queue import Empty, Queue
@@ -19,17 +20,20 @@ from Database.Twitch.twitch_clip_instance import update_twitch_clip_instance_fil
 from Database.Twitch.delete_twitch_clip import delete_clip
 from Database.Twitch.twitch_clip_instance_scan_job import TwitchClipInstanceScanJob, update_scan_job_error, \
     update_scan_job_percent, update_scan_job_started, update_scan_job_in_scanning, update_scan_job_in_deepfacequeue
+from Ocr.clear_queue import clear_queue
+from Ocr.no_stream_error import NoStreamError
 from Ocr.ocr_helpers import get_length, face_to_clip
 
 from Ocr.twitch_dl_args import Args
 
-from Ocr.VideoCapReader import VideoCapReader, ClipVideoCapReader
+from Ocr.VideoCapReader import VideoCapReader, ClipVideoCapReader, StreamEndedError
 from Ocr.overwatch_readers.overwatch_clip_reader import OverwatchClipReader
 from Ocr.vod_downloader import _download_clip
 from Ocr.wait_for_tessy import wait_for_tesseract
 from cloud_logger import cloud_logger, cloud_error_logger
 from generic_helpers.something_manager import ThreadedManager
-from ocr_logic.ocr_logic import PermaOCR
+from ocr_logic.ocr_logic import consume_twitch_clip
+from ocr_logic.perma_ocr import PermaOCR
 
 
 class InvalidFpsError(BaseException):
@@ -213,31 +217,47 @@ class ReScanner(ThreadedManager):
             return False
         return True
 
+    def _on_frame_read(self, job_id, reader, size):
+
+        def call_back(frame):
+            reader_count = reader.count()
+            if reader_count % 20 == 0:
+                count_size = reader_count / size
+                update_scan_job_percent(job_id, count_size / 100)
+
+        return call_back
+
     def _scan_clip(self, job_id: int, broadcaster: str, clip_id: int, path: str):
         cancel = cancel_token.CancellationToken()
+
         with ClipVideoCapReader(broadcaster, clip_id) as reader:
-            # size = len(reader_list)
             frame_number = 0
             seconds = get_length(path)
             reader.sample_every_count = 10
             size = reader.fps * seconds / reader.sample_every_count
+            buffer = Queue()
             try:
-                itr = reader.readYield(path, cancel)
-                # with PyTessBaseAPI(path=tess_fast_dir) as api:
-                with OverwatchClipReader() as matcher:
-                    while self.match_frame(itr, get_scan_ocr(), matcher):
-                        reader_count = reader.count()
-                        if reader_count % 20 == 0:
-                            count_size = reader_count / size
-                            update_scan_job_percent(job_id, count_size / 100)
-
-            except BaseException as b:
+                consumer_thread = threading.Thread(target=consume_twitch_clip,
+                                                   args=[cancel, reader, buffer,
+                                                         self._on_frame_read(job_id, reader, size)])
+                consumer_thread.start()
+                reader.read2(path, buffer, cancel)
+                print(f'Capture thread releasing {self.broadcaster}')
+            except StreamEndedError:
+                print(f'Stream ended or buffer problem {self.broadcaster}')
+            except NoStreamError:
+                print(f'Stream was not live {self.broadcaster}')
+            except BaseException as e:
+                cloud_error_logger(e, file=sys.stderr)
                 traceback.print_exc()
-                pass
             finally:
+                clear_queue(buffer, broadcaster)
                 cancel.cancel()
                 reader.stop()
-                del reader
+                print(f'waiting for clip reader of {self.broadcaster} {job_id}  to wind down')
+                consumer_thread.join()
+                print(f'Clip reader of {self.broadcaster}  {job_id} down')
+                del buffer
         update_scan_job_percent(job_id, 1)
 
 

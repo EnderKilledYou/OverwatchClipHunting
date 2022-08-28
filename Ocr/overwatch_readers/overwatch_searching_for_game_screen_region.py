@@ -5,6 +5,7 @@ from PIL import Image
 from pytesseract import image_to_string
 from tesserocr import PyTessBaseAPI
 
+import ocr_logic.crop_center
 from Ocr.frames.frame import Frame
 from Ocr.frames.frame_aggregator import FrameAggregator
 from Ocr.frames.frame_tester import FrameTester
@@ -56,7 +57,7 @@ class OverwatchSearchingForGameScreenRegion(ScreenRegion):
         left = 0
 
         lower = img.height / 2
-        im_crop = img.crop(  # (left, upper, right, lower)-
+        im_crop = ocr_logic.crop_center.crop(  # (left, upper, right, lower)-
             (left,
              0,
              right,

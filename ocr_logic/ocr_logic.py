@@ -1,57 +1,91 @@
-import gc
-import random
-import sys
-import threading
+import os
 import traceback
 from queue import Empty, Queue
 from time import sleep
 
 import cv2
 from PIL import Image
-from tesserocr import PyTessBaseAPI, PSM, OEM
+
+from Events.overwatch_clip_events import overwatch_clips_event
+from Events.overwatch_events import overwatch_event
 from Ocr.frames.frame import Frame
-from Ocr.overwatch_readers.overwatch_action_screen_region import  ActionTextCropper
+from Ocr.frames.frame_tester import FrameTester
+from Ocr.frames.ordered_frame_aggregator import OrderedFrameAggregator
+from Ocr.wait_for_tess import wait_for_tess
 from config.config import tess_fast_dir
+from ocr_logic.crop_center import crop
+from ocr_logic.perma_ocr import get_perma_ocr
+
+
+def _read_one_frame(buffer, frame_tester, frame_watcher, reader, return_queue, call_back=None):
+    frame = wait_next_frame(reader, buffer)
+    if frame is None:
+        sleep(1)
+        return
+    job_tuple = (get_perma_ocr(), frame_watcher, frame_tester, return_queue)
+    ocr(frame, job_tuple)
+    if call_back is not None:
+        call_back(frame)
+    del frame
+    frame = None
+
+
+def consume_twitch_clip(cancel_token, reader, buffer, call_back=None):
+    streamer_name = reader.streamer_name
+    print(f"Starting consume_twitch_clip {streamer_name}")
+    frame_watcher = OrderedFrameAggregator(overwatch_clips_event)
+    return_queue = Queue()
+    frame_tester = FrameTester()
+    while not cancel_token.cancelled:
+        try:
+            _read_one_frame(buffer, frame_tester, frame_watcher, reader, return_queue, call_back)
+        except BaseException as b:
+            # cloud_error_logger(b)
+            print(b)
+            traceback.print_exception()
+    print(f"stopping consume_twitch_clip {streamer_name}")
+    print(f"stopped consume_twitch_clip {streamer_name}")
+    try:
+        return_queue.get(False)
+    except:
+        pass
+    del frame_watcher
+    del frame_tester
+    cancel_token.cancel()
 
 
 def consume_twitch_broadcast(cancel_token, reader, buffer):
     streamer_name = reader.streamer_name
-    print(f"Starting consume_twitch_broadcast {streamer_name}")
-    # with PyTessBaseAPI(path=tess_fast_dir, psm=PSM.SINGLE_COLUMN, oem=OEM.LSTM_ONLY) as api:
-
+    print(f"Starting consume_twitch_broadcast {reader.streamer_name}")
+    frame_watcher = OrderedFrameAggregator(overwatch_event)
+    return_queue = Queue()
+    frame_tester = FrameTester()
     while not cancel_token.cancelled:
         try:
-            frame = wait_next_frame(reader, buffer)
-            if frame is None:
-                sleep(1)
-                continue
-            ocr(frame, get_perma_ocr())
-            del frame
-            frame = None
+            _read_one_frame(buffer, frame_tester, frame_watcher, reader, return_queue)
         except BaseException as b:
-            #cloud_error_logger(b)
+            # cloud_error_logger(b)
             print(b)
             traceback.print_exception()
     print(f"stopping consume_twitch_broadcast {streamer_name}")
-        # api.ClearPersistentCache()
-        # api.Clear()
-        # api = None
-    # gc.collect()
     print(f"stopped consume_twitch_broadcast {streamer_name}")
+    try:
+        return_queue.get(False)
+    except:
+        pass
+    del frame_watcher
+    del frame_tester
     cancel_token.cancel()
 
 
-def ocr(frame: Frame, api: PyTessBaseAPI) -> None:
+def ocr(frame: Frame, job_tuple) -> None:
     img_grey = cv2.cvtColor(frame.image, cv2.COLOR_RGB2GRAY)
     pil_grey = Image.fromarray(img_grey)
     if frame.frame_number % 1000 == 0:
         print(f"Processing frame {frame.frame_number} for {frame.source_name}")
-    ActionTextCropper.process(pil_grey, frame, api)
+    process(pil_grey,frame, job_tuple)
     img_grey = None
     pil_grey = None
-
-
-
 
 
 def wait_next_frame(reader, buffer):
@@ -63,38 +97,19 @@ def wait_next_frame(reader, buffer):
         pass
 
 
-class PermaOCR:
-    def __init__(self):
-        self.api = PyTessBaseAPI(path=tess_fast_dir, psm=PSM.SINGLE_COLUMN, oem=OEM.LSTM_ONLY)
-        self.queue = Queue()
+def process(img: Image, frame: Frame, job_tuple):
+    frame_tester: FrameTester
+    api, frame_watcher, frame_tester, return_queue = job_tuple
+    if not os.path.exists(tess_fast_dir):
+        wait_for_tess()
 
-    def __del__(self):
-        self.api.Clear()
-        self.api.ClearPersistentCache()
-        self.api.End()
+    img_crop = crop(img)
+    text = api.GetUTF8Text(img_crop, return_queue)
+    img_crop = None
+    frame.empty = True
 
-    def start(self, ):
-        threading.Thread(target=self._loop).start()
-        return self
-
-    def _loop(self):
-        while (True):
-            work = self.queue.get()
-            image, return_queue = work
-            self.api.SetImage(image)
-            return_queue.put(self.api.GetUTF8Text())
-            image = None
-            return_queue = None
-
-    def GetUTF8Text(self, image, return_queue):
-        self.queue.put((image, return_queue))
-        return return_queue.get()
-
-
-perma_ocrs = [PermaOCR().start(), PermaOCR().start(), PermaOCR().start()]
-rand = random.Random()
-
-
-def get_perma_ocr():
-    index = rand.randint(0, len(perma_ocrs) - 1)
-    return perma_ocrs[index]
+    if len(text) < 4:
+        text = None
+        return
+    frame_tester.test_overwatch_frame(frame, frame_watcher, text)
+    text = None

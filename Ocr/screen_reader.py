@@ -6,8 +6,6 @@ from time import sleep
 from tesserocr import PyTessBaseAPI, PSM, OEM
 
 from Ocr.frames.frame import Frame
-
-from Ocr.video_frame_buffer import VideoFrameBuffer
 from cloud_logger import cloud_error_logger
 from config.config import tess_fast_dir
 
@@ -49,12 +47,12 @@ class ScreenReader:
                 api.End()
                 del api
 
-    def next_frame(self, api, reader, buffer):
+    def next_frame(self, api, reader, buffer,frame_watcher):
         frame = self.wait_next_frame(reader, buffer)
         if frame is None:
             sleep(1)
             return True
-        self.ocr(frame, api)
+        self.ocr(frame, api,frame_watcher)
         del frame
         return True
 

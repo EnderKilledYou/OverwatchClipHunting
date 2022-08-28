@@ -5,6 +5,7 @@ from PIL import Image
 
 from tesserocr import PyTessBaseAPI
 
+import ocr_logic.crop_center
 from Events.overwatch_clip_events import overwatch_clips_event
 from Events.overwatch_events import overwatch_event
 from Ocr.frames.frame import Frame
@@ -16,8 +17,8 @@ from config.config import tess_fast_dir
 
 
 class OverwatchActionScreenRegion(ScreenRegion):
-    def __init__(self,events=overwatch_event):
-        self.frame_watcher = OrderedFrameAggregator(events)
+    def __init__(self):
+
         self.frame_tester = FrameTester()
         self.return_queue = Queue()
 
@@ -33,7 +34,7 @@ class OverwatchActionScreenRegion(ScreenRegion):
         self.frame_tester = None
         self.return_queue = None
 
-    def process(self, img: Image, frame: Frame, api: PyTessBaseAPI):
+    def process(self, img: Image, frame: Frame, api: PyTessBaseAPI, frame_watcher):
 
         if not os.path.exists(tess_fast_dir):
             wait_for_tess()
@@ -50,7 +51,6 @@ class OverwatchActionScreenRegion(ScreenRegion):
             text = None
             return
         frame_tester = self.frame_tester
-        frame_watcher = self.frame_watcher
 
         if frame_tester.is_elimed_frame(text):
             frame_watcher.add_elimed_frame(frame)
@@ -96,7 +96,7 @@ class OverwatchActionScreenRegion(ScreenRegion):
         left = (img.width * .27)
         upper = img.height / 2
         lower = img.height - (img.height * .18)
-        im_crop = img.crop(  # (left, upper, right, lower)-
+        im_crop = ocr_logic.crop_center.crop(  # (left, upper, right, lower)-
             (left,
              upper,  # crop the part where it tells you where shit happens.
              right,
@@ -105,5 +105,6 @@ class OverwatchActionScreenRegion(ScreenRegion):
 
         return im_crop
 
-ClipActionTextCropper = OverwatchActionScreenRegion(events=overwatch_clips_event)
-ActionTextCropper = OverwatchActionScreenRegion(events=overwatch_event)
+
+ClipActionTextCropper = OverwatchActionScreenRegion()
+ActionTextCropper = OverwatchActionScreenRegion()
