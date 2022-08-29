@@ -1,5 +1,6 @@
 from flask import session
 
+from Database.Twitch.delete_twitch_clip import delete_clip
 from Database.Twitch.twitch_clip_instance import get_twitch_clip_instance_by_video_id, add_twitch_clip_instance_from_api
 from Database.Twitch.twitch_clip_instance_scan_job import add_twitch_clip_scan
 from Events.system import system_events
@@ -17,6 +18,9 @@ def add_clip(clip_id: str):
     twitch_api = get_twitch_api()
     clip_resp = twitch_api.get_clips(clip_id=clip_id)
     if len(clip_resp['data']) == 0:
+        exists = get_twitch_clip_instance_by_video_id(clip_id)
+        if exists is not None:
+            delete_clip(exists.id)
         return {"success": False, "error": "clip doesn't on twitch"}
 
     clip = get_twitch_clip_instance_by_video_id(clip_id)
