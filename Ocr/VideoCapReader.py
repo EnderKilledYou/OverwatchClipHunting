@@ -182,7 +182,7 @@ class VideoCapReader:
 
         buffer.put(item)
         if should_sleep:
-            sleep(1)  # let the video cap have some time to buffer
+            sleep(4)  # let the video cap have some time to buffer
 
         self.incr_items_read()
         return True
