@@ -301,6 +301,10 @@ def get_clip_url(twitch_video_id, job_id, clip_id):
             return None
         return url
     except BaseException as b:
+        if 'GraphQL query failed' in str(b):
+            update_scan_job_error(job_id, "Clip was removed from twitch")
+            delete_clip(clip_id)
+            return None
         cloud_error_logger(b)
     except GQLError as gql:
         update_scan_job_error(job_id, "Clip was removed from twitch")
