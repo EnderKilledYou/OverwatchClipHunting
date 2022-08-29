@@ -6,7 +6,7 @@ from Database.Twitch.twitch_clip_instance_scan_job import add_twitch_clip_scan
 from Events.system import system_events
 from cloud_logger import cloud_logger
 from routes.clips.clips import sharp
-from routes.login_dec import requires_admin_user, requires_logged_in
+from routes.login_dec import requires_admin_user, requires_logged_in, check_admin
 from scanner import rescanner
 from twitch_helpers.twitch_helpers import get_twitch_api
 
@@ -14,6 +14,7 @@ from twitch_helpers.twitch_helpers import get_twitch_api
 @requires_logged_in()
 @sharp.function()
 def add_clip(clip_id: str):
+    check_admin()
     cloud_logger()
     twitch_api = get_twitch_api()
     clip_resp = twitch_api.get_clips(clip_id=clip_id)
@@ -37,6 +38,7 @@ def add_clip(clip_id: str):
 @requires_admin_user()
 @sharp.function()
 def add_clip_admin(clip_id: str):
+    check_admin()
     cloud_logger()
     twitch_api = get_twitch_api()
     clip_resp = twitch_api.get_clips(clip_id=clip_id)

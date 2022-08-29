@@ -5,6 +5,7 @@ from dateutil.parser import isoparse
 from cloud_logger import cloud_logger
 from routes.clips.clips import sharp
 from routes.clips.parse_broadcaster_id import parse_broadcaster_id
+from routes.login_dec import check_admin
 from twitch_helpers.twitch_helpers import get_twitch_api
 
 
@@ -20,6 +21,7 @@ def search_twitch_clips(broadcaster: Optional[str] = None,
     twitch_api = get_twitch_api(
     )
     try:
+        check_admin()
         cloud_logger()
         if started_at is not None:
             started_at = isoparse(started_at)

@@ -6,6 +6,7 @@ from routes.clips.clips import sharp
 @sharp.function()
 def add_clip_scan(clip_id: str):
     cloud_logger()
+    check_admin()
     exists = get_twitch_clip_scan_by_clip_id(clip_id)
     if exists:
         return {"success": False, "error": "Job already exists, try resetting it"}

@@ -2,6 +2,7 @@ from Database.Twitch.twitch_clip_instance import TwitchClipInstance, get_twitch_
 from Database.Twitch.twitch_clip_instance_scan_job import get_twitch_clip_scan_by_page, get_twitch_clip_tag_by_id
 from cloud_logger import cloud_logger
 from routes.clips.clips import sharp
+from routes.login_dec import check_admin
 
 
 @sharp.function()
@@ -17,6 +18,7 @@ def get_clip_by_tag_id(tag_id: int):
 
 @sharp.function()
 def get_clip_scan_jobs(page: int = 1):
+    check_admin()
     try:
         cloud_logger()
         by_page = get_twitch_clip_scan_by_page(page, 10)

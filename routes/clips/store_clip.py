@@ -8,6 +8,7 @@ from Database.avoid_monitor import avoid_monitor
 from Events.flask_events import flask_event
 from Events.system import system_events
 from cloud_logger import cloud_logger, cloud_error_logger
+from routes.login_dec import check_admin
 from scanner import rescanner
 from twitch_helpers.twitch_helpers import get_twitch_api
 
@@ -20,6 +21,7 @@ def avoid_them(streamer_name):
 @flask_event.on('clip')
 def store_clip(clip_data, type):
     cloud_logger()
+    check_admin()
     try:
         clip = get_twitch_api().get_clips(clip_id=clip_data[0]["id"])
         if len(clip["data"]) == 0:

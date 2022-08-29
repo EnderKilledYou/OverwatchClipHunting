@@ -49,21 +49,7 @@ class Monitor(db.Model, SerializerMixin):
             print("Monitor convert to json failed")
             return str(self.to_dict())
 
-    def check_need_restart(self):
-        if not hasattr(self, 'ocr') or self.ocr is None:
-            return
-        reader = self.ocr.reader
-        if not reader:
-            return
-        qsize = reader.count()
-        frames_pending = qsize * reader.sample_every_count
-        back_fill_seconds = frames_pending // reader.fps
-        if back_fill_seconds <= 45:
-            return
-        cloud_message(f"Restarting {self.broadcaster} with backqueue of {str(back_fill_seconds)}")
-        self.stop()
 
-    ocr: VideoFrameBuffer
     broadcaster: str
 
     serialize_rules = ()

@@ -9,11 +9,6 @@ from Database.monitor import claim_monitor, get_monitor_by_name, reset_for_claim
 
 def claim_one_monitor(streams: List[LiveTwitchInstance], claimed_count: int):
 
-
-    # if claimed_count >= max_active_monitors:
-    #     #cloud_logger.cloud_message(f"No space to start new streamers {max_active_monitors}")
-    #     return
-
     for stream in streams:
         if stream.game_name.lower().startswith("overwatch"):
             user_login = stream.user_login
