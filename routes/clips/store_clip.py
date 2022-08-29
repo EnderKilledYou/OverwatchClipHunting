@@ -21,7 +21,7 @@ def avoid_them(streamer_name):
 @flask_event.on('clip')
 def store_clip(clip_data, type):
     cloud_logger()
-    check_admin()
+
     try:
         clip = get_twitch_api().get_clips(clip_id=clip_data[0]["id"])
         if len(clip["data"]) == 0:
