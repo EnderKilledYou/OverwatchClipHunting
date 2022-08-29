@@ -27,7 +27,7 @@ class HeartBeat:
 
     def __init__(self, max_active_monitors=os.cpu_count()):
         self._data_lock = threading.Lock()
-        self.max_active_monitors = max_active_monitors + 2
+        self.max_active_monitors = max_active_monitors
         self._thread_timer = None
         self._claim_timer = None
         self._active = False
