@@ -130,7 +130,10 @@ class ReScanner(ThreadedManager):
             #     return
             # update_twitch_clip_instance_filename(clip.id, path)
             twitch_video_id = self._get_url(clip.id)
-            url = get_clip_url(twitch_video_id)
+            url = get_clip_url(twitch_video_id, job_id, clip.id)
+            if url is None:
+                return
+
             update_scan_job_in_scanning(job_id)
             self._scan_clip(job_id, clip.broadcaster_name, clip.id, url)
 
@@ -286,5 +289,13 @@ def queue_to_list(queue: Queue):
     return items
 
 
-def get_clip_url(twitch_video_id):
-    return get_clip_authenticated_url(twitch_video_id, "source")
+def get_clip_url(twitch_video_id, job_id, clip_id):
+    try:
+        return get_clip_authenticated_url(twitch_video_id, "source")
+    except BaseException as b:
+        cloud_error_logger(b)
+    except GQLError as gql:
+        update_scan_job_error(job_id, "Clip was removed from twitch")
+        delete_clip(clip_id)
+
+    return None
