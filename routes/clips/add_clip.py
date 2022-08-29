@@ -22,7 +22,6 @@ def add_clip(clip_id: str):
         if exists is not None:
             delete_clip(exists.id)
         return {"success": False, "error": "clip doesn't on twitch"}
-
     clip = get_twitch_clip_instance_by_video_id(clip_id)
     if not clip:
         (clip_id, clip_broadcaster) = add_twitch_clip_instance_from_api(clip_resp['data'][0], 'elim')

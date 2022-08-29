@@ -260,6 +260,7 @@ class ReScanner(ThreadedManager):
             except BaseException as e:
                 if 'icvExtractPattern' in str(e):
                     update_scan_job_error(job_id, "Url couldn't be read from twitch try hitting rescan.")
+                    delete_clip(clip_id)
                     return
                 cloud_error_logger(e, file=sys.stderr)
                 traceback.print_exc()
@@ -291,7 +292,14 @@ def queue_to_list(queue: Queue):
 
 def get_clip_url(twitch_video_id, job_id, clip_id):
     try:
-        return get_clip_authenticated_url(twitch_video_id, "source")
+        url = get_clip_authenticated_url(twitch_video_id, "source")
+        if url is None:
+            return None
+        if '%22%3A%7B%22forbidden%22%3Afalse%2C%22' in url:
+            update_scan_job_error(job_id, f"Clip was not authorized by twitch - deleting {twitch_video_id}")
+            delete_clip(clip_id)
+            return None
+        return url
     except BaseException as b:
         cloud_error_logger(b)
     except GQLError as gql:
