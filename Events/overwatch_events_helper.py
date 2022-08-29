@@ -4,6 +4,7 @@ import os.path
 from Events.flask_events import flask_event
 from Events.system import system_events
 from Ocr.frames.frame import Frame
+from cloud_logger import cloud_error_logger
 
 from config.streamer_configs import get_streamer_config
 
@@ -19,7 +20,12 @@ def format_event_for_marker(event_type: str, start_seconds: int, end_seconds: in
 def create_clip(frame: Frame, clip_type: str):
     api = get_twitch_api()
     print(f"creating clip for {frame['source_name']} {clip_type}")
-    created = api.create_clip(get_broadcaster_id(frame['source_name']), True)
+    try:
+        created = api.create_clip(get_broadcaster_id(frame['source_name']), True)
+    except BaseException as b:
+        cloud_error_logger(b)
+        return
+
     if created is None:
         print(f"could not create clip for {frame['source_name']}")
         return
