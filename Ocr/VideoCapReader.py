@@ -244,7 +244,7 @@ class VideoCapReader:
 
     def _acquire2(self, url: str):
         video_capture = cv2.VideoCapture(url, apiPreference=cv2.CAP_IMAGES)
-        print("Capture was, setting to 500 " + cv2.get(cv2.CAP_PROP_BUFFERSIZE))
+        print("Capture was, setting to 500 " + video_capture.get(cv2.CAP_PROP_BUFFERSIZE))
         video_capture.set(cv2.CAP_PROP_BUFFERSIZE, 500)
         if not video_capture:
             raise None
