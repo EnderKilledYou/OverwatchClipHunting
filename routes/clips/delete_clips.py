@@ -6,7 +6,7 @@ from routes.login_dec import check_admin
 
 
 @sharp.function()
-def deleteclips(clip_id: str):
+def deleteclips(clip_id: int):
     check_admin()
     cloud_logger()
     with db.session.begin():
