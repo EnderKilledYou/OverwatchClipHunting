@@ -26,3 +26,5 @@ tesserocr
 cython
 Deepface
 cancel_token
+scikit-image
+deskew
