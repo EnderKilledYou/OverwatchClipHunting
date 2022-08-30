@@ -74,6 +74,15 @@ class HeartBeat:
 
             self.stop_streamer(monitor.broadcaster)
 
+    def claim_one(self, item):
+        pass
+
+    def unclaim_one(self, item):
+        pass
+
+    def check_for_claimables(self):
+        pass
+
     def stop(self):
         cloud_logger()
         self._active = False

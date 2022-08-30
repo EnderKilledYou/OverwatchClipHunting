@@ -14,6 +14,28 @@ class PermaOCR:
         self.api = PyTessBaseAPI(path=tess_fast_dir, psm=PSM.SINGLE_COLUMN, oem=OEM.LSTM_ONLY)
         self.queue = Queue()
         self._token = CancellationToken()
+        self._lock = threading.Lock()
+
+    def count(self):
+        return self._queue_size
+
+    def _decr_work(self):
+        try:
+            self._lock.acquire()
+            self._queue_size = self._queue_size - 1
+        except:
+            pass
+        finally:
+            self._lock.release()
+
+    def _incr_work(self):
+        try:
+            self._lock.acquire()
+            self._queue_size = self._queue_size + 1
+        except:
+            pass
+        finally:
+            self._lock.release()
 
     def stop(self):
         self._token.cancel()
@@ -34,13 +56,16 @@ class PermaOCR:
             if image is None:
                 if return_queue is not None:
                     return_queue.put(None)
+                    self._decr_work()
                 continue
             self.api.SetImage(image)
             return_queue.put(self.api.GetUTF8Text())
+            self._decr_work()
             image = None
             return_queue = None
 
     def GetUTF8Text(self, image, return_queue):
+        self._incr_work()
         self.queue.put((image, return_queue))
         if return_queue is None:
             return None
@@ -62,15 +87,4 @@ ocr_settings = {'ocr_index': 0}
 
 
 def get_perma_ocr():
-    try:
-        ocr_lock.acquire()
-        ocr = perma_ocrs[ocr_settings['ocr_index']]
-        if ocr_settings['ocr_index'] + 1 >= len(perma_ocrs):
-            ocr_settings['ocr_index'] = 0
-        else:
-            ocr_settings['ocr_index'] = ocr_settings['ocr_index'] + 1
-        return ocr
-    except:
-        pass
-    finally:
-        ocr_lock.release()
+    return perma_ocrs.sort(key=lambda x: x.count())[0]
