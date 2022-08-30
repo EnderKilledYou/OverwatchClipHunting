@@ -9,7 +9,7 @@ from config.config import tess_fast_dir
 
 class PermaOCR:
     def __init__(self):
-        self.api = PyTessBaseAPI(path=tess_fast_dir, psm=PSM.SINGLE_BLOCK, oem=OEM.LSTM_ONLY)
+        self.api = PyTessBaseAPI(path=tess_fast_dir, psm=PSM.SINGLE_COLUMN, oem=OEM.LSTM_ONLY)
         self.queue = Queue()
 
     def __del__(self):
