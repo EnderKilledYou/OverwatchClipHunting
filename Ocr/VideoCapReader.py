@@ -4,6 +4,7 @@ from time import sleep
 
 import cv2
 import cv2 as cv
+import numpy
 
 import cloud_logger
 from Ocr.frames.frame import Frame
@@ -62,15 +63,15 @@ class VideoCapReader:
 
     def _read_one2(self, frame_number, fps, video_capture):
 
-        video_capture.grab()
-
         if frame_number % self.sample_every_count != 0:
+            video_capture.grab()
             return None
 
         ret, frame = video_capture.retrieve()
 
-        if frame.empty():
+        if numpy.sum(frame) == 0:
             print("Got empty frame")
+            return None
 
         if ret:
             return Frame(frame_number, frame, frame_number // fps, self.streamer_name, self.clip_id)
@@ -179,7 +180,7 @@ class VideoCapReader:
         if item is None:
             return True
         should_sleep = False
-        if frame_number > 0 and frame_number % 10 == 0 :
+        if frame_number > 0 and frame_number % 10 == 0:
             # print(f"Sleeping off empty buffer {self.streamer_name}")
             should_sleep = True
 
@@ -187,7 +188,6 @@ class VideoCapReader:
         self.incr_items_read()
         if should_sleep:
             sleep(1)  # let the video cap have some time to buffer
-
 
         return True
 
