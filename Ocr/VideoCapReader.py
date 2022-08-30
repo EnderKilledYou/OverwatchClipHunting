@@ -65,12 +65,11 @@ class VideoCapReader:
 
         ret, frame = video_capture.read()
 
-        if numpy.sum(frame) == 0:
-            print("Got empty frame")
-            return None
-
         if ret:
             if frame_number % self.sample_every_count != 0:
+                return None
+            if numpy.sum(frame) == 0:
+                print("Got empty frame")
                 return None
             return Frame(frame_number, frame, frame_number // fps, self.streamer_name, self.clip_id)
 
