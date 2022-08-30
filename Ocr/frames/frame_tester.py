@@ -115,7 +115,7 @@ class FrameTester:
         """
         return if_in_hero_room(text)
 
-    def is_in_queue(selfself, text: str) -> bool:
+    def is_in_queue(self, text: str) -> bool:
         """
 
         :param text: The frame text to check for the in_queue condition

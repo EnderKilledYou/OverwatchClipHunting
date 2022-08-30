@@ -63,10 +63,10 @@ class VideoCapReader:
 
     def _read_one2(self, frame_number, fps, video_capture):
 
-        if frame_number > 0 and frame_number % self.fps == 0:
+     #   if frame_number > 0 and frame_number % self.fps == 0:
             # print(f"Sleeping off empty buffer {self.streamer_name}")
-            sleep_amount = .3
-            sleep(sleep_amount)
+    #        sleep_amount = .3
+    #        sleep(sleep_amount)
 
         ret, frame = video_capture.read()
 

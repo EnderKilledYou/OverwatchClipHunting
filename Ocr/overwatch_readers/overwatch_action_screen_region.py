@@ -87,6 +87,10 @@ class OverwatchActionScreenRegion(ScreenRegion):
         if frame_tester.is_spawn_room_frame(text):
             frame_watcher.add_spawn_room_frame(frame)
             frame.empty = False
+
+        if frame_tester.is_in_queue(text):
+            frame_watcher.set_in_queue(frame)
+            frame.empty = False
         text = None
         frame_tester = None
         frame_watcher = None

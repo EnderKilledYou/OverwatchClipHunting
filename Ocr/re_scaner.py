@@ -65,6 +65,7 @@ class ReScanner(ThreadedManager):
         self._frame_count = 0
 
     def _do_work(self, job_id: int):
+        return
         cloud_logger()
         wait_for_tesseract()
 
