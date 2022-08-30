@@ -74,15 +74,14 @@ class VideoCapReader:
             return Frame(frame_number, frame, frame_number // fps, self.streamer_name, self.clip_id)
 
         print(f"could not get frame {self.streamer_name}")
-        if frame is None:
-            print(f"Frame was none {self.streamer_name}")
+
 
         sleep(3)
         if not video_capture.isOpened():
             print(f"Stream could not be read from {self.streamer_name}")
             raise StreamEndedError("Could not read frame")
 
-        video_capture.grab()
+
 
     def _read_one(self, frame_number, fps):
 
