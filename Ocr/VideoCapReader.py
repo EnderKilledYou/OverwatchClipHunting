@@ -65,7 +65,7 @@ class VideoCapReader:
 
         if frame_number > 0 and frame_number % self.fps == 0:
             # print(f"Sleeping off empty buffer {self.streamer_name}")
-            sleep_amount = 1.1
+            sleep_amount = .3
             sleep(sleep_amount)
 
         ret, frame = video_capture.read()
