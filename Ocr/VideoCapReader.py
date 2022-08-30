@@ -176,7 +176,7 @@ class VideoCapReader:
         if item is None:
             return True
         should_sleep = False
-        if frame_number > 0 and frame_number % 10 == 0 and self.count() == 0:
+        if frame_number > 0 and frame_number % 10 == 0 :
             # print(f"Sleeping off empty buffer {self.streamer_name}")
             should_sleep = True
 
