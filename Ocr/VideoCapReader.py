@@ -174,7 +174,7 @@ class VideoCapReader:
         if item is None:
             return True
         if m['last_second'] != item.ts_second:
-            sleep(item.ts_second - m['last_second'])
+            sleep(.125)
             m['last_second'] = item.ts_second
         should_sleep = False
         if frame_number > 0 and frame_number % 10 == 0:
