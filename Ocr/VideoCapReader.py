@@ -68,6 +68,9 @@ class VideoCapReader:
         #        sleep_amount = .3
         #        sleep(sleep_amount)
 
+        if self.count() > 100:
+            sleep(1)
+
         ret, frame = video_capture.read()
 
         if ret:
@@ -82,7 +85,7 @@ class VideoCapReader:
                     frame = None
                     return None
                 return Frame(frame_number, frame, frame_number // fps, self.streamer_name, self.clip_id)
-            return None #rare bug in vcap
+            return None  # rare bug in vcap
 
         print(f"could not get frame {self.streamer_name}")
 
