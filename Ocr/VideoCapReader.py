@@ -105,7 +105,7 @@ class VideoCapReader:
         print(f"Opening {url} for {self.streamer_name}")
         video_capture = cv2.VideoCapture(url)
 
-        # video_capture.set(cv2.CAP_PROP_BUFFERSIZE, 15)
+        video_capture.set(cv2.CAP_PROP_BUFFERSIZE, 300)
         if not video_capture:
             raise None
         video_capture.open(url)
