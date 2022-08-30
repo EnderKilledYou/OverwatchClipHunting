@@ -21,7 +21,7 @@ from ocr_logic.perma_ocr import get_perma_ocr
 def _read_one_frame(buffer, frame_tester, frame_watcher, reader, return_queue, call_back=None):
     frame = wait_next_frame(reader, buffer)
     if frame is None:
-        sleep(1)
+        sleep(2.6)
         return
     job_tuple = (get_perma_ocr(), frame_watcher, frame_tester, return_queue)
     ocr(frame, job_tuple)

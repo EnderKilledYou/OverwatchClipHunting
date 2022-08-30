@@ -57,6 +57,20 @@ def stop_all_ocr():
         ocr.stop()
 
 
+ocr_lock = threading.Lock()
+ocr_settings = {'ocr_index': 0}
+
+
 def get_perma_ocr():
-    index = rand.randint(0, len(perma_ocrs) - 1)
-    return perma_ocrs[index]
+    try:
+        ocr_lock.acquire()
+        ocr = perma_ocrs[ocr_settings['ocr_index']]
+        if ocr_settings['ocr_index'] + 1 >= len(perma_ocrs):
+            ocr_settings['ocr_index'] = 0
+        else:
+            ocr_settings['ocr_index'] = ocr_settings['ocr_index'] + 1
+        return ocr
+    except:
+        pass
+    finally:
+        ocr_lock.release()
