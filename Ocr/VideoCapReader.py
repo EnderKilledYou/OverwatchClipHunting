@@ -21,7 +21,7 @@ class VideoCapReader:
         self._count_lock = threading.Lock()
         self.Active = False
         self.streamer_name = streamer_name
-        self.sample_every_count =30
+        self.sample_every_count = 30
         self.items_read = 0
         self.items_drained = 0
         self.fps = 1
@@ -34,7 +34,7 @@ class VideoCapReader:
         self._count_lock = None
         if hasattr(self, 'video_capture') and self.video_capture is not None:
             print("releasing video capture")
-            #self._release()
+            # self._release()
             del self.video_capture
 
     def count(self):
@@ -180,7 +180,7 @@ class VideoCapReader:
         self.fps = fps
         frame_number = 0
 
-        #self.sample_every_count = fps // sample_frame_rate
+        # self.sample_every_count = fps // sample_frame_rate
         cloud_logger.cloud_message(
             f"Starting sampling.. sampling {fps} /  {sample_frame_rate} = {self.sample_every_count}")
 
@@ -281,3 +281,8 @@ class ClipVideoCapReader(VideoCapReader):
         super(ClipVideoCapReader, self).__init__(streamer_name)
         self.clip_id = clip_id
         self.sample_every_count = 5
+
+    def _read_one2(self, frame_number, fps, video_capture):
+        if frame_number % 100 == 0:
+            sleep(1)
+        return super()._read_one2(frame_number, fps, video_capture)
