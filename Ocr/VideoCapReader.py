@@ -173,18 +173,22 @@ class VideoCapReader:
         item = self._read_one2(frame_number, self.fps, video_capture)
         if item is None:
             return True
-        if m['last_second'] != item.ts_second:
-            sleep(.125)
-            m['last_second'] = item.ts_second
+
         should_sleep = False
+        sleep_amount = 0
         if frame_number > 0 and frame_number % 10 == 0:
             # print(f"Sleeping off empty buffer {self.streamer_name}")
+            sleep_amount = sleep_amount + .2
             should_sleep = True
 
         buffer.put(item)
         self.incr_items_read()
+
+        if m['last_second'] != item.ts_second:
+            sleep_amount = sleep_amount + .125
+            m['last_second'] = item.ts_second
         if should_sleep:
-            sleep(.2)  # let the video cap have some time to buffer
+            sleep(sleep_amount)  # let the video cap have some time to buffer
 
         return True
 
