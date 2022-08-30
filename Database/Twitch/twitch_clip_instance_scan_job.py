@@ -1,7 +1,7 @@
 from datetime import datetime
 from enum import IntEnum
 
-from Database.Twitch.delete_twitch_clip import delete_clip
+
 from Database.Twitch.twitch_clip_instance import TwitchClipInstance
 from config.db_config import db
 from sqlalchemy_serializer import SerializerMixin
@@ -60,16 +60,16 @@ def get_twitch_clip_scan_by_page(page: int, page_count: int = 25):
     with db.session.begin():
         resp = TwitchClipInstanceScanJob.query.filter_by().order_by(TwitchClipInstanceScanJob.id.desc()).paginate(
             page=page, per_page=page_count).items
-    deletes = []
+
     for a in resp:
         by_id = TwitchClipInstance.query.filter_by(id=a.clip_id).first()
         if by_id is not None:
             output.append((a.to_dict(), by_id.to_dict()))
         else:
-            deletes.append(a.clip_id)
+            TwitchClipInstance.query.filter(TwitchClipInstance.id == a.clip_id).delete()
+            TwitchClipInstanceScanJob.query.filter(TwitchClipInstanceScanJob.clip_id == a.clip_id).delete()
 
-    for clip_id in deletes:
-        delete_clip(clip_id)
+
     return output
 
 
