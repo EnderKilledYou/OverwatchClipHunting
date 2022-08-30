@@ -126,7 +126,13 @@ class VideoCapReader:
     def read2(self, url, buffer, cancel_token, stats_callback=None):
         self.Active = True
         print(f"Opening {url} for {self.streamer_name}")
-        video_capture = self._acquire2(url)
+        video_capture = cv2.VideoCapture(url)
+
+        video_capture.set(cv2.CAP_PROP_BUFFERSIZE, 15)
+        if not video_capture:
+            raise None
+        video_capture.open(url)
+
         if video_capture is None:
             print("no video capture")
             return
@@ -248,14 +254,8 @@ class VideoCapReader:
             yield item
             self.incr_items_read()
 
-    def _acquire2(self, url: str):
-        video_capture = cv2.VideoCapture(url)
 
-        video_capture.set(cv2.CAP_PROP_BUFFERSIZE, 15)
-        if not video_capture:
-            raise None
-        video_capture.open(url)
-        return video_capture
+
 
     def _acquire(self, url: str):
         self.video_capture = cv2.VideoCapture(url, apiPreference=cv.CAP_OPENCV_MJPEG)
