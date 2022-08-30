@@ -76,10 +76,8 @@ class VideoCapReader:
         print(f"could not get frame {self.streamer_name}")
 
 
-        sleep(3)
-        if not video_capture.isOpened():
-            print(f"Stream could not be read from {self.streamer_name}")
-            raise StreamEndedError("Could not read frame")
+
+        raise StreamEndedError("Could not read frame")
 
 
 
