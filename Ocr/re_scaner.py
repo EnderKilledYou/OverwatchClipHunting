@@ -113,18 +113,17 @@ class ReScanner(ThreadedManager):
         with ClipVideoCapReader(broadcaster, clip_id) as reader:
             frame_number = 0
             seconds = get_length(path)
-            reader.sample_every_count = 10
             size = reader.fps * seconds
             buffer = Queue()
             threads = []
             try:
-                for i in range(0, 2):
-                    consumer_thread = threading.Thread(target=consume_twitch_clip,
-                                                       args=[cancel, reader, buffer,
-                                                             self._on_frame_read(job_id, reader.sample_every_count,
-                                                                                 size)])
-                    consumer_thread.start()
-                    threads.append(consumer_thread)
+
+                consumer_thread = threading.Thread(target=consume_twitch_clip,
+                                                   args=[cancel, reader, buffer,
+                                                         self._on_frame_read(job_id, reader.sample_every_count,
+                                                                             size)])
+                consumer_thread.start()
+                threads.append(consumer_thread)
                 reader.read2(path, buffer, cancel)
                 print(f'Capture thread releasing {broadcaster}')
             except StreamEndedError:
