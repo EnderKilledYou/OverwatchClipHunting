@@ -71,7 +71,7 @@ class VideoCapReader:
             if numpy.sum(frame) == 0:
                 print("Got empty frame")
                 return None
-            return Frame(frame_number, frame.copy(), frame_number // fps, self.streamer_name, self.clip_id)
+            return Frame(frame_number, frame, frame_number // fps, self.streamer_name, self.clip_id)
 
         print(f"could not get frame {self.streamer_name}")
         sleep(3)
