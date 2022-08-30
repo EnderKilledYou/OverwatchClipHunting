@@ -114,7 +114,7 @@ def on_orbed_event(frame: Frame):
 
 
 @overwatch_event.on('slept')
-def on_orbed_event(frame: Frame):
+def on_slept_event(frame: Frame):
     print("Streamer " + frame['source_name'] + " slepting")
     if not can_clip(frame, 'slept'):
         del frame
