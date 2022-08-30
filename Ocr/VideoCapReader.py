@@ -21,7 +21,7 @@ class VideoCapReader:
         self._count_lock = threading.Lock()
         self.Active = False
         self.streamer_name = streamer_name
-        self.sample_every_count = 15
+        self.sample_every_count = 10
         self.items_read = 0
         self.items_drained = 0
         self.fps = 1
@@ -71,8 +71,8 @@ class VideoCapReader:
         ret, frame = video_capture.read()
 
         if ret:
-            #if frame_number % self.sample_every_count != 0:
-                #return None
+            if frame_number % self.sample_every_count != 0:
+                return None
             if numpy.sum(frame) == 0:
                 print("Got empty frame")
                 return None

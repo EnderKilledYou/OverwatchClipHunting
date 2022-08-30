@@ -111,15 +111,15 @@ def process(img: Image, frame: Frame, job_tuple):
         wait_for_tess()
 
     img_crop = crop(img)
-    # numpy_array = numpy.array(img_crop)
-    # cv2.imshow(frame.source_name, numpy_array)
-    # del numpy_array
-    # cv2.waitKey(25)
+    numpy_array = numpy.array(img_crop)
+    cv2.imshow(frame.source_name, numpy_array)
+    del numpy_array
+    cv2.waitKey(25)
     text = api.GetUTF8Text(img_crop, return_queue)
-    # if len(text) > 5:
-    #     print(text)
-    # if 'NATED' in text:
-    #     print(text)
+    if len(text) > 5:
+        print(text)
+    if 'NATED' in text:
+        print(text)
     img_crop = None
     frame.empty = True
 
