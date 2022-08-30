@@ -169,7 +169,7 @@ class VideoCapReader:
         cloud_logger.cloud_message(
             f"Starting sampling.. sampling {fps} /  {sample_frame_rate} = {self.sample_every_count}")
 
-        while not cancel_token.cancelled and self._next_frame2(frame_number, buffer, video_capture, m):
+        while not cancel_token.cancelled and self._next_frame2(frame_number, buffer, video_capture):
             frame_number = frame_number + 1
             if stats_callback is not None and frame_number % 100 == 0:
                 stats_callback(self.get_stats())
