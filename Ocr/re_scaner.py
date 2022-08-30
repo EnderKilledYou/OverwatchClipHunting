@@ -16,7 +16,10 @@ from Database.Twitch.twitch_clip_instance import get_twitch_clip_video_id_by_id
 from Database.Twitch.delete_twitch_clip import delete_clip
 from Database.Twitch.twitch_clip_instance_scan_job import update_scan_job_error, \
     update_scan_job_percent, update_scan_job_in_scanning, update_scan_job_in_deepfacequeue
+from Events.overwatch_clip_events import overwatch_clips_event
 from Ocr.clear_queue import clear_queue
+from Ocr.frames.frame_tester import FrameTester
+from Ocr.frames.ordered_frame_aggregator import OrderedFrameAggregator
 from Ocr.get_scan_job_clip_tuple import get_scan_job_clip_tuple
 from Ocr.no_stream_error import NoStreamError
 from Ocr.ocr_helpers import get_length
@@ -26,8 +29,8 @@ from Ocr.VideoCapReader import VideoCapReader, ClipVideoCapReader, StreamEndedEr
 from Ocr.wait_for_tessy import wait_for_tesseract
 from cloud_logger import cloud_logger, cloud_error_logger
 from generic_helpers.something_manager import ThreadedManager
-from ocr_logic.ocr_logic import consume_twitch_clip
-from ocr_logic.perma_ocr import PermaOCR
+from ocr_logic.ocr_logic import consume_twitch_clip, ocr
+from ocr_logic.perma_ocr import PermaOCR, get_perma_ocr
 
 
 class InvalidFpsError(BaseException):
@@ -98,33 +101,31 @@ class ReScanner(ThreadedManager):
             traceback.print_exc()
             update_scan_job_error(job_id, str(e))
 
-    def _on_frame_read(self, job_id, sample_every_count, size):
+    def make_frame_callback(self, job_id):
+        return_queue = Queue()
+        frame_watcher = OrderedFrameAggregator(overwatch_clips_event)
+        frame_tester = FrameTester()
 
-        def call_back(frame):
+        def call_back_web(frame, sample_every_count, size):
             if frame.frame_number % 20 == 0:
                 count_size = (frame.frame_number * sample_every_count) / size
                 update_scan_job_percent(job_id, count_size / 100)
+
+        def call_back(frame, fps, sample_every_count):
+            job_tuple = (get_perma_ocr(), frame_watcher, frame_tester, return_queue)
+            ocr(frame, job_tuple)
+            call_back_web(frame, sample_every_count, fps * 30)
 
         return call_back
 
     def _scan_clip(self, job_id: int, broadcaster: str, clip_id: int, path: str):
         cancel = cancel_token.CancellationToken()
 
-        with ClipVideoCapReader(broadcaster, clip_id) as reader:
-            frame_number = 0
-            seconds = get_length(path)
+        with ClipVideoCapReader(broadcaster, clip_id, self.make_frame_callback(job_id)) as reader:
 
-            size = reader.fps * seconds
             buffer = Queue()
             threads = []
             try:
-                for i in range(0, 2):
-                    consumer_thread = threading.Thread(target=consume_twitch_clip,
-                                                       args=[cancel, reader, buffer,
-                                                             self._on_frame_read(job_id, reader.sample_every_count,
-                                                                                 size)])
-                    consumer_thread.start()
-                    threads.append(consumer_thread)
                 reader.read2(path, buffer, cancel)
                 print(f'Capture thread releasing {broadcaster}')
             except StreamEndedError:
@@ -144,12 +145,7 @@ class ReScanner(ThreadedManager):
                 clear_queue(buffer, broadcaster)
                 cancel.cancel()
                 reader.stop()
-                print(f'waiting for clip reader of {broadcaster} {job_id}  to wind down')
-                for consumer_thread in threads:
-                    consumer_thread.join(20)
-                    if consumer_thread.is_alive():
-                        print(f'Clip reader of didnt end yet check for issue {broadcaster}  {job_id} down')
-                print(f'Clip reader of {broadcaster}  {job_id} down')
+
                 del buffer
         update_scan_job_percent(job_id, 1)
 

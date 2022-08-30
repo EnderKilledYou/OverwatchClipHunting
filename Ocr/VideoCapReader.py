@@ -64,8 +64,6 @@ class VideoCapReader:
         #        sleep_amount = .3
         #        sleep(sleep_amount)
 
-
-
         ret, frame = video_capture.read()
 
         if ret:
@@ -229,12 +227,30 @@ class VideoCapReader:
 
 
 class ClipVideoCapReader(VideoCapReader):
-    def __init__(self, streamer_name: str, clip_id: int):
+    def __init__(self, streamer_name: str, clip_id: int, call_back):
         super(ClipVideoCapReader, self).__init__(streamer_name)
         self.clip_id = clip_id
         self.sample_every_count = 5
+        self.call_back = call_back
 
     def _read_one2(self, frame_number, fps, video_capture):
-        if frame_number % 100 == 0:
-            sleep(1)
-        return super()._read_one2(frame_number, fps, video_capture)
+
+        ret, frame = video_capture.read()
+
+        if ret:
+            if frame is not None:
+                if frame_number % self.sample_every_count != 0:
+                    del frame
+                    frame = None
+                    return None
+                if numpy.sum(frame) == 0:
+                    print("Got empty frame")
+                    del frame
+                    frame = None
+                    return None
+            self.call_back(Frame(frame_number, frame, frame_number // fps, self.streamer_name, self.clip_id),self.fps,self.sample_every_count)
+            return None  # rare bug in vcap
+
+        print(f"could not get frame {self.streamer_name}")
+
+        raise StreamEndedError("Could not read frame")
