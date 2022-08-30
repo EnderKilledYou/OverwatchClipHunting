@@ -20,6 +20,7 @@ def format_event_for_marker(event_type: str, start_seconds: int, end_seconds: in
 def create_clip(frame: Frame, clip_type: str):
     api = get_twitch_api()
     print(f"creating clip for {frame['source_name']} {clip_type}")
+    return
     try:
         created = api.create_clip(get_broadcaster_id(frame['source_name']), True)
     except BaseException as b:
