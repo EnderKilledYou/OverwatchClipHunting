@@ -75,11 +75,7 @@ class VideoCapReader:
 
         print(f"could not get frame {self.streamer_name}")
 
-
-
         raise StreamEndedError("Could not read frame")
-
-
 
     def _read_one(self, frame_number, fps):
 
@@ -167,16 +163,18 @@ class VideoCapReader:
         self.sample_every_count = fps // sample_frame_rate
         cloud_logger.cloud_message(
             f"Starting sampling.. sampling {fps} /  {sample_frame_rate} = {self.sample_every_count}")
-
-        while not cancel_token.cancelled and self._next_frame2(frame_number, buffer, video_capture):
+        m = {'last_second': 0}
+        while not cancel_token.cancelled and self._next_frame2(frame_number, buffer, video_capture, m):
             frame_number = frame_number + 1
             if stats_callback is not None and frame_number % 100 == 0:
                 stats_callback(self.get_stats())
 
-    def _next_frame2(self, frame_number, buffer: Queue, video_capture):
+    def _next_frame2(self, frame_number, buffer: Queue, video_capture, m):
         item = self._read_one2(frame_number, self.fps, video_capture)
         if item is None:
             return True
+        if m['last_second'] != item.ts_second:
+            sleep(item.ts_second - m['last_second'])
         should_sleep = False
         if frame_number > 0 and frame_number % 10 == 0:
             # print(f"Sleeping off empty buffer {self.streamer_name}")
