@@ -244,7 +244,7 @@ class VideoCapReader:
             self.incr_items_read()
 
     def _acquire2(self, url: str):
-        video_capture = cv2.VideoCapture(url, apiPreference=cv2.CAP_IMAGES)
+        video_capture = cv2.VideoCapture(url, apiPreference=cv.CAP_OPENCV_MJPEG)
         print("Capture was, setting to 500 " + str(video_capture.get(cv2.CAP_PROP_BUFFERSIZE)))
         video_capture.set(cv2.CAP_PROP_BUFFERSIZE, 500)
         if not video_capture:
@@ -253,7 +253,7 @@ class VideoCapReader:
         return video_capture
 
     def _acquire(self, url: str):
-        self.video_capture = cv2.VideoCapture(url, apiPreference=cv2.CAP_IMAGES)
+        self.video_capture = cv2.VideoCapture(url, apiPreference=cv.CAP_OPENCV_MJPEG)
         self.video_capture.set(cv2.CAP_PROP_BUFFERSIZE, 1)
         if not self.video_capture:
             raise NoStreamError("Capture could not open stream")
