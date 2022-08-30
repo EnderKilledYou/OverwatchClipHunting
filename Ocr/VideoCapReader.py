@@ -34,7 +34,7 @@ class VideoCapReader:
         self._count_lock = None
         if hasattr(self, 'video_capture') and self.video_capture is not None:
             print("releasing video capture")
-            self._release()
+            #self._release()
             del self.video_capture
 
     def count(self):
@@ -134,12 +134,12 @@ class VideoCapReader:
             self._read2(buffer, video_capture, cancel_token, stats_callback)
         except StreamEndedError:
             pass
-        try:
-            video_capture.release()
-        except BaseException as b:
-            cloud_logger.cloud_error_logger(b)
-        finally:
-            del video_capture
+        # try:
+        #     video_capture.release()
+        # except BaseException as b:
+        #     cloud_logger.cloud_error_logger(b)
+        # finally:
+        #     del video_capture
 
     def readYield(self, url, cancel_token):
 
