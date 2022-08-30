@@ -40,7 +40,7 @@ class StreamLinkHelper:
         cloud_logger()
         ocr_stream = streams['best']
         return ocr_stream.url, "best"
-        items = []
+
 
         if '480p60' in streams:
             return streams['480p60'].url, '480p60'
