@@ -64,7 +64,7 @@ class VideoCapReader:
         #        sleep_amount = .3
         #        sleep(sleep_amount)
 
-        if self.count() % 100 == 0:
+        if self.count() > 0 and self.count() % (self.fps * 2) == 0:
             sleep(1)
 
         ret, frame = video_capture.read()
