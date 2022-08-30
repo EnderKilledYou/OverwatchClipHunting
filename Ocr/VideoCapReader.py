@@ -33,7 +33,6 @@ class VideoCapReader:
         print(f"VideoCapReader Del")
         self._count_lock = None
 
-
     def count(self):
         try:
             self._count_lock.acquire()
@@ -65,7 +64,7 @@ class VideoCapReader:
         #        sleep_amount = .3
         #        sleep(sleep_amount)
 
-        if self.count() > 100:
+        if self.count() % 100 == 0:
             sleep(1)
 
         ret, frame = video_capture.read()
@@ -87,9 +86,6 @@ class VideoCapReader:
         print(f"could not get frame {self.streamer_name}")
 
         raise StreamEndedError("Could not read frame")
-
-
-
 
     def get_stats(self):
 
@@ -123,8 +119,6 @@ class VideoCapReader:
         #     cloud_logger.cloud_error_logger(b)
         # finally:
         #     del video_capture
-
-
 
     def stop(self):
         self.Active = False
