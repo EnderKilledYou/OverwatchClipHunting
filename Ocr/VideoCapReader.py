@@ -172,10 +172,6 @@ class VideoCapReader:
                 stats_callback(self.get_stats())
 
     def _next_frame2(self, frame_number, buffer: Queue, video_capture):
-        if self.count() > 100:
-            # print(f"transfer full, waiting {self.streamer_name}")
-            sleep(3)
-
         item = self._read_one2(frame_number, self.fps, video_capture)
         if item is None:
             return True
@@ -187,7 +183,7 @@ class VideoCapReader:
         buffer.put(item)
         self.incr_items_read()
         if should_sleep:
-            sleep(.368)  # let the video cap have some time to buffer
+            sleep(.6)  # let the video cap have some time to buffer
 
         return True
 
