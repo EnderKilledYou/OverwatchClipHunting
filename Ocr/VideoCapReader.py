@@ -147,25 +147,25 @@ class VideoCapReader:
         # finally:
         #     del video_capture
 
-    def readYield(self, url, cancel_token):
-
-        self._acquire(url)
-        try:
-
-            fps = int(self.video_capture.get(cv.CAP_PROP_FPS))
-            if fps > 500:
-                fps = 60
-            if fps < 10:
-                fps = 60
-            self.fps = fps
-            self.sample_every_count = fps // sample_frame_rate
-            return self._yield_frames(fps, cancel_token)
-        except StreamEndedError:
-            try:
-                self._release()
-            except:
-                pass
-            pass
+    # def readYield(self, url, cancel_token):
+    #
+    #     self._acquire(url)
+    #     try:
+    #
+    #         fps = int(self.video_capture.get(cv.CAP_PROP_FPS))
+    #         if fps > 500:
+    #             fps = 60
+    #         if fps < 10:
+    #             fps = 60
+    #         self.fps = fps
+    #         self.sample_every_count = fps // sample_frame_rate
+    #         return self._yield_frames(fps, cancel_token)
+    #     except StreamEndedError:
+    #         try:
+    #             self._release()
+    #         except:
+    #             pass
+    #         pass
 
     def stop(self):
         self.Active = False
@@ -180,7 +180,7 @@ class VideoCapReader:
         self.fps = fps
         frame_number = 0
 
-        self.sample_every_count = fps // sample_frame_rate
+        #self.sample_every_count = fps // sample_frame_rate
         cloud_logger.cloud_message(
             f"Starting sampling.. sampling {fps} /  {sample_frame_rate} = {self.sample_every_count}")
 
@@ -199,71 +199,71 @@ class VideoCapReader:
 
         return True
 
-    def _read(self, buffer: Queue):
-
-        fps = int(self.video_capture.get(cv.CAP_PROP_FPS))
-        if fps > 500:
-            fps = 60
-        if fps < 10:
-            fps = 60
-        self.fps = fps
-        frame_number = 0
-
-        self.sample_every_count = fps // sample_frame_rate
-        cloud_logger.cloud_message(
-            f"Starting sampling.. sampling {fps} /  {sample_frame_rate} = {self.sample_every_count}")
-        try:
-            while self.Active and self._next_frame(frame_number, buffer):
-                frame_number = frame_number + 1
-        finally:
-            try:
-                self.video_capture.release()
-            except BaseException as b:
-                cloud_logger.cloud_error_logger(b)
-                pass
-        print("cleared")
-
-    def _next_frame(self, frame_number, buffer: Queue):
-        if self.count() > 100:
-            # print(f"transfer full, waiting {self.streamer_name}")
-            sleep(3)
-
-        item = self._read_one(frame_number, self.fps)
-        if item is None:
-            return True
-
-        if frame_number > 0 and frame_number % 10 == 0 and self.count() == 0:
-            # print(f"Sleeping off empty buffer {self.streamer_name}")
-            sleep(1)  # let the video cap have some time to buffer
-        buffer.put(item)
-
-        self.incr_items_read()
-        return True
-
-    def _yield_frames(self, fps, cancel_token):
-        frame_number = 0
-        while not cancel_token.cancelled:
-            try:
-                item = self._read_one(frame_number, fps)
-            except StreamEndedError:
-                break
-            frame_number = frame_number + 1
-            if item is None:
-                continue
-
-            yield item
-            self.incr_items_read()
-
-
-
-
-    def _acquire(self, url: str):
-        self.video_capture = cv2.VideoCapture(url, apiPreference=cv.CAP_OPENCV_MJPEG)
-        self.video_capture.set(cv2.CAP_PROP_BUFFERSIZE, 1)
-        if not self.video_capture:
-            raise NoStreamError("Capture could not open stream")
-        if not self.video_capture.isOpened():
-            self.video_capture.open(url)
+    # def _read(self, buffer: Queue):
+    #
+    #     fps = int(self.video_capture.get(cv.CAP_PROP_FPS))
+    #     if fps > 500:
+    #         fps = 60
+    #     if fps < 10:
+    #         fps = 60
+    #     self.fps = fps
+    #     frame_number = 0
+    #
+    #     self.sample_every_count = fps // sample_frame_rate
+    #     cloud_logger.cloud_message(
+    #         f"Starting sampling.. sampling {fps} /  {sample_frame_rate} = {self.sample_every_count}")
+    #     try:
+    #         while self.Active and self._next_frame(frame_number, buffer):
+    #             frame_number = frame_number + 1
+    #     finally:
+    #         try:
+    #             self.video_capture.release()
+    #         except BaseException as b:
+    #             cloud_logger.cloud_error_logger(b)
+    #             pass
+    #     print("cleared")
+    #
+    # def _next_frame(self, frame_number, buffer: Queue):
+    #     if self.count() > 100:
+    #         # print(f"transfer full, waiting {self.streamer_name}")
+    #         sleep(3)
+    #
+    #     item = self._read_one(frame_number, self.fps)
+    #     if item is None:
+    #         return True
+    #
+    #     if frame_number > 0 and frame_number % 10 == 0 and self.count() == 0:
+    #         # print(f"Sleeping off empty buffer {self.streamer_name}")
+    #         sleep(1)  # let the video cap have some time to buffer
+    #     buffer.put(item)
+    #
+    #     self.incr_items_read()
+    #     return True
+    #
+    # def _yield_frames(self, fps, cancel_token):
+    #     frame_number = 0
+    #     while not cancel_token.cancelled:
+    #         try:
+    #             item = self._read_one(frame_number, fps)
+    #         except StreamEndedError:
+    #             break
+    #         frame_number = frame_number + 1
+    #         if item is None:
+    #             continue
+    #
+    #         yield item
+    #         self.incr_items_read()
+    #
+    #
+    #
+    #
+    # def _acquire(self, url: str):
+    #     self.video_capture = cv2.VideoCapture(url, apiPreference=cv.CAP_OPENCV_MJPEG)
+    #     self.video_capture.set(cv2.CAP_PROP_BUFFERSIZE, 1)
+    #     if not self.video_capture:
+    #         raise NoStreamError("Capture could not open stream")
+    #     if not self.video_capture.isOpened():
+    #         self.video_capture.open(url)
 
     def __enter__(self):
         return self
