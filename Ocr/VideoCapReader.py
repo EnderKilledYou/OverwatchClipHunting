@@ -66,7 +66,7 @@ class VideoCapReader:
         if frame_number % self.sample_every_count != 0:
             video_capture.grab()
             return None
-
+        
         ret, frame = video_capture.retrieve()
 
         if numpy.sum(frame) == 0:
