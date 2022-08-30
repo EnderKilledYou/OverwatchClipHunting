@@ -175,6 +175,7 @@ class VideoCapReader:
             return True
         if m['last_second'] != item.ts_second:
             sleep(item.ts_second - m['last_second'])
+            m['last_second'] = item.ts_second
         should_sleep = False
         if frame_number > 0 and frame_number % 10 == 0:
             # print(f"Sleeping off empty buffer {self.streamer_name}")
