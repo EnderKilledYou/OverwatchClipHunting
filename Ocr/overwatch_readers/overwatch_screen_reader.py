@@ -46,9 +46,10 @@ class OverwatchScreenReader(ScreenReader):
     def ocr(self, frame: Frame, api: PyTessBaseAPI) -> None:
 
         try:
+            edges = cv.Canny(frame.image, 100, 200)
             # img_grey = cv.cvtColor(frame.image, cv.COLOR_RGB2GRAY)
             # pil_grey = Image.fromarray(img_grey)
-            pil_grey = Image.fromarray(frame.image)
+            pil_grey = Image.fromarray(edges)
             if frame.frame_number % 100 == 0:
                 print(f"Processing frame {frame.frame_number} for {frame.source_name}")
             ActionTextCropper.process(pil_grey, frame, self.frame_watcher,

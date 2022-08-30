@@ -4,6 +4,7 @@ from queue import Empty, Queue
 from time import sleep
 
 import cv2
+import numpy
 from PIL import Image
 
 from Events.overwatch_clip_events import overwatch_clips_event
@@ -79,13 +80,19 @@ def consume_twitch_broadcast(cancel_token, reader, buffer):
 
 
 def ocr(frame: Frame, job_tuple) -> None:
+
+
     img_grey = cv2.cvtColor(frame.image, cv2.COLOR_RGB2GRAY)
+
+    #edges = cv2.Canny(img_grey, 100, 200)
     pil_grey = Image.fromarray(img_grey)
+
     if frame.frame_number % 1000 == 0:
         print(f"Processing frame {frame.frame_number} for {frame.source_name}")
-    process(pil_grey,frame, job_tuple)
+    process(pil_grey, frame, job_tuple)
     img_grey = None
     pil_grey = None
+    edges = None
 
 
 def wait_next_frame(reader, buffer):
@@ -104,7 +111,15 @@ def process(img: Image, frame: Frame, job_tuple):
         wait_for_tess()
 
     img_crop = crop(img)
+    # numpy_array = numpy.array(img_crop)
+    # cv2.imshow(frame.source_name, numpy_array)
+    # del numpy_array
+    # cv2.waitKey(25)
     text = api.GetUTF8Text(img_crop, return_queue)
+    # if len(text) > 5:
+    #     print(text)
+    # if 'NATED' in text:
+    #     print(text)
     img_crop = None
     frame.empty = True
 

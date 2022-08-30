@@ -32,10 +32,9 @@ class PermaOCR:
 
     def GetUTF8Text(self, image, return_queue):
         self.queue.put((image, return_queue))
-        text = return_queue.get()
-        if len(text) > 5:
-            print(text)
-        return text
+        return return_queue.get()
+
+
 
 
 perma_ocrs = [PermaOCR().start(), PermaOCR().start(), PermaOCR().start()]

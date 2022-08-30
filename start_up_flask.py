@@ -2,6 +2,9 @@
 import atexit
 
 import threading
+
+import cv2
+
 from Database.Twitch.tag_clipper_job import reset_twitch_clip_job_state, requeue_twitch_clip_jobs
 from alli import alli
 from facer import facer
@@ -21,6 +24,7 @@ def start_workers():
     atexit.register(rescanner.stop)
     atexit.register(alli.stop)
     atexit.register(facer.stop)
+    atexit.register(cv2.destroyAllWindows)
 
 
 threading.Thread(target=start_workers, args=[]).start()
