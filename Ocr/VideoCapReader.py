@@ -69,6 +69,9 @@ class VideoCapReader:
 
         ret, frame = video_capture.retrieve()
 
+        if frame.empty():
+            print("Got empty frame")
+
         if ret:
             return Frame(frame_number, frame, frame_number // fps, self.streamer_name, self.clip_id)
 
