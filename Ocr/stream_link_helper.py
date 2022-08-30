@@ -39,6 +39,7 @@ class StreamLinkHelper:
     def _parse_best_stream(streams: Dict[str, TwitchHLSStream]) -> Tuple[str, str]:
         cloud_logger()
         ocr_stream = streams['best']
+        return ocr_stream.url, "best"
         items = []
 
         if '480p60' in streams:

@@ -32,10 +32,7 @@ class VideoCapReader:
     def __del__(self):
         print(f"VideoCapReader Del")
         self._count_lock = None
-        if hasattr(self, 'video_capture') and self.video_capture is not None:
-            print("releasing video capture")
-            # self._release()
-            del self.video_capture
+
 
     def count(self):
         try:
@@ -91,28 +88,8 @@ class VideoCapReader:
 
         raise StreamEndedError("Could not read frame")
 
-    def _read_one(self, frame_number, fps):
 
-        self.video_capture.grab()
 
-        if frame_number % self.sample_every_count != 0:
-            return None
-
-        ret, frame = self.video_capture.retrieve()
-
-        if ret:
-            return Frame(frame_number, frame, frame_number // fps, self.streamer_name, self.clip_id)
-
-        print(f"Stream could not be read from {self.streamer_name}")
-        raise StreamEndedError("Could not read frame")
-
-    def read(self, url, buffer):
-        self.Active = True
-        video_capture = self._acquire2(url)
-        try:
-            self._read(buffer)
-        except StreamEndedError:
-            pass
 
     def get_stats(self):
 
@@ -147,25 +124,7 @@ class VideoCapReader:
         # finally:
         #     del video_capture
 
-    # def readYield(self, url, cancel_token):
-    #
-    #     self._acquire(url)
-    #     try:
-    #
-    #         fps = int(self.video_capture.get(cv.CAP_PROP_FPS))
-    #         if fps > 500:
-    #             fps = 60
-    #         if fps < 10:
-    #             fps = 60
-    #         self.fps = fps
-    #         self.sample_every_count = fps // sample_frame_rate
-    #         return self._yield_frames(fps, cancel_token)
-    #     except StreamEndedError:
-    #         try:
-    #             self._release()
-    #         except:
-    #             pass
-    #         pass
+   
 
     def stop(self):
         self.Active = False
