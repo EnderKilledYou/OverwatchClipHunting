@@ -1,13 +1,13 @@
 from datetime import datetime
 from enum import IntEnum
 
+from Database.Twitch.delete_twitch_clip import delete_clip
 from Database.Twitch.twitch_clip_instance import TwitchClipInstance
 from config.db_config import db
 from sqlalchemy_serializer import SerializerMixin
 
 from Database.Twitch.dict_to_class import Dict2Class
 from Database.Twitch.twitch_clip_tag import TwitchClipTag
-
 
 
 class TwitchClipJobState(IntEnum):
@@ -36,8 +36,6 @@ class TwitchClipInstanceScanJob(db.Model, SerializerMixin):
     error = db.Column(db.String(900), default='')
 
 
-
-
 from OrmHelpers.BasicWithId import BasicWithId
 
 twitch_clip_instance_scan_job_helper = BasicWithId(TwitchClipInstanceScanJob)
@@ -62,17 +60,20 @@ def get_twitch_clip_scan_by_page(page: int, page_count: int = 25):
     with db.session.begin():
         resp = TwitchClipInstanceScanJob.query.filter_by().order_by(TwitchClipInstanceScanJob.id.desc()).paginate(
             page=page, per_page=page_count).items
+    deletes = []
     for a in resp:
         by_id = TwitchClipInstance.query.filter_by(id=a.clip_id).first()
         if by_id is not None:
             output.append((a.to_dict(), by_id.to_dict()))
         else:
-            print(f"Could not find clip for {a.clip_id}")
+            deletes.append(a.clip_id)
 
+    for clip_id in deletes:
+        delete_clip(clip_id)
     return output
 
 
-def get_twitch_clip_tag_by_id(tag_id) ->TwitchClipTag:
+def get_twitch_clip_tag_by_id(tag_id) -> TwitchClipTag:
     with db.session.begin():
         first = TwitchClipTag.query.filter_by(id=tag_id).first()
         if first is None:
@@ -109,7 +110,6 @@ def update_scan_job_error(scan_job_id: int, error_str: str):
         item.completed_at = datetime.now()
 
 
-
 def update_scan_job_percent(scan_job_id: int, percent: float, is_complete: bool = False):
     with db.session.begin():
         item: TwitchClipInstanceScanJob = TwitchClipInstanceScanJob.query.filter_by(id=scan_job_id).first()
@@ -123,8 +123,6 @@ def update_scan_job_percent(scan_job_id: int, percent: float, is_complete: bool 
             item.completed_at = datetime.now()
 
 
-
-
 def update_scan_job_in_scanning(scan_job_id: int):
     with db.session.begin():
         item: TwitchClipInstanceScanJob = TwitchClipInstanceScanJob.query.filter_by(id=scan_job_id).first()
@@ -133,14 +131,12 @@ def update_scan_job_in_scanning(scan_job_id: int):
         item.state = TwitchClipJobState.Scanning
 
 
-
 def update_scan_job_in_subclip(scan_job_id: int):
     with db.session.begin():
         item: TwitchClipInstanceScanJob = TwitchClipInstanceScanJob.query.filter_by(id=scan_job_id).first()
         if item is None:
             return
         item.state = TwitchClipJobState.Yielding
-
 
 
 def update_scan_job_in_deepface(scan_job_id: int):
@@ -152,7 +148,6 @@ def update_scan_job_in_deepface(scan_job_id: int):
         item.percent = 0
 
 
-
 def update_scan_job_in_deepfacequeue(scan_job_id: int):
     with db.session.begin():
         item: TwitchClipInstanceScanJob = TwitchClipInstance.query.filter_by(id=scan_job_id).first()
@@ -160,7 +155,6 @@ def update_scan_job_in_deepfacequeue(scan_job_id: int):
             return
         item.state = TwitchClipJobState.DeepFacingQueue
         item.percent = 0
-
 
 
 def update_scan_job_started(scan_job_id: int):
@@ -171,6 +165,5 @@ def update_scan_job_started(scan_job_id: int):
         item.state = 1
         item.percent = 0
         dict_class = Dict2Class(item.to_dict())
-
 
     return dict_class
