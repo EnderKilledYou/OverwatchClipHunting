@@ -3,5 +3,5 @@ from typing import Optional, Match
 
 
 def if_got_elim(text: str) -> bool:
-    return 'NATED' in text or 'NATD' in text or 'MNATE' in text or 'MTATD' in text
+    return  'ELMUARTER' in text or 'NATED' in text or 'NATD' in text or 'MNATE' in text or 'MTATD' in text
 
