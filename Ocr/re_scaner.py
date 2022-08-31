@@ -45,9 +45,6 @@ if not os.path.exists(tmp_path):
 rand = Random()
 
 
-
-
-
 class ReScanner(ThreadedManager):
     _frame_count: int
     _reader: VideoCapReader
@@ -104,6 +101,8 @@ class ReScanner(ThreadedManager):
             if frame.frame_number % 20 == 0:
                 count_size = (frame.frame_number * sample_every_count) / size
                 update_scan_job_percent(job_id, count_size / 100)
+            if frame.frame_number % 100 == 0:
+                sleep(1)
 
         def call_back(frame, fps, sample_every_count):
             job_tuple = (get_perma_ocr(), frame_watcher, frame_tester, return_queue)
