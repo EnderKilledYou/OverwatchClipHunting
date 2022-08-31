@@ -74,7 +74,6 @@ class PermaOCR:
 
 
 perma_ocrs = [PermaOCR().start(), PermaOCR().start(), PermaOCR().start()]
-rand = random.Random()
 
 
 def stop_all_ocr():
@@ -83,9 +82,5 @@ def stop_all_ocr():
         ocr.stop()
 
 
-ocr_lock = threading.Lock()
-ocr_settings = {'ocr_index': 0}
-
-
 def get_perma_ocr():
-    return perma_ocrs.sort(key=lambda x: x.count())[0]
+    return min(*perma_ocrs, key=lambda x: x.count())
