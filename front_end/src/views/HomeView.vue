@@ -20,14 +20,16 @@
         </div>
       </div>
     </div>
-    <div class="row">
+    <div class="row" v-if="spread_mode">
       <on-twitch-now :streams="twitch_streams_filtered"
                      @updatedmonitored="list_items"/>
     </div>
-    <div class="row">
+    <div class="row" v-if="spread_mode">
       <currently-live :items="items"
-                      :show_inactive="showInactive" @updatedmonitored="list_items"/>
+                      :show_inactive="showInactive" @updatedmonitored="list_items"
+                      @monitor_selected="monitor_selected"/>
     </div>
+ 
 
   </div>
 
@@ -39,6 +41,7 @@ import OnTwitchNow from "@/views/OnTwitchNow.vue";
 import CurrentlyLive from "@/views/CurrentlyLive.vue"; // @ is an alias to /src
 import {Component, Vue} from "vue-facing-decorator";
 import store from "@/store";
+import ViewMonitor from "@/views/ViewMonitor.vue";
 
 let interval: number | null | undefined = null
 
@@ -47,28 +50,40 @@ let interval: number | null | undefined = null
   components: {
     CurrentlyLive,
     OnTwitchNow,
+    ViewMonitor
 
   },
 })
 export default class HomeView extends Vue {
 
   streamerName: string = ""
-
-
+  selected_monitor: Monitor | null = null
+  selected_live_stream: TwitchLiveStreamData | null = null
   showTwitchers: boolean = false
-
+  spread_mode: boolean = true
   private interval: number = 0;
   private twitch_streams: any[] = [];
   private Me: any;
   private logged_in: boolean = false
 
+  async monitor_selected(monitor: Monitor, live_Stream: TwitchLiveStreamData) {
+
+    this.selected_monitor = monitor
+    this.selected_live_stream = live_Stream
+    this.spread_mode = false
+  }
+
+  async monitor_unselected() {
+    this.spread_mode = false
+
+  }
 
   async HideTwitch() {
     this.twitch_streams = []
     this.showTwitchers = false
   }
 
-   hasRole(role: string) {
+  hasRole(role: string) {
     return store.state.roles.find(a => a === role) !== null
   }
 

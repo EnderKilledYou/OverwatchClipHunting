@@ -1,3 +1,4 @@
+from Database.monitor_log import update_broadcaster_log
 from Ocr.overwatch_matchers.assist_matcher import if_assist
 from Ocr.overwatch_matchers.eliminated_matcher import if_got_elimed, if_menu, if_objective_defense, if_orb_gain, \
     if_blocking
@@ -18,26 +19,39 @@ class FrameTester:
         if self.is_elimed_frame(text):
             frame_watcher.add_elimed_frame(frame)
             frame.empty = False
+            # if frame.clip_id == -1:
+            #     update_broadcaster_log(frame.source_name, text, frame.image, 'elimed')
+
         if self.is_elim_frame(text):
             count = self.count_elim_frame(text)
             frame_watcher.add_elim_frame(frame, count)
             frame.empty = False
+            # if frame.clip_id == -1:
+            #     update_broadcaster_log(frame.source_name, text, frame.image, 'elim')
 
         if self.is_heal_frame(text):
             frame_watcher.add_healing_frame(frame)
             frame.empty = False
+            # if frame.clip_id == -1:
+            #     update_broadcaster_log(frame.source_name, text, frame.image, 'heal')
 
         if self.is_slept_frame(text):
             frame_watcher.add_slepting_frame(frame)
             frame.empty = False
+            # if frame.clip_id == -1:
+            #     update_broadcaster_log(frame.source_name, text, frame.image, 'slept')
 
         if self.is_assist_frame(text):
             frame_watcher.add_assist_frame(frame)
             frame.empty = False
+            # if frame.clip_id == -1:
+            #     update_broadcaster_log(frame.source_name, text, frame.image, 'assist')
 
         if self.is_blocking(text):
             frame_watcher.add_blocking_frame(frame)
             frame.empty = False
+            # if frame.clip_id == -1:
+            #     update_broadcaster_log(frame.source_name, text, frame.image, 'blocking')
 
         if self.is_orb_gained(text):
             frame_watcher.add_orb_gained_frame(frame)
@@ -46,10 +60,14 @@ class FrameTester:
         if self.is_defense(text):
             frame_watcher.add_defense_frame(frame)
             frame.empty = False
+            # if frame.clip_id == -1:
+            #     update_broadcaster_log(frame.source_name, text, frame.image, 'defense')
 
         if self.is_spawn_room_frame(text):
             frame_watcher.add_spawn_room_frame(frame)
             frame.empty = False
+            # if frame.clip_id == -1:
+            #     update_broadcaster_log(frame.source_name, text, frame.image, 'spawn')
 
     def is_elimed_frame(self, text: str) -> bool:
         """

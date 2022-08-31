@@ -1,12 +1,14 @@
 import json
 import traceback
+from io import BytesIO
 
 import json_fix
-from flask import Blueprint
+from flask import Blueprint, send_file
 
 from Database.avoid_monitor import avoid_monitor
 from Database.monitor import remove_stream_to_monitor, add_stream_to_monitor, get_all_my_monitors, get_all_monitors, \
     get_all_monitors_dicts
+from Database.monitor_log import get_monitor_log_image
 from cloud_logger import cloud_error_logger
 from routes.login_dec import check_admin
 from routes.route_cache import cache
@@ -17,6 +19,17 @@ streamer = Blueprint('streamer', __name__)
 from app import api_generator
 
 sharp = api_generator
+
+
+@streamer.route('/get_event_log/<broadcaster>', methods=['GET'])
+def get_image_view(broadcaster: str):
+    img_data = get_monitor_log_image(broadcaster)
+    if img_data is None:
+        return ""
+    img = BytesIO()
+    img.write(img_data)
+    img.seek(0)
+    return send_file(img, mimetype='image/png')
 
 
 @sharp.function()
@@ -32,10 +45,10 @@ def add(stream_name: str):
 def list_streamers():
     try:
         if cache.has('my_monitors'):
-           my_monitors = cache.get('my_monitors')
+            my_monitors = cache.get('my_monitors')
         else:
             my_monitors = get_all_monitors_dicts()
-            cache.set('my_monitors', my_monitors,30)
+            cache.set('my_monitors', my_monitors, 30)
 
         if len(my_monitors) == 0:
             return {"success": True, 'items': []}
@@ -45,8 +58,7 @@ def list_streamers():
         else:
             twitch_api = get_twitch_api()
             streams = get_monitored_streams_dicts(twitch_api)
-            cache.set('get_monitored_streams', streams,30)
-
+            cache.set('get_monitored_streams', streams, 30)
 
         return {"success": True, 'items': [my_monitors, streams]}
     except BaseException as b:

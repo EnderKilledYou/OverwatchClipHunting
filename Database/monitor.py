@@ -2,14 +2,12 @@ import datetime
 import json
 import os.path
 
-import threading
 from typing import List, Dict
 from oauthlib.common import generate_token
 from sqlalchemy import func
 from sqlalchemy.orm import validates
 from sqlalchemy_serializer import SerializerMixin
 from Database.Twitch.dict_to_class import Dict2Class
-from Ocr.video_frame_buffer import VideoFrameBuffer
 from cloud_logger import cloud_logger, cloud_message
 from config.db_config import db
 

@@ -6,6 +6,7 @@ from PIL import Image
 from tesserocr import PyTessBaseAPI
 
 import ocr_logic.crop_center
+from Database.monitor_log import update_broadcaster_log
 from Events.overwatch_clip_events import overwatch_clips_event
 from Events.overwatch_events import overwatch_event
 from Ocr.frames.frame import Frame
@@ -54,6 +55,7 @@ class OverwatchActionScreenRegion(ScreenRegion):
 
         if frame_tester.is_elimed_frame(text):
             frame_watcher.add_elimed_frame(frame)
+
             frame.empty = False
         if frame_tester.is_elim_frame(text):
             count = frame_tester.count_elim_frame(text)

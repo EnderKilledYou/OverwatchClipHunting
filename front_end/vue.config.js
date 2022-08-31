@@ -4,7 +4,7 @@ module.exports = defineConfig({
     transpileDependencies: true,
     outputDir: '../static',
     devServer: {
-        proxy: 'http://localhost:5000'
+        proxy: 'https://hotface.city'
     },
     configureWebpack: {
         plugins: [new MiniCssExtractPlugin()]

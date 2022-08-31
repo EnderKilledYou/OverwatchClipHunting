@@ -1,7 +1,8 @@
 <template>
-  <div class="col-md-3" v-for="watcher in ShowableItems" :key="watcher.name">
-    <div class="card">
-      <img class="card-img-top" v-if="GetLiveStream(watcher)"
+  <div class="row" v-if="watcher !== undefined && live_stream !== undefined ">
+
+    <div class="card col-md-10 offset-1">
+      <img class="card-img-top"
            :src="GetThumbnailUrl(watcher)"/>
 
       <div class="card-body">
@@ -13,10 +14,10 @@
           }} s lag) / {{ watcher.frames_read }}
           (
           {{ prettyMilliseconds(watcher.frames_read_seconds * 1000) }} s <small class="text-danger"> read</small>)</p>
-        <p v-if="GetLiveStream(watcher)" class="card-text">
-          {{ GetLiveStream(watcher).viewer_count }} watching since:
-          {{ GetLiveStream(watcher).started_at }}</p>
-        <p v-if="GetLiveStream(watcher)" class="card-text"> {{ GetLiveStream(watcher).game_name }} </p>
+        <p class="card-text">
+          {{ live_stream.viewer_count }} watching since:
+          {{ live_stream.started_at }}</p>
+        <p class="card-text"> {{ live_stream.game_name }} {{live_stream.title}} </p>
       </div>
       <span v-if="watcher.is_active" class="text-success">({{
           watcher.stream_resolution
@@ -35,6 +36,7 @@
 
     </div>
 
+
   </div>
 </template>
 <script lang="ts">
@@ -46,19 +48,14 @@ import {HasRole} from "@/views/has_role";
 
 
 @Component({
-  emits:['monitor_selected']
+  emits: ['monitor_unselected']
+
 })
-export default class CurrentlyLive extends Vue {
-  private twitch_streams: any[] = [];
+export default class ViewMonitor extends Vue {
+
 
   prettyMilliseconds(time: any) {
     return prettyMilliseconds(time)
-  }
-
-  async Unwatch(watcher: Monitor) {
-    await API.remove(watcher.broadcaster)
-    await this.update_monitor()
-
   }
 
   HasRole(role: string) {
@@ -73,65 +70,29 @@ export default class CurrentlyLive extends Vue {
     API.add(monitor.broadcaster)
   }
 
-  GetLiveStream(monitor: Monitor) {
-    return this.LiveStreams.find(a => a.user_login === monitor.broadcaster.toLowerCase())
-  }
-
-
-  monitor_selected(monitor: Monitor, stream: TwitchLiveStreamData) {
-    this.$emit('monitor_selected',monitor,stream)
-  }
 
   IsActive(monitor: Monitor) {
     return monitor.activated_by && monitor.activated_by.trim().length > 0
   }
 
-  get ShowableItems() {
-    return this.streamerMonitorStates.filter(this.ShouldShow.bind(this))
-  }
 
-  ShouldShow(watcher: Monitor) {
+  @Prop({required: true}) Me: any
+  @Prop({required: true})
+  watcher?: Monitor;
+  @Prop({required: true})
+  live_stream?: TwitchLiveStreamData;
 
-    if (this.show_inactive) {
-      return true
-    }
-    return watcher.is_active
-  }
-
-  @Prop Me?: any
-  @Prop show_inactive?: boolean
-
+  @Emit('avoid')
   async Avoid(watcher: Monitor) {
-    alert("avoiding " + watcher.broadcaster)
-    await API.avoid_user(watcher.broadcaster)
-    await this.update_monitor()
+
 
   }
 
-  streamerMonitorStates: Monitor[] = [];
-  private LiveStreams: TwitchLiveStreamData[] = [];
-  @Prop
-  items?: [Monitor[], TwitchLiveStreamData[]]
 
   created() {
 
   }
 
-
-  @Watch('items') items_changed(streamerResponse: [Monitor[], TwitchLiveStreamData[]]) {
-    this.update_from_props();
-  }
-
-  private update_from_props() {
-
-    if (!this.items) return
-    let item = this.items[0];
-    if (item) {
-      this.streamerMonitorStates = item.map((a: any) => new Monitor(a));
-    }
-    if (this.items.length > 1 && this.items[1])
-      this.LiveStreams = this.items[1].map((a: any) => new TwitchLiveStreamData(a));
-  }
 
   @Emit('updatedmonitored')
   update_monitor() {
@@ -140,9 +101,8 @@ export default class CurrentlyLive extends Vue {
 
   GetThumbnailUrl(watcher: Monitor) {
 
-    const live_stream = this.GetLiveStream(watcher)
-    if (!live_stream) return ''
-    const base_image = live_stream.thumbnail_url.replace('{width}', '300').replace('{height}', '300');
+    if (this.live_stream === undefined) return ''
+    const base_image = this.live_stream.thumbnail_url.replace('{width}', '900').replace('{height}', '900');
     return base_image + '?cache_burst=' + Math.random()
   }
 
