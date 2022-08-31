@@ -21,7 +21,7 @@ class VideoCapReader:
         self._count_lock = threading.Lock()
         self.Active = False
         self.streamer_name = streamer_name
-        self.sample_every_count = 30
+        self.sample_every_count = 10
         self.items_read = 0
         self.items_drained = 0
         self.fps = 1
