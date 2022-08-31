@@ -100,7 +100,7 @@ class ReScanner(ThreadedManager):
         def call_back_web(frame, sample_every_count, size):
             if frame.frame_number % 200 == 0:
                 count_size = (frame.frame_number * sample_every_count) / size
-                update_scan_job_percent(job_id, count_size / 100)
+                update_scan_job_percent(job_id, count_size )
             if frame.frame_number % 100 == 0:
                 sleep(1)
 
