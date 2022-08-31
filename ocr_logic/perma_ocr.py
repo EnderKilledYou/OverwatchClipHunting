@@ -73,7 +73,7 @@ class PermaOCR:
         return return_queue.get()
 
 
-perma_ocrs = [PermaOCR().start()]
+perma_ocrs = [PermaOCR().start()] * 2
 
 
 def stop_all_ocr():
@@ -83,5 +83,5 @@ def stop_all_ocr():
 
 
 def get_perma_ocr():
-    return perma_ocrs[0]
-    ##return min(*perma_ocrs, key=lambda x: x.count())
+    #return perma_ocrs[0]
+    return min(*perma_ocrs, key=lambda x: x.count())
