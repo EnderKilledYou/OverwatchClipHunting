@@ -15,6 +15,7 @@ class PermaOCR:
         self.queue = Queue()
         self._token = CancellationToken()
         self._lock = threading.Lock()
+        self._queue_size = 0
 
     def count(self):
         return self._queue_size
