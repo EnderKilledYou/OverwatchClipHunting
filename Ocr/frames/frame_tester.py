@@ -15,56 +15,62 @@ class FrameTester:
         A text testing class for text ocr'd out of frames
     """
 
-    def test_overwatch_frame(self, frame, frame_watcher, text):
+    def __init__(self, frame_watcher):
+        self.frame_watcher = frame_watcher
+
+    def __del__(self):
+        self.frame_watcher = None
+
+    def test_overwatch_frame(self, frame, text):
         if self.is_elimed_frame(text):
-            frame_watcher.add_elimed_frame(frame)
+            self.  frame_watcher.add_elimed_frame(frame)
             frame.empty = False
             # if frame.clip_id == -1:
             #     update_broadcaster_log(frame.source_name, text, frame.image, 'elimed')
 
         if self.is_elim_frame(text):
             count = self.count_elim_frame(text)
-            frame_watcher.add_elim_frame(frame, count)
+            self.frame_watcher.add_elim_frame(frame, count)
             frame.empty = False
             # if frame.clip_id == -1:
             #     update_broadcaster_log(frame.source_name, text, frame.image, 'elim')
 
         if self.is_heal_frame(text):
-            frame_watcher.add_healing_frame(frame)
+            self.frame_watcher.add_healing_frame(frame)
             frame.empty = False
             # if frame.clip_id == -1:
             #     update_broadcaster_log(frame.source_name, text, frame.image, 'heal')
 
         if self.is_slept_frame(text):
-            frame_watcher.add_slepting_frame(frame)
+            self.frame_watcher.add_slepting_frame(frame)
             frame.empty = False
             # if frame.clip_id == -1:
             #     update_broadcaster_log(frame.source_name, text, frame.image, 'slept')
 
         if self.is_assist_frame(text):
-            frame_watcher.add_assist_frame(frame)
+            self.frame_watcher.add_assist_frame(frame)
             frame.empty = False
             # if frame.clip_id == -1:
             #     update_broadcaster_log(frame.source_name, text, frame.image, 'assist')
 
         if self.is_blocking(text):
-            frame_watcher.add_blocking_frame(frame)
+            self.frame_watcher.add_blocking_frame(frame)
             frame.empty = False
             # if frame.clip_id == -1:
             #     update_broadcaster_log(frame.source_name, text, frame.image, 'blocking')
 
         if self.is_orb_gained(text):
-            frame_watcher.add_orb_gained_frame(frame)
+            self.frame_watcher.add_orb_gained_frame(frame)
             frame.empty = False
 
         if self.is_defense(text):
-            frame_watcher.add_defense_frame(frame)
+            self.frame_watcher.add_defense_frame(frame)
             frame.empty = False
             # if frame.clip_id == -1:
             #     update_broadcaster_log(frame.source_name, text, frame.image, 'defense')
 
         if self.is_spawn_room_frame(text):
-            frame_watcher.add_spawn_room_frame(frame)
+            self.frame_watcher.add_spawn_room_frame(frame)
             frame.empty = False
             # if frame.clip_id == -1:
             #     update_broadcaster_log(frame.source_name, text, frame.image, 'spawn')
