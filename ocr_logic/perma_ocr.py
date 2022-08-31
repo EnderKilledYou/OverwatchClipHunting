@@ -73,7 +73,7 @@ class PermaOCR:
         return return_queue.get()
 
 
-perma_ocrs = [PermaOCR().start()] * 2
+perma_ocrs = [PermaOCR().start()] * 3
 
 
 rand = random.Random()
