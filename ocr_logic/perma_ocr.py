@@ -76,6 +76,9 @@ class PermaOCR:
 perma_ocrs = [PermaOCR().start()] * 2
 
 
+rand = random.Random()
+
+
 def stop_all_ocr():
     for ocr in perma_ocrs:
         ocr.GetUTF8Text(None, None)
@@ -83,5 +86,5 @@ def stop_all_ocr():
 
 
 def get_perma_ocr():
-    #return perma_ocrs[0]
-    return min(*perma_ocrs, key=lambda x: x.count())
+    index = rand.randint(0, len(perma_ocrs) - 1)
+    return perma_ocrs[index]
