@@ -45,8 +45,7 @@ if not os.path.exists(tmp_path):
 rand = Random()
 
 
-def get_scan_ocr():
-    return get_perma_ocr()
+
 
 
 class ReScanner(ThreadedManager):

@@ -83,4 +83,5 @@ def stop_all_ocr():
 
 
 def get_perma_ocr():
-    return min(*perma_ocrs, key=lambda x: x.count())
+    perma_ocrs[0]
+    ##return min(*perma_ocrs, key=lambda x: x.count())

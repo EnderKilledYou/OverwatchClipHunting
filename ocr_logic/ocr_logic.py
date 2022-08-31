@@ -43,7 +43,7 @@ def consume_twitch_clip(cancel_token, reader, buffer, call_back=None):
         except BaseException as b:
             # cloud_error_logger(b)
             print(b)
-            traceback.print_exception()
+   
     print(f"stopping consume_twitch_clip {streamer_name}")
     print(f"stopped consume_twitch_clip {streamer_name}")
     try:
