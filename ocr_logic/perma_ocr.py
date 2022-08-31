@@ -73,7 +73,7 @@ class PermaOCR:
         return return_queue.get()
 
 
-perma_ocrs = [PermaOCR().start(), PermaOCR().start(), PermaOCR().start()]
+perma_ocrs = [PermaOCR().start()]
 
 
 def stop_all_ocr():

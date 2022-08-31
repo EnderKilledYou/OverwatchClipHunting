@@ -42,16 +42,11 @@ tmp_path = abspath(
 if not os.path.exists(tmp_path):
     os.makedirs(tmp_path)
 
-rescanner_ocrs = [PermaOCR().start()]
 rand = Random()
 
 
 def get_scan_ocr():
-    index = rand.randint(0, len(rescanner_ocrs) - 1)
-    return rescanner_ocrs[index]
-
-
-rescanner_ocr = PermaOCR().start()
+    return get_perma_ocr()
 
 
 class ReScanner(ThreadedManager):
