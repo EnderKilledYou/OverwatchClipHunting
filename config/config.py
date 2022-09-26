@@ -1,7 +1,7 @@
 import os
 
 consumer_key = "rawxqek55j2qtx6uh02rn0l8exru69"
-consumer_secret = "3l5q0vrewa3c8wed2g7ytxa5x20e09"
+consumer_secret = "pw815udsie68m9a7cp7fox2t42ndwq"
 access_token = 'j5dsm2ieknyv34rddy5uln3a1lxxn7'
 refresh_token = 'eyu6aat8gmjdublpqumpr7whi2ytx0v9ff769or70apag78l4m'
 flask_secret_key = 'woooolooooloo!wooooloooo'

@@ -1,5 +1,5 @@
-#DOMAIN=$1
-DOMAIN='hotface.city'
+DOMAIN=$1
+#DOMAIN='hotface.city'
 function install_certbot() {
   sudo certbot certonly -d $DOMAIN -d www.$DOMAIN --standalone --preferred-challenges http
 }
