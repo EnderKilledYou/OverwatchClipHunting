@@ -39,7 +39,7 @@ class TableThreadJob:
         self._id = id
 
     def _start(self):
-        if self._id == None:
+        if self._id is None:
             for unclaim in get_table_claims(self._table_type):
                 if claim_table_type(self._table_type, unclaim.id, self_id):
                     self._id = unclaim.id
