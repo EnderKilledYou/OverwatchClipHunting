@@ -74,8 +74,12 @@ class ReScanner(ThreadedManager):
 
     def _run(self, clip, job_id):
         try:
-            sub = subprocess.Popen("",)
-            sub.wait(60)
+            sub = subprocess.Popen([""])
+
+            (output, err) = p.communicate()
+
+            # This makes the wait possible
+            p_status = p.wait()
 
             merge_clip_parts(clip)
             update_scan_job_percent(job_id, 1, True)

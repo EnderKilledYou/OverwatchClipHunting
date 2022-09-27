@@ -2,15 +2,17 @@ import re
 
 import requests
 from flask import request, Response, Blueprint
-from twitchdl.commands.download import get_clip_authenticated_url
-
-from Database.MissingRecordError import MissingRecordError
-from Database.Twitch.twitch_clip_instance import get_twitch_clip_video_id_by_id
-from Database.Twitch.twitch_clip_tag import TwitchClipTag, get_tag_and_bag_by_id
-from google_cloud_helpers.google_cloud_helper import get_blob_by_path
-from routes.route_cache import cache
 
 video = Blueprint('video', __name__)
+
+from twitchdl.commands.download import get_clip_authenticated_url
+
+from Database.Twitch.twitch_clip_instance import get_twitch_clip_video_id_by_id
+from Database.Twitch.twitch_clip_tag import TwitchClipTag, get_tag_and_bag_by_id
+from Ocr.frames.ordered_frame_aggregator import OrderedFrameAggregator
+from google_cloud_helpers.google_cloud_helper import get_blob_by_path
+from routes.frame_watcher_manager import clip_frame_watchers
+from routes.route_cache import cache
 
 
 @video.after_request
@@ -92,3 +94,16 @@ def get_file(tag_id: int):
                     content_type='video/mp4', direct_passthrough=True)
     resp.headers.add('Content-Range', 'bytes {0}-{1}/{2}'.format(start, start + length - 1, file_size))
     return resp
+
+
+# frame_watchers[streamer] = OrderedFrameAggregator(overwatch_event)
+
+
+@video.route('/clip/<clip_token>')
+def clip_token(clip_token: str, streamer: str):
+    if streamer not in clip_frame_watchers:
+        return
+    frame_watcher: OrderedFrameAggregator
+    (token, frame_watcher) = clip_frame_watchers[streamer]
+    if token != clip_token:
+        return

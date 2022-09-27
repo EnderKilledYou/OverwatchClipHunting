@@ -27,7 +27,7 @@ server {
     listen 80;
     server_name $DOMAIN www.$DOMAIN;
 
-    location / {:4
+    location / {
         include proxy_params;
         proxy_pass unix:/app/clip.sock;
     }
@@ -46,9 +46,9 @@ enable_service() {
 
 install_nginx_conf
 
-install_certbot
+#install_certbot
 
-install_service
+#install_service
 
 enable_nginx_service
 
