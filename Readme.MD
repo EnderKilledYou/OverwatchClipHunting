@@ -2,7 +2,7 @@
 
 You may not use this in any student project or commercially with out my permission. You may not use this to create clips of your stream or anyone elses.
 
-It is for educational purposes only. You may contact me for a commercial licence. 
+It is for educational purposes only. You may contact me for a commercial licence. Law enforcement agencies may have a free licence with no ask as always.
 
 # Clip Hunter
 ## Download specific events from streams. 
